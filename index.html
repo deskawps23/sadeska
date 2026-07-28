@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SA DESKA Blockchain - Data RT/RW Real-Time</title>
+    <title>Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten</title>
+    <meta name="description" content="Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten Pandeglang berbasis Blockchain Real-Time" />
     <meta name="theme-color" content="#00FF88" />
     <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="style.css" />
@@ -15,16 +16,17 @@
     <nav class="navbar" id="navbar">
         <div class="container">
             <div class="logo">
-                <span class="logo-icon">⛓️</span>
-                <span class="logo-text">SA DESKA</span>
+                <span class="logo-icon">🌏</span>
+                <span class="logo-text">Si DESKA</span>
                 <span class="logo-badge">BLOCKCHAIN</span>
             </div>
             <ul class="nav-menu" id="navMenu">
                 <li><a href="#home" class="active"><i class="fas fa-home"></i> Beranda</a></li>
                 <li><a href="#blockchain"><i class="fas fa-link"></i> Blockchain</a></li>
-                <li><a href="#data"><i class="fas fa-database"></i> Data</a></li>
-                <li><a href="#input"><i class="fas fa-edit"></i> Input</a></li>
+                <li><a href="#data"><i class="fas fa-database"></i> Data Flow</a></li>
+                <li><a href="#input"><i class="fas fa-edit"></i> Input Data</a></li>
                 <li><a href="#dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+                <li><a href="#about"><i class="fas fa-info-circle"></i> Tentang</a></li>
             </ul>
             <div class="nav-actions">
                 <span class="live-status" id="liveStatus">
@@ -40,9 +42,13 @@
         <div class="container">
             <div class="hero-content">
                 <div class="wps-badge">🌱 WPS - Warga Pandeglang Sejahtera</div>
-                <h1 class="hero-title">⛓️ <span class="gradient-text">SA DESKA</span></h1>
-                <p class="hero-subtitle">Blockchain Data RT/RW • Real-Time • 48 Sektor</p>
-                <p class="hero-description">Data statistik dari <strong>RT/RW</strong> dijamin <strong>immutable</strong> dengan teknologi blockchain.</p>
+                <h1 class="hero-title">🌏 <span class="gradient-text">Si DESKA</span></h1>
+                <p class="hero-subtitle">Sistem Informasi Data Entri Statistika Kabupaten</p>
+                <p class="hero-description">
+                    <strong>Si DESKA</strong> adalah sistem data statistik berbasis <strong>Blockchain Real-Time</strong> 
+                    untuk <strong>35 Kecamatan</strong> dan <strong>339 Desa/Kelurahan</strong> 
+                    di Kabupaten Pandeglang.
+                </p>
                 <div class="hero-stats" id="heroStats">
                     <div class="stat-item"><span class="stat-number" id="totalBlocks">0</span><span class="stat-label">Block</span></div>
                     <div class="stat-item"><span class="stat-number" id="totalData">0</span><span class="stat-label">Data Entry</span></div>
@@ -61,7 +67,7 @@
         <div class="container">
             <div class="section-header">
                 <h2><i class="fas fa-link"></i> Blockchain Visual</h2>
-                <p>Rantai blockchain bergerak real-time • Setiap block terhubung</p>
+                <p>Rantai blockchain bergerak real-time • Setiap block terhubung dengan kurva</p>
             </div>
             <div class="blockchain-container">
                 <canvas id="blockchainCanvas"></canvas>
@@ -81,7 +87,7 @@
         <div class="container">
             <div class="section-header">
                 <h2><i class="fas fa-exchange-alt"></i> Aliran Data Real-Time</h2>
-                <p>Data mengalir dari RT → RW → Desa → Kecamatan → Blockchain</p>
+                <p>Data mengalir dari RT → RW → Desa → Kecamatan → Blockchain Si DESKA</p>
             </div>
             <div class="data-flow" id="dataFlow">
                 <div class="flow-node" id="flowRT">
@@ -114,7 +120,7 @@
                 <div class="flow-arrow">→</div>
                 <div class="flow-node blockchain-node" id="flowBlockchain">
                     <div class="flow-icon">⛓️</div>
-                    <div class="flow-label">Blockchain</div>
+                    <div class="flow-label">Si DESKA</div>
                     <div class="flow-count" id="blockchainCount">0</div>
                     <div class="flow-pulse"></div>
                 </div>
@@ -126,8 +132,8 @@
     <section id="input" class="section input-section">
         <div class="container">
             <div class="section-header">
-                <h2><i class="fas fa-edit"></i> Input Data Blockchain</h2>
-                <p>Data langsung masuk ke blockchain + real-time update</p>
+                <h2><i class="fas fa-edit"></i> Input Data Si DESKA</h2>
+                <p>Data langsung masuk ke blockchain + real-time update setiap detik</p>
             </div>
             <div class="input-card">
                 <div class="form-grid">
@@ -192,10 +198,42 @@
     <section id="dashboard" class="section dashboard-section">
         <div class="container">
             <div class="section-header">
-                <h2><i class="fas fa-chart-pie"></i> Live Dashboard</h2>
-                <p>Update setiap detik • Data dari blockchain</p>
+                <h2><i class="fas fa-chart-pie"></i> Live Dashboard Si DESKA</h2>
+                <p>Update setiap detik • Data dari blockchain real-time</p>
             </div>
             <div class="dashboard-grid" id="dashboardGrid"></div>
+        </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section id="about" class="section about-section">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-info-circle"></i> Tentang Si DESKA</h2>
+                <p>Sistem Informasi Data Entri Statistika Kabupaten Pandeglang</p>
+            </div>
+            <div class="about-grid">
+                <div class="about-card">
+                    <i class="fas fa-bullseye"></i>
+                    <h3>Visi</h3>
+                    <p>Menjadi sistem data statistik terpercaya berbasis blockchain untuk Kabupaten Pandeglang.</p>
+                </div>
+                <div class="about-card">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Misi</h3>
+                    <ul>
+                        <li>Menyediakan data akurat dari RT/RW</li>
+                        <li>Menjaga integritas data dengan blockchain</li>
+                        <li>Real-time update setiap detik</li>
+                        <li>Mendukung 48 sektor pembangunan</li>
+                    </ul>
+                </div>
+                <div class="about-card">
+                    <i class="fas fa-handshake"></i>
+                    <h3>Kolaborasi</h3>
+                    <p>Bekerja sama dengan RT, RW, Desa, Kecamatan, BPS, dan seluruh OPD Pandeglang.</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -203,15 +241,41 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div><h3>⛓️ SA DESKA</h3><p>Blockchain Data RT/RW • Pandeglang</p></div>
-                <div><h4>Status</h4><ul><li id="footerStatus">🟢 Blockchain Aktif</li><li id="footerBlock">Block #0</li></ul></div>
-                <div><h4>Kontak</h4><ul><li>📧 deskawps@yahoo.co.id</li><li>📱 0856-9527-2863</li></ul></div>
+                <div>
+                    <h3>🌏 Si DESKA</h3>
+                    <p>Sistem Informasi Data Entri Statistika Kabupaten</p>
+                    <p style="color: var(--neon-green); font-size: 13px; margin-top: 4px;">Blockchain Real-Time</p>
+                </div>
+                <div>
+                    <h4>Statistik</h4>
+                    <ul>
+                        <li>48 Sektor</li>
+                        <li>35 Kecamatan</li>
+                        <li>339 Desa/Kelurahan</li>
+                        <li>12.500+ RT</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Kontak</h4>
+                    <ul>
+                        <li>📧 deskawps@yahoo.co.id</li>
+                        <li>📱 0856-9527-2863</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>WPS</h4>
+                    <p>Warga Pandeglang Sejahtera</p>
+                    <p style="color: var(--neon-green); font-size: 13px; margin-top: 4px;">🌱 Data untuk Semua</p>
+                </div>
             </div>
-            <div class="footer-bottom"><p>© 2026 SA DESKA Blockchain - Real-Time Data RT/RW untuk Warga Pandeglang Sejahtera</p></div>
+            <div class="footer-bottom">
+                <p>© 2026 Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten Pandeglang</p>
+                <p style="font-size: 12px; color: var(--text-dim);">Blockchain Real-Time • WPS - Warga Pandeglang Sejahtera</p>
+            </div>
         </div>
     </footer>
 
     <script src="blockchain.js"></script>
     <script src="script.js"></script>
 </body>
-                                                                                                                                        </html>
+                        </html>
