@@ -1,9 +1,8 @@
 // ============================================
-// SA DESKA - 48 Sektor Data RT/RW
-// WPS - Warga Pandeglang Sejahtera
+// SA DESKA BLOCKCHAIN - Main UI Logic
 // ============================================
 
-// ===== 48 SEKTOR =====
+// ===== SEKTOR LIST =====
 const SEKTOR = [
   {no:1,nama:"Kependudukan",icon:"👨‍👩‍👧‍👦"},
   {no:2,nama:"Pertanian",icon:"🌾"},
@@ -55,7 +54,6 @@ const SEKTOR = [
   {no:48,nama:"Pertambangan",icon:"⛏️"}
 ];
 
-// ===== DATA KECAMATAN =====
 const KECAMATAN = [
   "Sumur","Cimanggu","Cibaliung","Cikeusik","Cigeulis","Panimbang","Sobang",
   "Munjul","Angsana","Sindangresmi","Saketi","Bojong","Jiput","Cikadu",
@@ -64,141 +62,109 @@ const KECAMATAN = [
   "Ciawi","Cimanuk","Carita","Labuan","Pandeglang","Patia","Karang Tanjung","Cikeupa"
 ];
 
-// ===== RENDER SEKTOR =====
-function renderSektor() {
-  const container = document.getElementById('sektorList');
-  container.innerHTML = SEKTOR.map(s => `
-    <div class="sektor-card" onclick="pilihSektor(${s.no})">
-      <div class="number">${s.no}</div>
-      <div class="name">${s.icon} ${s.nama}</div>
-      <span class="badge">${getDataCount(s.no)} data</span>
-    </div>
-  `).join('');
-}
+// ===== SUBMIT DATA TO BLOCKCHAIN =====
+function submitBlockchainData() {
+    const sektor = document.getElementById('inputSektor').value;
+    const level = document.getElementById('inputLevel').value;
+    const kecamatan = document.getElementById('inputKecamatan').value;
+    const desa = document.getElementById('inputDesa').value || '-';
+    const rw = document.getElementById('inputRW').value || '-';
+    const rt = document.getElementById('inputRT').value || '-';
+    const nilai = document.getElementById('inputNilai').value;
+    const keterangan = document.getElementById('inputKeterangan').value || '-';
+    const penginput = document.getElementById('inputPenginput').value || 'Warga';
 
-function getDataCount(no) {
-  const data = JSON.parse(localStorage.getItem('sadeska_48_data') || '[]');
-  return data.filter(d => d.sektor == no).length;
-}
+    if (!sektor) { alert('⚠️ Pilih sektor!'); return; }
+    if (!kecamatan) { alert('⚠️ Pilih kecamatan!'); return; }
+    if (!nilai) { alert('⚠️ Isi nilai data!'); return; }
 
-function pilihSektor(no) {
-  const s = SEKTOR.find(x => x.no == no);
-  document.getElementById('inputSektor').value = no;
-  document.getElementById('inputSektor').selectedIndex = no - 1;
-  window.location.href = '#input';
-  alert(`📊 Sektor ${no}: ${s.nama}\nSilakan input data di bawah ini.`);
-}
+    // Submit to blockchain
+    const result = blockchain.submitData(
+        sektor, level, kecamatan, desa, rw, rt, nilai, keterangan, penginput
+    );
 
-// ===== RENDER DASHBOARD =====
-function renderDashboard() {
-  const container = document.getElementById('dashboardGrid');
-  const data = JSON.parse(localStorage.getItem('sadeska_48_data') || '[]');
-  
-  container.innerHTML = SEKTOR.map(s => {
-    const count = data.filter(d => d.sektor == s.no).length;
-    const total = data.filter(d => d.sektor == s.no).reduce((a,d) => a + (parseFloat(d.nilai)||0), 0);
-    return `
-      <div class="card">
-        <span class="icon">${s.icon}</span>
-        <h3>${s.nama}</h3>
-        <div class="number">${count}</div>
-        <small style="color:var(--gray-600)">${total.toLocaleString()} total</small>
-      </div>
-    `;
-  }).join('');
-}
-
-// ===== SUBMIT DATA =====
-function submitData() {
-  const data = {
-    level: document.getElementById('inputLevel').value,
-    sektor: parseInt(document.getElementById('inputSektor').value),
-    kecamatan: document.getElementById('inputKecamatan').value,
-    desa: document.getElementById('inputDesa').value || '-',
-    rw: document.getElementById('inputRW').value || '-',
-    rt: document.getElementById('inputRT').value || '-',
-    nilai: document.getElementById('inputNilai').value,
-    keterangan: document.getElementById('inputKeterangan').value || '-',
-    penginput: document.getElementById('inputPenginput').value || 'Warga',
-    timestamp: new Date().toISOString(),
-    id: 'DATA-' + Date.now()
-  };
-
-  if (!data.sektor) { alert('⚠️ Pilih sektor!'); return; }
-  if (!data.kecamatan) { alert('⚠️ Pilih kecamatan!'); return; }
-  if (!data.nilai) { alert('⚠️ Isi nilai data!'); return; }
-
-  const saved = JSON.parse(localStorage.getItem('sadeska_48_data') || '[]');
-  saved.push(data);
-  localStorage.setItem('sadeska_48_data', JSON.stringify(saved));
-
-  alert('✅ Data tersimpan!\n\n📊 ' + SEKTOR.find(s=>s.no==data.sektor)?.nama + '\n📍 ' + data.kecamatan + '\n📝 ' + data.nilai);
-
-  resetForm();
-  renderSektor();
-  renderDashboard();
-  loadSavedData();
+    if (result) {
+        alert(`✅ Data berhasil masuk ke Blockchain!\n\n📊 Block #${result.index}\n🔗 Hash: ${result.hash.substring(0, 16)}...\n📍 ${kecamatan}\n📝 ${nilai}`);
+        resetForm();
+    }
 }
 
 function resetForm() {
-  document.querySelectorAll('.input-form input').forEach(i => i.value = '');
-  document.querySelectorAll('.input-form select').forEach(s => s.selectedIndex = 0);
+    document.querySelectorAll('.input-card input').forEach(i => i.value = '');
+    document.querySelectorAll('.input-card select').forEach(s => s.selectedIndex = 0);
 }
 
-function loadSavedData() {
-  const data = JSON.parse(localStorage.getItem('sadeska_48_data') || '[]');
-  const container = document.getElementById('savedDataList');
-  if (!data.length) {
-    container.innerHTML = '<p style="text-align:center;color:var(--gray-600);padding:20px;">Belum ada data</p>';
-    return;
-  }
-  container.innerHTML = `<h4>📋 Data Tersimpan (${data.length})</h4>` + 
-    data.slice().reverse().slice(0,20).map(d => `
-      <div class="saved-item">
-        <span><strong>${SEKTOR.find(s=>s.no==d.sektor)?.icon} ${SEKTOR.find(s=>s.no==d.sektor)?.nama}</strong> - ${d.kecamatan}</span>
-        <span>${d.desa} | RT:${d.rt} | RW:${d.rw}</span>
-        <span><strong>${d.nilai}</strong></span>
-        <span class="sektor-tag">${d.level}</span>
-      </div>
-    `).join('');
-}
+function updateLevelFields() {
+    const level = document.getElementById('inputLevel').value;
+    const rwField = document.getElementById('inputRW');
+    const rtField = document.getElementById('inputRT');
+    const desaField = document.getElementById('inputDesa');
 
-// ===== MAP =====
-let map = null;
-function initMap() {
-  try {
-    map = L.map('mapContainer', {center:[-6.367,105.95],zoom:10});
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    KECAMATAN.forEach((k,i) => {
-      const lat = -6.367 + (i*0.02), lng = 105.95 + (i*0.01);
-      L.circleMarker([lat,lng], {radius:7,fillColor:'#4F46E5',color:'#fff',weight:2,fillOpacity:0.7})
-        .addTo(map)
-        .bindPopup(`<h4>${k}</h4><p>Klik untuk lihat data</p>`);
-    });
-    document.getElementById('mapLoading').style.display = 'none';
-  } catch(e) {
-    document.getElementById('mapLoading').innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Gagal</p>';
-  }
+    if (level === 'kecamatan') {
+        rwField.disabled = true;
+        rtField.disabled = true;
+        desaField.disabled = true;
+        rwField.placeholder = '-';
+        rtField.placeholder = '-';
+        desaField.placeholder = '-';
+    } else if (level === 'desa') {
+        rwField.disabled = true;
+        rtField.disabled = true;
+        desaField.disabled = false;
+        rwField.placeholder = '-';
+        rtField.placeholder = '-';
+    } else if (level === 'rw') {
+        rwField.disabled = false;
+        rtField.disabled = true;
+        desaField.disabled = false;
+        rtField.placeholder = '-';
+    } else { // rt
+        rwField.disabled = false;
+        rtField.disabled = false;
+        desaField.disabled = false;
+    }
 }
 
 // ===== NAVBAR =====
 document.addEventListener('DOMContentLoaded', function() {
-  const h = document.getElementById('hamburger'), m = document.getElementById('navMenu');
-  if(h) h.addEventListener('click', ()=>m.classList.toggle('active'));
-  document.querySelectorAll('.nav-menu a').forEach(a => a.addEventListener('click', ()=>m.classList.remove('active')));
+    const h = document.getElementById('hamburger');
+    const m = document.getElementById('navMenu');
+    if (h) {
+        h.addEventListener('click', () => m.classList.toggle('active'));
+    }
+    document.querySelectorAll('.nav-menu a').forEach(a => {
+        a.addEventListener('click', () => m.classList.remove('active'));
+    });
 
-  // Isi dropdown sektor
-  const ss = document.getElementById('inputSektor');
-  SEKTOR.forEach(s => { const o = document.createElement('option'); o.value = s.no; o.textContent = s.no + '. ' + s.nama; ss.appendChild(o); });
+    // Isi dropdown sektor
+    const ss = document.getElementById('inputSektor');
+    SEKTOR.forEach(s => {
+        const o = document.createElement('option');
+        o.value = s.no;
+        o.textContent = s.no + '. ' + s.nama;
+        ss.appendChild(o);
+    });
 
-  // Isi dropdown kecamatan
-  const ks = document.getElementById('inputKecamatan');
-  KECAMATAN.forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = k; ks.appendChild(o); });
+    // Isi dropdown kecamatan
+    const ks = document.getElementById('inputKecamatan');
+    KECAMATAN.forEach(k => {
+        const o = document.createElement('option');
+        o.value = k;
+        o.textContent = k;
+        ks.appendChild(o);
+    });
 
-  initMap();
-  renderSektor();
-  renderDashboard();
-  loadSavedData();
-  console.log('🌏 SA DESKA - 48 Sektor Data RT/RW | WPS');
-  console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
+    // Update level fields
+    updateLevelFields();
+
+    console.log('⛓️ SA DESKA Blockchain UI Ready');
+    console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
 });
+
+// ===== LIVE CLOCK =====
+setInterval(() => {
+    const status = document.getElementById('liveStatus');
+    if (status) {
+        status.innerHTML = `<span class="dot"></span> LIVE ${new Date().toLocaleTimeString()}`;
+    }
+}, 1000);
