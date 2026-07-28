@@ -1,203 +1,142 @@
 // ============================================
-// SA DESKA - Data RT/RW Kabupaten Pandeglang
+// SA DESKA - 48 Sektor Data RT/RW
 // WPS - Warga Pandeglang Sejahtera
 // ============================================
 
-const dataPandeglang = {
-  kecamatan: [
-    {id:1,name:"Sumur",desa:["Sumur","Cigebang","Kertajaya","Tunggilis","Cimadang"]},
-    {id:2,name:"Cimanggu",desa:["Cimanggu","Bojong","Kertajaya","Tugu","Cipalabuh"]},
-    {id:3,name:"Cibaliung",desa:["Cibaliung","Sorongan","Mendung","Curug","Cibodas"]},
-    {id:4,name:"Cikeusik",desa:["Cikeusik","Cikadu","Cikeusik Selatan","Sukamaju","Kurung"]},
-    {id:5,name:"Cigeulis",desa:["Cigeulis","Katumbiri","Karangsari","Sinarjaya","Cisereh"]},
-    {id:6,name:"Panimbang",desa:["Panimbang","Mekarjaya","Tanagara","Sukajaya","Karyajaya"]},
-    {id:7,name:"Sobang",desa:["Sobang","Cipadang","Kertaraharja","Cakung","Mekarsari"]},
-    {id:8,name:"Munjul",desa:["Munjul","Kurung","Lebak","Palasari","Cibitung"]},
-    {id:9,name:"Angsana",desa:["Angsana","Kadupandak","Sumurwuluh","Pasir","Cikayas"]},
-    {id:10,name:"Sindangresmi",desa:["Sindangresmi","Bojongkoneng","Pasirngampar","Cimadang","Sindangjaya"]},
-    {id:11,name:"Saketi",desa:["Saketi","Sodong","Mekarwangi","Kadumekar","Sindanghayu"]},
-    {id:12,name:"Bojong",desa:["Bojong","Bojong Selatan","Bojong Timur","Cimayang","Bojong Barat"]},
-    {id:13,name:"Jiput",desa:["Jiput","Jiput Selatan","Jiput Timur","Sukamanah","Kiarapayung"]},
-    {id:14,name:"Cikadu",desa:["Cikadu","Cikadu Selatan","Cikadu Timur","Pasirukem","Cimanggu"]},
-    {id:15,name:"Mandalawangi",desa:["Mandalawangi","Mandalawangi Selatan","Mandalawangi Timur","Nusawungu","Sinarjaya"]},
-    {id:16,name:"Cadasari",desa:["Cadasari","Cadasari Selatan","Cadasari Timur","Kaung","Sukajaya"]},
-    {id:17,name:"Pulosari",desa:["Pulosari","Pulosari Selatan","Pulosari Timur","Pulosari Barat","Cilentung"]},
-    {id:18,name:"Kaduhejo",desa:["Kaduhejo","Kaduhejo Selatan","Kaduhejo Timur","Bojong","Cipalabuh"]},
-    {id:19,name:"Cikeudal",desa:["Cikeudal","Cikeudal Selatan","Cikeudal Timur","Cikeudal Barat","Kertaraharja"]},
-    {id:20,name:"Cipeucang",desa:["Cipeucang","Cipeucang Selatan","Cipeucang Timur","Pasir","Mekarsari"]},
-    {id:21,name:"Mekarjaya",desa:["Mekarjaya","Mekarjaya Selatan","Mekarjaya Timur","Karyajaya","Sukajaya"]},
-    {id:22,name:"Menes",desa:["Menes","Menes Selatan","Menes Timur","Muruy","Cimadang"]},
-    {id:23,name:"Koroncong",desa:["Koroncong","Koroncong Selatan","Koroncong Timur","Koroncong Barat","Cipalabuh"]},
-    {id:24,name:"Picung",desa:["Picung","Picung Selatan","Picung Timur","Kadupandak","Sukamanah"]},
-    {id:25,name:"Cibitu",desa:["Cibitu","Cibitu Selatan","Cibitu Timur","Cibitu Barat","Kertaraharja"]},
-    {id:26,name:"Garum",desa:["Garum","Garum Selatan","Garum Timur","Garum Barat","Nusawungu"]},
-    {id:27,name:"Caret",desa:["Caret","Caret Selatan","Caret Timur","Sodong","Mekarwangi"]},
-    {id:28,name:"Ciawi",desa:["Ciawi","Ciawi Selatan","Ciawi Timur","Ciawi Barat","Sinarjaya"]},
-    {id:29,name:"Cimanuk",desa:["Cimanuk","Cimanuk Selatan","Cimanuk Timur","Cimanuk Barat","Cipalabuh"]},
-    {id:30,name:"Carita",desa:["Carita","Carita Selatan","Carita Timur","Carita Barat","Karyajaya"]},
-    {id:31,name:"Labuan",desa:["Labuan","Labuan Selatan","Labuan Timur","Labuan Barat","Sukajaya"]},
-    {id:32,name:"Pandeglang",desa:["Pandeglang","Pandeglang Selatan","Pandeglang Timur","Pandeglang Barat","Pandeglang Utara"]},
-    {id:33,name:"Patia",desa:["Patia","Patia Selatan","Patia Timur","Patia Barat","Mekarsari"]},
-    {id:34,name:"Karang Tanjung",desa:["Karang Tanjung","Karang Tanjung Selatan","Karang Tanjung Timur","Karang Tanjung Barat","Cipalabuh"]},
-    {id:35,name:"Cikeupa",desa:["Cikeupa","Cikeupa Selatan","Cikeupa Timur","Cikeupa Barat","Kertaraharja"]}
-  ]
-};
+// ===== 48 SEKTOR =====
+const SEKTOR = [
+  {no:1,nama:"Kependudukan",icon:"👨‍👩‍👧‍👦"},
+  {no:2,nama:"Pertanian",icon:"🌾"},
+  {no:3,nama:"Perdagangan",icon:"🛒"},
+  {no:4,nama:"Perindustrian",icon:"🏭"},
+  {no:5,nama:"Pariwisata",icon:"🏖️"},
+  {no:6,nama:"Kesehatan",icon:"🏥"},
+  {no:7,nama:"Pendidikan",icon:"📚"},
+  {no:8,nama:"Tenaga Kerja",icon:"👷"},
+  {no:9,nama:"Lingkungan",icon:"🌿"},
+  {no:10,nama:"Energi",icon:"⚡"},
+  {no:11,nama:"Transportasi",icon:"🚗"},
+  {no:12,nama:"Perumahan",icon:"🏠"},
+  {no:13,nama:"Keuangan",icon:"💰"},
+  {no:14,nama:"Sosial",icon:"🤝"},
+  {no:15,nama:"Agama",icon:"🕌"},
+  {no:16,nama:"Komunikasi",icon:"📱"},
+  {no:17,nama:"Investasi",icon:"📈"},
+  {no:18,nama:"Pertahanan",icon:"🛡️"},
+  {no:19,nama:"Hukum & HAM",icon:"⚖️"},
+  {no:20,nama:"Dalam Negeri",icon:"🏛️"},
+  {no:21,nama:"PUPR",icon:"🏗️"},
+  {no:22,nama:"Kelautan",icon:"🐟"},
+  {no:23,nama:"Koperasi",icon:"🤝"},
+  {no:24,nama:"Perencanaan",icon:"📋"},
+  {no:25,nama:"Ekonomi Kreatif",icon:"🎨"},
+  {no:26,nama:"Perempuan & Anak",icon:"👩‍👧"},
+  {no:27,nama:"Pemuda & Olahraga",icon:"⚽"},
+  {no:28,nama:"Perpustakaan",icon:"📖"},
+  {no:29,nama:"Penelitian",icon:"🔬"},
+  {no:30,nama:"Ketahanan Pangan",icon:"🍚"},
+  {no:31,nama:"Peternakan",icon:"🐄"},
+  {no:32,nama:"Hortikultura",icon:"🌺"},
+  {no:33,nama:"Perkebunan",icon:"🌴"},
+  {no:34,nama:"Tanaman Pangan",icon:"🌽"},
+  {no:35,nama:"Perikanan Darat",icon:"🎣"},
+  {no:36,nama:"Perikanan Laut",icon:"🐠"},
+  {no:37,nama:"Perikanan Budidaya",icon:"🐟"},
+  {no:38,nama:"Perikanan Tangkap",icon:"⛵"},
+  {no:39,nama:"Desa & Transmigrasi",icon:"🏘️"},
+  {no:40,nama:"Perhubungan Darat",icon:"🚌"},
+  {no:41,nama:"Perhubungan Laut",icon:"🚢"},
+  {no:42,nama:"Perhubungan Udara",icon:"✈️"},
+  {no:43,nama:"Energi Terbarukan",icon:"☀️"},
+  {no:44,nama:"Pekerjaan Umum",icon:"🔧"},
+  {no:45,nama:"Pangan Lokal",icon:"🍲"},
+  {no:46,nama:"Pengairan",icon:"💧"},
+  {no:47,nama:"Kehutanan",icon:"🌳"},
+  {no:48,nama:"Pertambangan",icon:"⛏️"}
+];
 
-// ===== NAVBAR =====
-document.addEventListener('DOMContentLoaded', function() {
-  const hamburger = document.getElementById('hamburger');
-  const navMenu = document.getElementById('navMenu');
-  if (hamburger) {
-    hamburger.addEventListener('click', function() { navMenu.classList.toggle('active'); });
-  }
-  document.querySelectorAll('.nav-menu a').forEach(link => {
-    link.addEventListener('click', () => navMenu.classList.remove('active'));
-  });
-  
-  // Isi dropdown kecamatan
-  const kecSelect = document.getElementById('inputKecamatan');
-  dataPandeglang.kecamatan.forEach(kec => {
-    const opt = document.createElement('option');
-    opt.value = kec.name;
-    opt.textContent = kec.name;
-    kecSelect.appendChild(opt);
-  });
-  
-  initMap();
-  selectLevel('kabupaten');
-  updateStats();
-  loadSavedData();
-  
-  console.log('🌏 SA DESKA - Data RT/RW Kabupaten Pandeglang');
-  console.log('🌱 WPS - Warga Pandeglang Sejahtera');
-  console.log('📧 Email: deskawps@yahoo.co.id');
-  console.log('📱 WhatsApp: 0856-9527-2863');
-});
+// ===== DATA KECAMATAN =====
+const KECAMATAN = [
+  "Sumur","Cimanggu","Cibaliung","Cikeusik","Cigeulis","Panimbang","Sobang",
+  "Munjul","Angsana","Sindangresmi","Saketi","Bojong","Jiput","Cikadu",
+  "Mandalawangi","Cadasari","Pulosari","Kaduhejo","Cikeudal","Cipeucang",
+  "Mekarjaya","Menes","Koroncong","Picung","Cibitu","Garum","Caret",
+  "Ciawi","Cimanuk","Carita","Labuan","Pandeglang","Patia","Karang Tanjung","Cikeupa"
+];
 
-// ===== LEVEL SELECTOR =====
-function selectLevel(level) {
-  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.level-btn[onclick*="${level}"]`)?.classList.add('active');
-  
-  const content = document.getElementById('levelContent');
-  switch(level) {
-    case 'kabupaten': content.innerHTML = generateKabupaten(); break;
-    case 'kecamatan': content.innerHTML = generateKecamatan(); break;
-    case 'desa': content.innerHTML = generateDesa(); break;
-    case 'rw': content.innerHTML = generateRW(); break;
-    case 'rt': content.innerHTML = generateRT(); break;
-  }
-}
-
-function generateKabupaten() {
-  return `<div class="level-card">
-    <h3>🏛️ Kabupaten Pandeglang</h3>
-    <div class="stats-grid">
-      <div class="stat-box"><span class="stat-number">1.283.456</span><span class="stat-label">Total Penduduk</span></div>
-      <div class="stat-box"><span class="stat-number">35</span><span class="stat-label">Kecamatan</span></div>
-      <div class="stat-box"><span class="stat-number">339</span><span class="stat-label">Desa/Kelurahan</span></div>
-      <div class="stat-box"><span class="stat-number">2.500+</span><span class="stat-label">RW</span></div>
-      <div class="stat-box"><span class="stat-number">12.500+</span><span class="stat-label">RT</span></div>
-      <div class="stat-box"><span class="stat-number">3.2%</span><span class="stat-label">Angka Putus Sekolah</span></div>
+// ===== RENDER SEKTOR =====
+function renderSektor() {
+  const container = document.getElementById('sektorList');
+  container.innerHTML = SEKTOR.map(s => `
+    <div class="sektor-card" onclick="pilihSektor(${s.no})">
+      <div class="number">${s.no}</div>
+      <div class="name">${s.icon} ${s.nama}</div>
+      <span class="badge">${getDataCount(s.no)} data</span>
     </div>
-  </div>`;
+  `).join('');
 }
 
-function generateKecamatan() {
-  let html = `<div class="level-card"><h3>📍 Pilih Kecamatan</h3><div class="kecamatan-grid">`;
-  dataPandeglang.kecamatan.forEach(kec => {
-    html += `<div class="kecamatan-card" onclick="selectDesa(${kec.id})"><h4>${kec.name}</h4><p>${kec.desa.length} Desa</p><span class="badge">Lihat →</span></div>`;
-  });
-  html += `</div></div>`;
-  return html;
+function getDataCount(no) {
+  const data = JSON.parse(localStorage.getItem('sadeska_48_data') || '[]');
+  return data.filter(d => d.sektor == no).length;
 }
 
-function generateDesa() {
-  return `<div class="level-card"><h3>🏘️ 339 Desa/Kelurahan</h3><p>Pilih kecamatan di menu "Kecamatan" untuk melihat desa</p></div>`;
+function pilihSektor(no) {
+  const s = SEKTOR.find(x => x.no == no);
+  document.getElementById('inputSektor').value = no;
+  document.getElementById('inputSektor').selectedIndex = no - 1;
+  window.location.href = '#input';
+  alert(`📊 Sektor ${no}: ${s.nama}\nSilakan input data di bawah ini.`);
 }
 
-function generateRW() {
-  return `<div class="level-card"><h3>🏠 Data RW</h3><p>Pilih desa terlebih dahulu untuk melihat data RW</p></div>`;
-}
-
-function generateRT() {
-  return `<div class="level-card"><h3>🏡 Data RT</h3><p>Data paling detail dari setiap RT</p></div>`;
-}
-
-function selectDesa(kecamatanId) {
-  const kec = dataPandeglang.kecamatan.find(k => k.id == kecamatanId);
-  if (!kec) return;
+// ===== RENDER DASHBOARD =====
+function renderDashboard() {
+  const container = document.getElementById('dashboardGrid');
+  const data = JSON.parse(localStorage.getItem('sadeska_48_data') || '[]');
   
-  const content = document.getElementById('levelContent');
-  let html = `<div class="level-card"><h3>🏘️ Desa di ${kec.name}</h3><div class="desa-list">`;
-  kec.desa.forEach(desa => {
-    html += `<div class="desa-item" onclick="alert('📊 Data ${desa}\\n\\nAkan menampilkan data RT/RW di desa ini')"><span>🏘️ ${desa}</span><span class="badge">Detail →</span></div>`;
-  });
-  html += `</div></div>`;
-  content.innerHTML = html;
-  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector('.level-btn[onclick*="desa"]')?.classList.add('active');
+  container.innerHTML = SEKTOR.map(s => {
+    const count = data.filter(d => d.sektor == s.no).length;
+    const total = data.filter(d => d.sektor == s.no).reduce((a,d) => a + (parseFloat(d.nilai)||0), 0);
+    return `
+      <div class="card">
+        <span class="icon">${s.icon}</span>
+        <h3>${s.nama}</h3>
+        <div class="number">${count}</div>
+        <small style="color:var(--gray-600)">${total.toLocaleString()} total</small>
+      </div>
+    `;
+  }).join('');
 }
 
-// ===== MAP =====
-let map = null;
-
-function initMap() {
-  const container = document.getElementById('mapContainer');
-  document.getElementById('mapLoading').style.display = 'block';
-  try {
-    map = L.map('mapContainer', { center: [-6.367, 105.95], zoom: 10 });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-    
-    dataPandeglang.kecamatan.forEach((kec, i) => {
-      const lat = -6.367 + (i * 0.02);
-      const lng = 105.95 + (i * 0.01);
-      L.circleMarker([lat, lng], { radius: 8, fillColor: '#4F46E5', color: '#fff', weight: 2, fillOpacity: 0.7 })
-        .addTo(map)
-        .bindPopup(`<div style="padding:8px;"><h4>${kec.name}</h4><p>${kec.desa.length} Desa</p><button onclick="selectDesa(${kec.id})" style="background:#4F46E5;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;">Lihat Desa</button></div>`);
-    });
-    document.getElementById('mapLoading').style.display = 'none';
-  } catch(e) {
-    document.getElementById('mapLoading').innerHTML = `<i class="fas fa-exclamation-triangle" style="color:#F59E0B;"></i><p>Gagal memuat peta</p>`;
-  }
-}
-
-function updateMap() {
-  alert('✅ Peta diperbarui!\n\n🌱 WPS - Warga Pandeglang Sejahtera');
-}
-
-// ===== INPUT DATA =====
-function submitRTData() {
+// ===== SUBMIT DATA =====
+function submitData() {
   const data = {
     level: document.getElementById('inputLevel').value,
+    sektor: parseInt(document.getElementById('inputSektor').value),
     kecamatan: document.getElementById('inputKecamatan').value,
-    desa: document.getElementById('inputDesa').value,
-    rw: document.getElementById('inputRW').value,
-    rt: document.getElementById('inputRT').value,
-    penduduk: document.getElementById('inputPenduduk').value,
-    laki: document.getElementById('inputLaki').value,
-    perempuan: document.getElementById('inputPerempuan').value,
-    kk: document.getElementById('inputKK').value,
-    putus_sekolah: document.getElementById('inputPutusSekolah').value,
-    stunting: document.getElementById('inputStunting').value,
-    ibu_hamil: document.getElementById('inputIbuHamil').value,
-    bansos: document.getElementById('inputBansos').value,
-    ketua: document.getElementById('inputKetua').value,
+    desa: document.getElementById('inputDesa').value || '-',
+    rw: document.getElementById('inputRW').value || '-',
+    rt: document.getElementById('inputRT').value || '-',
+    nilai: document.getElementById('inputNilai').value,
+    keterangan: document.getElementById('inputKeterangan').value || '-',
+    penginput: document.getElementById('inputPenginput').value || 'Warga',
     timestamp: new Date().toISOString(),
-    id: 'RT-' + Date.now()
+    id: 'DATA-' + Date.now()
   };
-  
+
+  if (!data.sektor) { alert('⚠️ Pilih sektor!'); return; }
   if (!data.kecamatan) { alert('⚠️ Pilih kecamatan!'); return; }
-  if (!data.desa) { alert('⚠️ Masukkan nama desa!'); return; }
-  
-  let saved = JSON.parse(localStorage.getItem('sadeska_rt_data') || '[]');
+  if (!data.nilai) { alert('⚠️ Isi nilai data!'); return; }
+
+  const saved = JSON.parse(localStorage.getItem('sadeska_48_data') || '[]');
   saved.push(data);
-  localStorage.setItem('sadeska_rt_data', JSON.stringify(saved));
-  
-  alert('✅ Data berhasil disimpan!\n\n📍 ' + data.kecamatan + '\n🏘️ ' + data.desa + '\n👨‍👩‍👧‍👦 ' + data.penduduk + ' jiwa\n\n🌱 WPS - Warga Pandeglang Sejahtera');
-  
+  localStorage.setItem('sadeska_48_data', JSON.stringify(saved));
+
+  alert('✅ Data tersimpan!\n\n📊 ' + SEKTOR.find(s=>s.no==data.sektor)?.nama + '\n📍 ' + data.kecamatan + '\n📝 ' + data.nilai);
+
   resetForm();
-  updateStats();
+  renderSektor();
+  renderDashboard();
   loadSavedData();
 }
 
@@ -207,29 +146,59 @@ function resetForm() {
 }
 
 function loadSavedData() {
-  const saved = JSON.parse(localStorage.getItem('sadeska_rt_data') || '[]');
+  const data = JSON.parse(localStorage.getItem('sadeska_48_data') || '[]');
   const container = document.getElementById('savedDataList');
-  if (saved.length === 0) {
-    container.innerHTML = '<p style="text-align:center;color:var(--gray-600);padding:20px;">Belum ada data RT/RW yang tersimpan</p>';
+  if (!data.length) {
+    container.innerHTML = '<p style="text-align:center;color:var(--gray-600);padding:20px;">Belum ada data</p>';
     return;
   }
-  let html = `<h4>📋 Data Tersimpan (${saved.length})</h4>`;
-  saved.slice().reverse().forEach(d => {
-    html += `<div class="saved-item"><strong>${d.kecamatan}</strong> - ${d.desa} | RT: ${d.rt || '-'} | RW: ${d.rw || '-'} | <strong>${d.penduduk || 0}</strong> jiwa | 🕐 ${new Date(d.timestamp).toLocaleDateString('id-ID')}</div>`;
-  });
-  container.innerHTML = html;
+  container.innerHTML = `<h4>📋 Data Tersimpan (${data.length})</h4>` + 
+    data.slice().reverse().slice(0,20).map(d => `
+      <div class="saved-item">
+        <span><strong>${SEKTOR.find(s=>s.no==d.sektor)?.icon} ${SEKTOR.find(s=>s.no==d.sektor)?.nama}</strong> - ${d.kecamatan}</span>
+        <span>${d.desa} | RT:${d.rt} | RW:${d.rw}</span>
+        <span><strong>${d.nilai}</strong></span>
+        <span class="sektor-tag">${d.level}</span>
+      </div>
+    `).join('');
 }
 
-// ===== STATS =====
-function updateStats() {
-  const saved = JSON.parse(localStorage.getItem('sadeska_rt_data') || '[]');
-  document.getElementById('totalRT').textContent = saved.filter(d => d.level === 'rt').length.toLocaleString() + '+';
-  document.getElementById('totalRW').textContent = saved.filter(d => d.level === 'rw').length.toLocaleString() + '+';
-  document.getElementById('totalRTCount').textContent = saved.filter(d => d.level === 'rt').length.toLocaleString();
-  document.getElementById('totalRWCount').textContent = saved.filter(d => d.level === 'rw').length.toLocaleString();
-  
-  const totalPenduduk = saved.reduce((sum, d) => sum + parseInt(d.penduduk || 0), 0);
-  if (totalPenduduk > 0) {
-    document.getElementById('totalPopulation').textContent = totalPenduduk.toLocaleString();
+// ===== MAP =====
+let map = null;
+function initMap() {
+  try {
+    map = L.map('mapContainer', {center:[-6.367,105.95],zoom:10});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    KECAMATAN.forEach((k,i) => {
+      const lat = -6.367 + (i*0.02), lng = 105.95 + (i*0.01);
+      L.circleMarker([lat,lng], {radius:7,fillColor:'#4F46E5',color:'#fff',weight:2,fillOpacity:0.7})
+        .addTo(map)
+        .bindPopup(`<h4>${k}</h4><p>Klik untuk lihat data</p>`);
+    });
+    document.getElementById('mapLoading').style.display = 'none';
+  } catch(e) {
+    document.getElementById('mapLoading').innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Gagal</p>';
   }
-                              }
+}
+
+// ===== NAVBAR =====
+document.addEventListener('DOMContentLoaded', function() {
+  const h = document.getElementById('hamburger'), m = document.getElementById('navMenu');
+  if(h) h.addEventListener('click', ()=>m.classList.toggle('active'));
+  document.querySelectorAll('.nav-menu a').forEach(a => a.addEventListener('click', ()=>m.classList.remove('active')));
+
+  // Isi dropdown sektor
+  const ss = document.getElementById('inputSektor');
+  SEKTOR.forEach(s => { const o = document.createElement('option'); o.value = s.no; o.textContent = s.no + '. ' + s.nama; ss.appendChild(o); });
+
+  // Isi dropdown kecamatan
+  const ks = document.getElementById('inputKecamatan');
+  KECAMATAN.forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = k; ks.appendChild(o); });
+
+  initMap();
+  renderSektor();
+  renderDashboard();
+  loadSavedData();
+  console.log('🌏 SA DESKA - 48 Sektor Data RT/RW | WPS');
+  console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
+});
