@@ -1,106 +1,190 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SA DESKA - 48 Sektor Data RT/RW</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SA DESKA Blockchain - Data RT/RW Real-Time</title>
+    <meta name="theme-color" content="#00FF88" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
 <body>
-    <nav class="navbar">
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
         <div class="container">
-            <div class="logo"><span class="logo-icon">🌏</span><span class="logo-text">SA DESKA</span><span class="logo-sub">48 Sektor</span></div>
+            <div class="logo">
+                <span class="logo-icon">⛓️</span>
+                <span class="logo-text">SA DESKA</span>
+                <span class="logo-badge">BLOCKCHAIN</span>
+            </div>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="#home" class="active">Beranda</a></li>
-                <li><a href="#sektor">48 Sektor</a></li>
-                <li><a href="#input">Input Data</a></li>
-                <li><a href="#dashboard">Dashboard</a></li>
-                <li><a href="#map">Peta</a></li>
-                <li><a href="#about">Tentang</a></li>
-                <li><a href="#contact">Kontak</a></li>
+                <li><a href="#home" class="active"><i class="fas fa-home"></i> Beranda</a></li>
+                <li><a href="#blockchain"><i class="fas fa-link"></i> Blockchain</a></li>
+                <li><a href="#data"><i class="fas fa-database"></i> Data</a></li>
+                <li><a href="#input"><i class="fas fa-edit"></i> Input</a></li>
+                <li><a href="#dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
             </ul>
-            <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+            <div class="nav-actions">
+                <span class="live-status" id="liveStatus">
+                    <span class="dot"></span> LIVE
+                </span>
+                <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+            </div>
         </div>
     </nav>
 
+    <!-- ===== HERO ===== -->
     <section id="home" class="hero">
         <div class="container">
             <div class="hero-content">
-                <div class="wps-badge"><span>🌱 WPS</span><span>Warga Pandeglang Sejahtera</span></div>
-                <h1 class="hero-title">🌏 <span class="highlight">SA DESKA</span></h1>
-                <p class="hero-subtitle">48 Sektor Data - RT/RW Kabupaten Pandeglang</p>
-                <p class="hero-description">Sistem data statistik <strong>48 sektor</strong> dari <strong>RT/RW</strong> untuk <strong>35 Kecamatan</strong> dan <strong>339 Desa/Kelurahan</strong>.</p>
-                <div class="hero-buttons">
-                    <a href="#sektor" class="btn btn-primary"><i class="fas fa-th-list"></i> 48 Sektor</a>
-                    <a href="#input" class="btn btn-secondary"><i class="fas fa-edit"></i> Input Data</a>
-                    <a href="#dashboard" class="btn btn-outline"><i class="fas fa-chart-bar"></i> Dashboard</a>
+                <div class="wps-badge">🌱 WPS - Warga Pandeglang Sejahtera</div>
+                <h1 class="hero-title">⛓️ <span class="gradient-text">SA DESKA</span></h1>
+                <p class="hero-subtitle">Blockchain Data RT/RW • Real-Time • 48 Sektor</p>
+                <p class="hero-description">Data statistik dari <strong>RT/RW</strong> dijamin <strong>immutable</strong> dengan teknologi blockchain.</p>
+                <div class="hero-stats" id="heroStats">
+                    <div class="stat-item"><span class="stat-number" id="totalBlocks">0</span><span class="stat-label">Block</span></div>
+                    <div class="stat-item"><span class="stat-number" id="totalData">0</span><span class="stat-label">Data Entry</span></div>
+                    <div class="stat-item"><span class="stat-number" id="totalRT">0</span><span class="stat-label">RT Aktif</span></div>
+                    <div class="stat-item"><span class="stat-number" id="totalKecamatan">35</span><span class="stat-label">Kecamatan</span></div>
                 </div>
-                <div class="hero-stats">
-                    <div class="stat-item"><span class="stat-number">48</span><span class="stat-label">Sektor</span></div>
-                    <div class="stat-item"><span class="stat-number">35</span><span class="stat-label">Kecamatan</span></div>
-                    <div class="stat-item"><span class="stat-number">339</span><span class="stat-label">Desa</span></div>
-                    <div class="stat-item"><span class="stat-number" id="totalRT">12.500+</span><span class="stat-label">RT</span></div>
+                <div class="mining-status" id="miningStatus">
+                    <i class="fas fa-spinner fa-spin"></i> Mining block baru...
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ===== 48 SEKTOR ===== -->
-    <section id="sektor" class="section sektor-section">
+    <!-- ===== BLOCKCHAIN VISUALIZATION ===== -->
+    <section id="blockchain" class="section blockchain-section">
         <div class="container">
             <div class="section-header">
-                <h2>📊 48 Sektor Statistik</h2>
-                <p>Pilih sektor untuk melihat dan mengupdate data</p>
+                <h2><i class="fas fa-link"></i> Blockchain Visual</h2>
+                <p>Rantai blockchain bergerak real-time • Setiap block terhubung</p>
             </div>
-            <div id="sektorList" class="sektor-grid"></div>
+            <div class="blockchain-container">
+                <canvas id="blockchainCanvas"></canvas>
+                <div class="blockchain-overlay">
+                    <div class="block-info" id="blockInfo">
+                        <span>Block #<span id="currentBlock">0</span></span>
+                        <span>Hash: <span id="currentHash">0x0000...</span></span>
+                        <span>Data: <span id="currentData">-</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== DATA FLOW ===== -->
+    <section id="data" class="section data-flow-section">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-exchange-alt"></i> Aliran Data Real-Time</h2>
+                <p>Data mengalir dari RT → RW → Desa → Kecamatan → Blockchain</p>
+            </div>
+            <div class="data-flow" id="dataFlow">
+                <div class="flow-node" id="flowRT">
+                    <div class="flow-icon">🏡</div>
+                    <div class="flow-label">RT</div>
+                    <div class="flow-count" id="rtCount">0</div>
+                    <div class="flow-pulse"></div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node" id="flowRW">
+                    <div class="flow-icon">🏠</div>
+                    <div class="flow-label">RW</div>
+                    <div class="flow-count" id="rwCount">0</div>
+                    <div class="flow-pulse"></div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node" id="flowDesa">
+                    <div class="flow-icon">🏘️</div>
+                    <div class="flow-label">Desa</div>
+                    <div class="flow-count" id="desaCount">0</div>
+                    <div class="flow-pulse"></div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node" id="flowKecamatan">
+                    <div class="flow-icon">📍</div>
+                    <div class="flow-label">Kecamatan</div>
+                    <div class="flow-count" id="kecamatanCount">0</div>
+                    <div class="flow-pulse"></div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node blockchain-node" id="flowBlockchain">
+                    <div class="flow-icon">⛓️</div>
+                    <div class="flow-label">Blockchain</div>
+                    <div class="flow-count" id="blockchainCount">0</div>
+                    <div class="flow-pulse"></div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- ===== INPUT DATA ===== -->
-    <section id="input" class="section data-section">
+    <section id="input" class="section input-section">
         <div class="container">
             <div class="section-header">
-                <h2>📝 Input Data RT/RW</h2>
-                <p>Update data per sektor dari RT/RW, Desa, atau Kecamatan</p>
+                <h2><i class="fas fa-edit"></i> Input Data Blockchain</h2>
+                <p>Data langsung masuk ke blockchain + real-time update</p>
             </div>
-            <div class="input-form">
+            <div class="input-card">
                 <div class="form-grid">
-                    <div class="form-group"><label>Level</label>
-                        <select id="inputLevel"><option value="rt">RT</option><option value="rw">RW</option><option value="desa">Desa</option><option value="kecamatan">Kecamatan</option></select>
+                    <div class="form-group">
+                        <label><i class="fas fa-layer-group"></i> Level</label>
+                        <select id="inputLevel" onchange="updateLevelFields()">
+                            <option value="rt">RT</option>
+                            <option value="rw">RW</option>
+                            <option value="desa">Desa</option>
+                            <option value="kecamatan">Kecamatan</option>
+                        </select>
                     </div>
-                    <div class="form-group"><label>Sektor (1-48)</label>
+                    <div class="form-group">
+                        <label><i class="fas fa-tag"></i> Sektor (1-48)</label>
                         <select id="inputSektor"></select>
                     </div>
-                    <div class="form-group"><label>Kecamatan</label>
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Kecamatan</label>
                         <select id="inputKecamatan"></select>
                     </div>
-                    <div class="form-group"><label>Desa</label>
-                        <input type="text" id="inputDesa" placeholder="Nama desa">
+                    <div class="form-group">
+                        <label><i class="fas fa-home"></i> Desa</label>
+                        <input type="text" id="inputDesa" placeholder="Nama desa" />
                     </div>
-                    <div class="form-group"><label>RW</label>
-                        <input type="text" id="inputRW" placeholder="RW-001">
+                    <div class="form-group">
+                        <label><i class="fas fa-road"></i> RW</label>
+                        <input type="text" id="inputRW" placeholder="RW-001" />
                     </div>
-                    <div class="form-group"><label>RT</label>
-                        <input type="text" id="inputRT" placeholder="RT-001">
+                    <div class="form-group">
+                        <label><i class="fas fa-house"></i> RT</label>
+                        <input type="text" id="inputRT" placeholder="RT-001" />
                     </div>
-                    <div class="form-group"><label>Nilai Data</label>
-                        <input type="number" id="inputNilai" placeholder="Contoh: jumlah penduduk">
+                    <div class="form-group">
+                        <label><i class="fas fa-chart-simple"></i> Nilai Data</label>
+                        <input type="number" id="inputNilai" placeholder="Jumlah / nilai" />
                     </div>
-                    <div class="form-group"><label>Keterangan</label>
-                        <input type="text" id="inputKeterangan" placeholder="Deskripsi data">
+                    <div class="form-group">
+                        <label><i class="fas fa-pen"></i> Keterangan</label>
+                        <input type="text" id="inputKeterangan" placeholder="Deskripsi data" />
                     </div>
-                    <div class="form-group"><label>Nama Penginput</label>
-                        <input type="text" id="inputPenginput" placeholder="Nama lengkap">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Penginput</label>
+                        <input type="text" id="inputPenginput" placeholder="Nama penginput" />
                     </div>
                 </div>
                 <div class="form-actions">
-                    <button class="btn btn-primary" onclick="submitData()"><i class="fas fa-save"></i> Simpan Data</button>
-                    <button class="btn btn-secondary" onclick="resetForm()"><i class="fas fa-undo"></i> Reset</button>
+                    <button class="btn btn-primary" onclick="submitBlockchainData()">
+                        <i class="fas fa-link"></i> Submit ke Blockchain
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetForm()">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                </div>
+                <div class="tx-status" id="txStatus">
+                    <span class="tx-hash" id="txHash">⛓️ Menunggu transaksi...</span>
                 </div>
             </div>
-            <div id="savedDataList" class="saved-data-list"></div>
         </div>
     </section>
 
@@ -108,67 +192,26 @@
     <section id="dashboard" class="section dashboard-section">
         <div class="container">
             <div class="section-header">
-                <h2>📊 Dashboard 48 Sektor</h2>
-                <p>Ringkasan data per sektor</p>
+                <h2><i class="fas fa-chart-pie"></i> Live Dashboard</h2>
+                <p>Update setiap detik • Data dari blockchain</p>
             </div>
             <div class="dashboard-grid" id="dashboardGrid"></div>
         </div>
     </section>
 
-    <!-- ===== MAP ===== -->
-    <section id="map" class="section map-section">
-        <div class="container">
-            <div class="section-header">
-                <h2>📍 Peta Tematik</h2>
-                <p>Visualisasi data per kecamatan</p>
-            </div>
-            <div id="mapContainer" class="map-container">
-                <div id="mapLoading" class="map-loading"><i class="fas fa-spinner fa-spin"></i><p>Memuat peta...</p></div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== ABOUT ===== -->
-    <section id="about" class="section about-section">
-        <div class="container">
-            <div class="section-header">
-                <h2>🤝 Tentang SA DESKA 48 Sektor</h2>
-                <p>Data dari RT/RW untuk 48 sektor pembangunan</p>
-            </div>
-            <div class="about-grid">
-                <div class="about-item"><i class="fas fa-bullseye"></i><h3>Visi</h3><p>Data akurat dari RT/RW untuk perencanaan 48 sektor pembangunan di Kabupaten Pandeglang.</p></div>
-                <div class="about-item"><i class="fas fa-rocket"></i><h3>Misi</h3><ul><li>Update data 48 sektor setiap bulan</li><li>Data dari sumber terdekat (RT/RW)</li><li>Transparansi data hingga level RT</li></ul></div>
-                <div class="about-item"><i class="fas fa-handshake"></i><h3>Kolaborasi</h3><p>RT, RW, Desa, Kecamatan, BPS, dan seluruh OPD Pandeglang.</p></div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== CONTACT ===== -->
-    <section id="contact" class="section contact-section">
-        <div class="container">
-            <div class="section-header">
-                <h2>📱 Hubungi Kami</h2>
-                <p>Ada pertanyaan? Hubungi kami!</p>
-            </div>
-            <div class="contact-grid">
-                <div class="contact-item"><i class="fas fa-envelope"></i><h3>Email</h3><a href="mailto:deskawps@yahoo.co.id">deskawps@yahoo.co.id</a></div>
-                <div class="contact-item"><i class="fab fa-whatsapp"></i><h3>WhatsApp</h3><a href="https://wa.me/6285695272863" target="_blank">0856-9527-2863</a></div>
-            </div>
-        </div>
-    </section>
-
+    <!-- ===== FOOTER ===== -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div><h3>🌏 SA DESKA</h3><p>48 Sektor - Kabupaten Pandeglang</p></div>
-                <div><h4>Statistik</h4><ul><li>48 Sektor</li><li>35 Kecamatan</li><li>339 Desa</li><li>12.500+ RT</li></ul></div>
-                <div><h4>WPS</h4><p>Warga Pandeglang Sejahtera</p></div>
+                <div><h3>⛓️ SA DESKA</h3><p>Blockchain Data RT/RW • Pandeglang</p></div>
+                <div><h4>Status</h4><ul><li id="footerStatus">🟢 Blockchain Aktif</li><li id="footerBlock">Block #0</li></ul></div>
+                <div><h4>Kontak</h4><ul><li>📧 deskawps@yahoo.co.id</li><li>📱 0856-9527-2863</li></ul></div>
             </div>
-            <div class="footer-bottom"><p>© 2026 SA DESKA - 48 Sektor Data RT/RW untuk Warga Pandeglang Sejahtera</p></div>
+            <div class="footer-bottom"><p>© 2026 SA DESKA Blockchain - Real-Time Data RT/RW untuk Warga Pandeglang Sejahtera</p></div>
         </div>
     </footer>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="blockchain.js"></script>
     <script src="script.js"></script>
 </body>
-        </html>
+                                                                                                                                        </html>
