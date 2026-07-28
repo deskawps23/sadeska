@@ -1,14 +1,14 @@
 // ============================================
-// SA DESKA BLOCKCHAIN ENGINE
-// Real-Time Blockchain Simulation
+// Si DESKA - Blockchain Engine
+// Sistem Informasi Data Entri Statistika Kabupaten
 // ============================================
 
-class Blockchain {
+class BlockchainSiDESKA {
     constructor() {
         this.chain = [];
         this.pendingData = [];
         this.difficulty = 2;
-        this.miningSpeed = 1000; // ms
+        this.miningSpeed = 1000;
         this.isMining = false;
         this.dataCount = 0;
         this.rtCount = 0;
@@ -16,24 +16,18 @@ class Blockchain {
         this.desaCount = 0;
         this.kecamatanCount = 0;
         
-        // Create genesis block
         this.createGenesisBlock();
-        
-        // Start mining loop
         this.startMining();
-        
-        // Start auto-generate data
         this.startAutoGenerate();
     }
 
-    // ===== CREATE GENESIS BLOCK =====
     createGenesisBlock() {
         const genesis = {
             index: 0,
             timestamp: Date.now(),
-            data: "Genesis Block - SA DESKA",
+            data: "Genesis Block - Si DESKA",
             previousHash: "0".repeat(64),
-            hash: this.calculateHash(0, Date.now(), "Genesis Block - SA DESKA", "0".repeat(64)),
+            hash: this.calculateHash(0, Date.now(), "Genesis Block - Si DESKA", "0".repeat(64)),
             nonce: 0
         };
         this.chain.push(genesis);
@@ -41,7 +35,6 @@ class Blockchain {
         this.drawBlockchain();
     }
 
-    // ===== CALCULATE HASH =====
     calculateHash(index, timestamp, data, previousHash, nonce = 0) {
         const str = index + timestamp + JSON.stringify(data) + previousHash + nonce;
         let hash = 0;
@@ -53,7 +46,6 @@ class Blockchain {
         return '0x' + Math.abs(hash).toString(16).padStart(64, '0');
     }
 
-    // ===== MINE BLOCK =====
     mineBlock(block) {
         let nonce = 0;
         let hash = '';
@@ -69,7 +61,6 @@ class Blockchain {
         return block;
     }
 
-    // ===== ADD BLOCK =====
     addBlock(data) {
         const lastBlock = this.chain[this.chain.length - 1];
         const newBlock = {
@@ -81,12 +72,10 @@ class Blockchain {
             nonce: 0
         };
         
-        // Mine the block
         const minedBlock = this.mineBlock(newBlock);
         this.chain.push(minedBlock);
         this.dataCount++;
         
-        // Update counters based on level
         if (data.level === 'rt') this.rtCount++;
         else if (data.level === 'rw') this.rwCount++;
         else if (data.level === 'desa') this.desaCount++;
@@ -99,7 +88,6 @@ class Blockchain {
         return minedBlock;
     }
 
-    // ===== SUBMIT DATA (From UI) =====
     submitData(sektor, level, kecamatan, desa, rw, rt, nilai, keterangan, penginput) {
         const data = {
             sektor: parseInt(sektor),
@@ -113,29 +101,22 @@ class Blockchain {
             penginput: penginput || 'Warga',
             timestamp: Date.now()
         };
-        
         return this.addBlock(data);
     }
 
-    // ===== START MINING LOOP =====
     startMining() {
         setInterval(() => {
             this.isMining = !this.isMining;
-            document.getElementById('miningStatus').innerHTML = 
-                this.isMining ? 
-                '<i class="fas fa-spinner fa-spin"></i> Mining block baru...' :
-                '<i class="fas fa-check-circle"></i> Blockchain siap';
-            
-            // Update mining status color
-            if (this.isMining) {
-                document.getElementById('miningStatus').style.color = '#00FF88';
-            } else {
-                document.getElementById('miningStatus').style.color = '#00D4FF';
+            const status = document.getElementById('miningStatus');
+            if (status) {
+                status.innerHTML = this.isMining ? 
+                    '<i class="fas fa-spinner fa-spin"></i> Mining block baru...' :
+                    '<i class="fas fa-check-circle"></i> Blockchain Si DESKA siap';
+                status.style.color = this.isMining ? '#00FF88' : '#00D4FF';
             }
         }, 3000);
     }
 
-    // ===== AUTO GENERATE DATA =====
     startAutoGenerate() {
         const sektorList = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
         const levelList = ['rt', 'rw', 'desa', 'kecamatan'];
@@ -153,27 +134,24 @@ class Blockchain {
             const nilai = Math.floor(Math.random() * 1000) + 1;
             
             this.submitData(
-                sektor,
-                level,
-                kecamatan,
+                sektor, level, kecamatan,
                 level === 'kecamatan' ? '-' : desa,
                 level === 'rt' || level === 'rw' ? 'RW-' + String(Math.floor(Math.random() * 10) + 1).padStart(3, '0') : '-',
                 level === 'rt' ? 'RT-' + String(Math.floor(Math.random() * 10) + 1).padStart(3, '0') : '-',
                 nilai,
-                `Data otomatis ${new Date().toLocaleTimeString()}`,
+                `Auto Si DESKA ${new Date().toLocaleTimeString()}`,
                 'Sistem'
             );
-        }, 5000); // Auto generate every 5 seconds
+        }, 4000);
     }
 
-    // ===== SHOW TRANSACTION =====
     showTransaction(data) {
         const status = document.getElementById('txStatus');
-        const hash = document.getElementById('txHash');
         if (status) {
+            const sektorNama = this.getSektorName(data.sektor);
             status.innerHTML = `
                 <span style="color: var(--neon-green);">
-                    ⛓️ Transaksi berhasil! Block #${this.chain.length - 1}
+                    ⛓️ Block #${this.chain.length - 1} • ${sektorNama}
                 </span>
                 <span style="font-size: 12px; color: var(--text-dim); display: block; margin-top: 4px;">
                     ${data.kecamatan} | ${data.level} | ${data.nilai}
@@ -187,16 +165,32 @@ class Blockchain {
         }, 3000);
     }
 
-    // ===== UPDATE UI =====
+    getSektorName(no) {
+        const list = [
+            'Kependudukan','Pertanian','Perdagangan','Perindustrian','Pariwisata',
+            'Kesehatan','Pendidikan','Tenaga Kerja','Lingkungan','Energi',
+            'Transportasi','Perumahan','Keuangan','Sosial','Agama'
+        ];
+        return list[no - 1] || `Sektor ${no}`;
+    }
+
     updateUI() {
-        document.getElementById('totalBlocks').textContent = this.chain.length;
-        document.getElementById('totalData').textContent = this.dataCount;
-        document.getElementById('totalRT').textContent = this.rtCount.toLocaleString() + '+';
-        document.getElementById('rtCount').textContent = this.rtCount;
-        document.getElementById('rwCount').textContent = this.rwCount;
-        document.getElementById('desaCount').textContent = this.desaCount;
-        document.getElementById('kecamatanCount').textContent = this.kecamatanCount;
-        document.getElementById('blockchainCount').textContent = this.chain.length;
+        const ids = ['totalBlocks', 'totalData', 'totalRT', 'rtCount', 'rwCount', 'desaCount', 'kecamatanCount', 'blockchainCount'];
+        const values = [
+            this.chain.length,
+            this.dataCount,
+            this.rtCount.toLocaleString() + '+',
+            this.rtCount,
+            this.rwCount,
+            this.desaCount,
+            this.kecamatanCount,
+            this.chain.length
+        ];
+        ids.forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = values[i];
+        });
+        
         document.getElementById('footerBlock').textContent = `Block #${this.chain.length - 1}`;
         
         if (this.chain.length > 0) {
@@ -212,7 +206,6 @@ class Blockchain {
         this.updateDashboard();
     }
 
-    // ===== UPDATE DASHBOARD =====
     updateDashboard() {
         const container = document.getElementById('dashboardGrid');
         if (!container) return;
@@ -257,7 +250,6 @@ class Blockchain {
         }));
     }
 
-    // ===== DRAW BLOCKCHAIN (Canvas Animation) =====
     drawBlockchain() {
         const canvas = document.getElementById('blockchainCanvas');
         if (!canvas) return;
@@ -265,29 +257,18 @@ class Blockchain {
         const ctx = canvas.getContext('2d');
         const rect = canvas.parentElement.getBoundingClientRect();
         canvas.width = rect.width || 800;
-        canvas.height = 400;
+        canvas.height = 420;
         
         const w = canvas.width;
         const h = canvas.height;
         
-        // Clear
         ctx.clearRect(0, 0, w, h);
         
-        // Draw background grid
-        ctx.strokeStyle = 'rgba(0, 255, 136, 0.03)';
+        // Grid
+        ctx.strokeStyle = 'rgba(0, 255, 136, 0.02)';
         ctx.lineWidth = 1;
-        for (let x = 0; x < w; x += 40) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, h);
-            ctx.stroke();
-        }
-        for (let y = 0; y < h; y += 40) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(w, y);
-            ctx.stroke();
-        }
+        for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+        for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
         
         const blocks = this.chain;
         if (blocks.length === 0) return;
@@ -295,18 +276,19 @@ class Blockchain {
         const blockWidth = 80;
         const blockHeight = 60;
         const gap = 20;
-        const totalWidth = blocks.length * (blockWidth + gap) - gap;
+        const totalWidth = Math.min(blocks.length, 20) * (blockWidth + gap) - gap;
         const startX = (w - totalWidth) / 2;
         const y = h / 2 - blockHeight / 2;
         
-        // Draw chain line (kurva bergerak)
+        // Draw chain curve
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba(0, 255, 136, 0.3)';
+        ctx.strokeStyle = 'rgba(0, 255, 136, 0.25)';
         ctx.lineWidth = 3;
-        ctx.setLineDash([6, 6]);
-        ctx.lineDashOffset = -Date.now() / 50;
+        ctx.setLineDash([6, 8]);
+        ctx.lineDashOffset = -Date.now() / 40;
         
-        for (let i = 0; i < blocks.length; i++) {
+        const displayBlocks = blocks.slice(-20);
+        for (let i = 0; i < displayBlocks.length; i++) {
             const x = startX + i * (blockWidth + gap);
             if (i === 0) {
                 ctx.moveTo(x + blockWidth / 2, y + blockHeight / 2);
@@ -314,7 +296,7 @@ class Blockchain {
                 const prevX = startX + (i - 1) * (blockWidth + gap);
                 const midX = (prevX + x + blockWidth) / 2;
                 ctx.quadraticCurveTo(
-                    midX, y - 30 + Math.sin(Date.now() / 1000 + i * 0.5) * 15,
+                    midX, y - 35 + Math.sin(Date.now() / 800 + i * 0.6) * 18,
                     x + blockWidth / 2, y + blockHeight / 2
                 );
             }
@@ -322,34 +304,32 @@ class Blockchain {
         ctx.stroke();
         
         // Draw blocks
-        for (let i = 0; i < blocks.length; i++) {
-            const block = blocks[i];
+        for (let i = 0; i < displayBlocks.length; i++) {
+            const block = displayBlocks[i];
             const x = startX + i * (blockWidth + gap);
+            const isGenesis = block.index === 0;
+            const isLast = i === displayBlocks.length - 1;
             
-            // Block glow
+            // Glow
             const gradient = ctx.createRadialGradient(
                 x + blockWidth / 2, y + blockHeight / 2, 5,
                 x + blockWidth / 2, y + blockHeight / 2, blockWidth
             );
-            gradient.addColorStop(0, i === blocks.length - 1 ? 'rgba(0, 255, 136, 0.3)' : 'rgba(0, 212, 255, 0.1)');
+            gradient.addColorStop(0, isLast ? 'rgba(0, 255, 136, 0.25)' : 'rgba(0, 212, 255, 0.08)');
             gradient.addColorStop(1, 'transparent');
             ctx.fillStyle = gradient;
             ctx.fillRect(x - 20, y - 20, blockWidth + 40, blockHeight + 40);
             
-            // Block box
-            ctx.shadowColor = i === blocks.length - 1 ? 'rgba(0, 255, 136, 0.4)' : 'rgba(0, 212, 255, 0.1)';
-            ctx.shadowBlur = 20;
+            // Box
+            ctx.shadowColor = isLast ? 'rgba(0, 255, 136, 0.3)' : 'rgba(0, 212, 255, 0.05)';
+            ctx.shadowBlur = isLast ? 30 : 10;
             
-            const isGenesis = i === 0;
-            const isLast = i === blocks.length - 1;
-            
-            ctx.fillStyle = isGenesis ? 'rgba(0, 255, 136, 0.15)' : 
-                           isLast ? 'rgba(0, 255, 136, 0.25)' : 
-                           'rgba(0, 212, 255, 0.05)';
-            ctx.strokeStyle = isLast ? '#00FF88' : 'rgba(0, 212, 255, 0.3)';
+            ctx.fillStyle = isGenesis ? 'rgba(0, 255, 136, 0.12)' : 
+                           isLast ? 'rgba(0, 255, 136, 0.2)' : 
+                           'rgba(0, 212, 255, 0.04)';
+            ctx.strokeStyle = isLast ? '#00FF88' : 'rgba(0, 212, 255, 0.2)';
             ctx.lineWidth = isLast ? 2 : 1;
             
-            // Rounded rect
             const r = 8;
             ctx.beginPath();
             ctx.moveTo(x + r, y);
@@ -367,72 +347,48 @@ class Blockchain {
             
             ctx.shadowBlur = 0;
             
-            // Block number
-            ctx.fillStyle = isLast ? '#00FF88' : 'rgba(255, 255, 255, 0.5)';
-            ctx.font = isLast ? 'bold 16px monospace' : '12px monospace';
+            // Number
+            ctx.fillStyle = isLast ? '#00FF88' : 'rgba(255,255,255,0.5)';
+            ctx.font = isLast ? 'bold 15px monospace' : '11px monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(`#${block.index}`, x + blockWidth / 2, y + 18);
             
-            // Hash preview
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.font = '8px monospace';
-            const hashStr = block.hash ? block.hash.substring(0, 8) : '0x...';
-            ctx.fillText(hashStr + '...', x + blockWidth / 2, y + 38);
+            // Hash
+            ctx.fillStyle = 'rgba(255,255,255,0.25)';
+            ctx.font = '7px monospace';
+            ctx.fillText((block.hash || '0x...').substring(0, 8) + '...', x + blockWidth / 2, y + 36);
             
-            // Data indicator
+            // Data
             if (block.data && typeof block.data === 'object' && block.data.nilai) {
-                ctx.fillStyle = isLast ? '#00FF88' : 'rgba(255, 255, 255, 0.5)';
-                ctx.font = '10px monospace';
-                ctx.fillText(`${block.data.nilai}`, x + blockWidth / 2, y + 52);
-            }
-            
-            // Connecting line animation
-            if (i < blocks.length - 1) {
-                const nextX = startX + (i + 1) * (blockWidth + gap);
-                const time = Date.now() / 1000;
-                const progress = (Math.sin(time * 0.5 + i * 0.7) + 1) / 2;
-                
-                ctx.beginPath();
-                ctx.strokeStyle = `rgba(0, 255, 136, ${0.1 + progress * 0.3})`;
-                ctx.lineWidth = 2;
-                ctx.setLineDash([4, 8]);
-                ctx.lineDashOffset = -Date.now() / 30;
-                
-                const startX2 = x + blockWidth;
-                const endX = nextX;
-                const midX = (startX2 + endX) / 2;
-                const waveY = y + blockHeight / 2 + Math.sin(Date.now() / 1000 + i) * 8;
-                
-                ctx.moveTo(startX2, y + blockHeight / 2);
-                ctx.quadraticCurveTo(midX, waveY, endX, y + blockHeight / 2);
-                ctx.stroke();
-                ctx.setLineDash([]);
+                ctx.fillStyle = isLast ? '#00FF88' : 'rgba(255,255,255,0.4)';
+                ctx.font = '9px monospace';
+                ctx.fillText(`${block.data.nilai}`, x + blockWidth / 2, y + 50);
             }
             
             // Genesis badge
             if (isGenesis) {
                 ctx.fillStyle = '#00FF88';
-                ctx.font = '8px monospace';
+                ctx.font = '7px monospace';
                 ctx.textAlign = 'center';
-                ctx.fillText('🔗 GENESIS', x + blockWidth / 2, y - 12);
+                ctx.fillText('🔗 GENESIS', x + blockWidth / 2, y - 10);
             }
             
-            // Last block glow animation
+            // Last block pulse
             if (isLast) {
-                const pulse = Math.sin(Date.now() / 500) * 0.3 + 0.7;
+                const pulse = Math.sin(Date.now() / 400) * 0.3 + 0.7;
                 ctx.shadowColor = `rgba(0, 255, 136, ${pulse * 0.3})`;
                 ctx.shadowBlur = 40;
-                ctx.strokeStyle = `rgba(0, 255, 136, ${pulse * 0.5})`;
+                ctx.strokeStyle = `rgba(0, 255, 136, ${pulse * 0.4})`;
                 ctx.lineWidth = 1;
                 ctx.strokeRect(x - 4, y - 4, blockWidth + 8, blockHeight + 8);
                 ctx.shadowBlur = 0;
             }
         }
         
-        // Mining animation text
+        // Mining text
         if (this.isMining) {
-            ctx.fillStyle = 'rgba(0, 255, 136, 0.5)';
+            ctx.fillStyle = 'rgba(0, 255, 136, 0.4)';
             ctx.font = '12px monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
@@ -441,24 +397,18 @@ class Blockchain {
     }
 }
 
-// ===== INIT BLOCKCHAIN =====
-const blockchain = new Blockchain();
+// ===== INIT =====
+const blockchain = new BlockchainSiDESKA();
 
-// ===== ANIMATION LOOP =====
 function animateBlockchain() {
     blockchain.drawBlockchain();
     requestAnimationFrame(animateBlockchain);
 }
 
-// Start animation
-setTimeout(() => {
-    animateBlockchain();
-}, 100);
+setTimeout(() => animateBlockchain(), 100);
 
-// ===== HANDLE RESIZE =====
-window.addEventListener('resize', () => {
-    blockchain.drawBlockchain();
-});
+window.addEventListener('resize', () => blockchain.drawBlockchain());
 
-console.log('⛓️ SA DESKA Blockchain Engine Started');
-console.log(`📊 Genesis Block: ${blockchain.chain[0].hash}`);
+console.log('🌏 Si DESKA Blockchain Engine Started');
+console.log('📊 Genesis Block: ' + blockchain.chain[0].hash);
+console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
