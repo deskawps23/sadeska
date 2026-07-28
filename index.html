@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten</title>
-    <meta name="description" content="Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten Pandeglang" />
+    <title>Si DESKA - Sistem Informasi Data Entri Statistik Kabupaten</title>
+    <meta name="description" content="Si DESKA - Sistem Informasi Data Entri Statistik Kabupaten Pandeglang" />
     <meta name="theme-color" content="#0A0A1A" />
     <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <!-- Chart.js untuk Grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
-    <!-- ===== NAVBAR MODERN ===== -->
+    <!-- ===== NAVBAR ===== -->
     <nav class="navbar" id="navbar">
         <div class="container">
             <div class="logo">
@@ -23,11 +25,11 @@
             </div>
             <ul class="nav-menu" id="navMenu">
                 <li><a href="#home" class="active"><i class="fas fa-home"></i> Beranda</a></li>
+                <li><a href="#grafik"><i class="fas fa-chart-line"></i> Grafik</a></li>
                 <li><a href="#blockchain"><i class="fas fa-link"></i> Verifikasi</a></li>
                 <li><a href="#input"><i class="fas fa-edit"></i> Input Data</a></li>
                 <li><a href="#poin"><i class="fas fa-star"></i> Poin</a></li>
                 <li><a href="#dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
-                <li><a href="#about"><i class="fas fa-info-circle"></i> Tentang</a></li>
             </ul>
             <div class="nav-actions">
                 <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
@@ -48,7 +50,7 @@
         </div>
     </nav>
 
-    <!-- ===== HERO SECTION ===== -->
+    <!-- ===== HERO ===== -->
     <section id="home" class="hero">
         <div class="hero-bg">
             <div class="hero-glow-1"></div>
@@ -64,23 +66,23 @@
                 <h1 class="hero-title">
                     <span class="title-small">Sistem Informasi</span>
                     <span class="title-main">Si <span class="gradient-text">DESKA</span></span>
-                    <span class="title-sub">Data Entri Statistika Kabupaten</span>
+                    <span class="title-sub">Data Entri Statistik Kabupaten</span>
                 </h1>
                 <p class="hero-desc">
-                    Platform data statistik berbasis <strong>verifikasi blockchain</strong> untuk 
-                    <strong>35 Kecamatan</strong> dan <strong>339 Desa/Kelurahan</strong> 
-                    di Kabupaten Pandeglang.
+                    Platform data statistik berbasis <strong>verifikasi blockchain</strong> dengan 
+                    <strong>grafik realtime</strong> untuk <strong>35 Kecamatan</strong> dan 
+                    <strong>339 Desa/Kelurahan</strong> di Kabupaten Pandeglang.
                 </p>
                 <div class="hero-buttons">
-                    <a href="#input" class="btn btn-primary">
-                        <i class="fas fa-edit"></i> Input Data
+                    <a href="#grafik" class="btn btn-primary">
+                        <i class="fas fa-chart-line"></i> Lihat Grafik
                         <span class="btn-ripple"></span>
                     </a>
-                    <a href="#dashboard" class="btn btn-secondary">
-                        <i class="fas fa-chart-pie"></i> Dashboard
+                    <a href="#input" class="btn btn-secondary">
+                        <i class="fas fa-edit"></i> Input Data
                     </a>
-                    <a href="#about" class="btn btn-outline">
-                        <i class="fas fa-info-circle"></i> Pelajari
+                    <a href="#dashboard" class="btn btn-outline">
+                        <i class="fas fa-chart-pie"></i> Dashboard
                     </a>
                 </div>
                 <div class="hero-stats">
@@ -113,7 +115,70 @@
         </div>
     </section>
 
-    <!-- ===== BLOCKCHAIN VERIFICATION ===== -->
+    <!-- ===== GRAFIK REALTIME ===== -->
+    <section id="grafik" class="section grafik-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon"><i class="fas fa-chart-line"></i></div>
+                <h2>Grafik <span>Realtime</span></h2>
+                <p>Data bergerak secara langsung • Update setiap detik</p>
+            </div>
+            <div class="grafik-grid">
+                <div class="grafik-card">
+                    <div class="grafik-header">
+                        <h3><i class="fas fa-arrow-up" style="color: var(--success);"></i> Tren Input Data</h3>
+                        <span class="realtime-badge">🔴 LIVE</span>
+                    </div>
+                    <div class="grafik-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+                <div class="grafik-card">
+                    <div class="grafik-header">
+                        <h3><i class="fas fa-chart-pie" style="color: var(--primary);"></i> Distribusi Sektor</h3>
+                        <span class="realtime-badge">🔴 LIVE</span>
+                    </div>
+                    <div class="grafik-container">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+                <div class="grafik-card">
+                    <div class="grafik-header">
+                        <h3><i class="fas fa-chart-bar" style="color: var(--gold);"></i> Data per Kecamatan</h3>
+                        <span class="realtime-badge">🔴 LIVE</span>
+                    </div>
+                    <div class="grafik-container">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+                <div class="grafik-card full-width">
+                    <div class="grafik-header">
+                        <h3><i class="fas fa-star" style="color: var(--gold);"></i> Poin Kontributor</h3>
+                        <span class="realtime-badge">🔴 LIVE</span>
+                    </div>
+                    <div class="grafik-container">
+                        <canvas id="doughnutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="grafik-info">
+                <div class="info-item">
+                    <span class="info-dot live-dot"></span>
+                    <span class="info-text">Data terakhir diperbarui: <span id="lastUpdate">-</span></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-dot" style="background: var(--success);"></span>
+                    <span class="info-text"><span id="totalGrafikData">0</span> total data entry</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-dot" style="background: var(--gold);"></span>
+                    <span class="info-text"><span id="totalGrafikPoin">0</span> total poin</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== BLOCKCHAIN ===== -->
     <section id="blockchain" class="section blockchain-section">
         <div class="container">
             <div class="section-header">
@@ -329,64 +394,3 @@
                 <div class="about-card">
                     <div class="about-icon"><i class="fas fa-handshake"></i></div>
                     <h3>Kolaborasi</h3>
-                    <ul>
-                        <li>🏛️ BPS Kabupaten Pandeglang</li>
-                        <li>📊 Diskomsantik Pandeglang</li>
-                        <li>📋 Seluruh OPD</li>
-                        <li>🌱 Masyarakat & WPS</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== FOOTER ===== -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <h3>🌏 Si DESKA</h3>
-                    <p>Sistem Informasi Data Entri Statistika Kabupaten</p>
-                    <div class="footer-badges">
-                        <span class="footer-badge">🇮🇩 SDI</span>
-                        <span class="footer-badge">✅ UU PDP</span>
-                        <span class="footer-badge">🔒 Aman</span>
-                    </div>
-                </div>
-                <div class="footer-links">
-                    <h4>Statistik</h4>
-                    <ul>
-                        <li>48 Sektor</li>
-                        <li>35 Kecamatan</li>
-                        <li>339 Desa</li>
-                        <li>12.500+ RT</li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4>Regulasi</h4>
-                    <ul>
-                        <li>✅ UU PDP</li>
-                        <li>✅ Perpres SDI</li>
-                        <li>✅ SPBE</li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4>Kontak</h4>
-                    <ul>
-                        <li><i class="fas fa-envelope"></i> deskawps@yahoo.co.id</li>
-                        <li><i class="fas fa-phone"></i> 0856-9527-2863</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>© 2026 Si DESKA - Kabupaten Pandeglang</p>
-                <p class="footer-disclaimer">✅ Sesuai UU PDP, Perpres SDI, dan SPBE • Bukan aset keuangan</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="blockchain.js"></script>
-    <script src="poin.js"></script>
-    <script src="script.js"></script>
-</body>
-</html>
