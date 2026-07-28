@@ -1,10 +1,12 @@
-const CACHE_NAME = 'sideska-v1';
+const CACHE_NAME = 'sideska-hybrid-v1';
 const urlsToCache = [
   '/',
   '/index.html',
   '/style.css',
   '/script.js',
   '/blockchain.js',
+  '/ipfs.js',
+  '/token.js',
   '/manifest.json'
 ];
 
