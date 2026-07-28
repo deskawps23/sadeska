@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SA DESKA - Data RT/RW Kabupaten Pandeglang</title>
+    <meta name="description" content="SA DESKA - Data statistik dari RT/RW untuk Kabupaten Pandeglang. 35 Kecamatan, 339 Desa/Kelurahan.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">🌏</span>
+                <span class="logo-text">SA DESKA</span>
+                <span class="logo-sub">RT/RW</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home" class="active">Beranda</a></li>
+                <li><a href="#map">Peta</a></li>
+                <li><a href="#rtrw">Data RT/RW</a></li>
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#input">Input Data</a></li>
+                <li><a href="#about">Tentang</a></li>
+                <li><a href="#contact">Kontak</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="wps-badge"><span>🌱 WPS</span><span>Warga Pandeglang Sejahtera</span></div>
+                <h1 class="hero-title">🌏 <span class="highlight">SA DESKA</span></h1>
+                <p class="hero-subtitle">Data RT/RW - Satu Data Entri Statistika Kabupaten Pandeglang</p>
+                <p class="hero-description">Data statistik dari <strong>RT/RW</strong> untuk <strong>35 Kecamatan</strong> dan <strong>339 Desa/Kelurahan</strong> Kabupaten Pandeglang.</p>
+                <div class="hero-buttons">
+                    <a href="#map" class="btn btn-primary"><i class="fas fa-map-marked-alt"></i> Lihat Peta</a>
+                    <a href="#dashboard" class="btn btn-secondary"><i class="fas fa-chart-bar"></i> Dashboard</a>
+                    <a href="#input" class="btn btn-outline"><i class="fas fa-edit"></i> Input Data</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item"><span class="stat-number" id="totalRT">12.500+</span><span class="stat-label">RT</span></div>
+                    <div class="stat-item"><span class="stat-number" id="totalRW">2.500+</span><span class="stat-label">RW</span></div>
+                    <div class="stat-item"><span class="stat-number">339</span><span class="stat-label">Desa/Kelurahan</span></div>
+                    <div class="stat-item"><span class="stat-number">35</span><span class="stat-label">Kecamatan</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="rtrw" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>📍 Pilih Level Data</h2>
+                <p>Dari Kabupaten hingga RT/RW</p>
+            </div>
+            <div class="level-selector">
+                <button class="level-btn active" onclick="selectLevel('kabupaten')">🏛️ Kabupaten</button>
+                <button class="level-btn" onclick="selectLevel('kecamatan')">📍 Kecamatan</button>
+                <button class="level-btn" onclick="selectLevel('desa')">🏘️ Desa</button>
+                <button class="level-btn" onclick="selectLevel('rw')">🏠 RW</button>
+                <button class="level-btn" onclick="selectLevel('rt')">🏡 RT</button>
+            </div>
+            <div id="levelContent" class="level-content"></div>
+        </div>
+    </section>
+
+    <section id="map" class="section map-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>📍 Peta Tematik</h2>
+                <p>Visualisasi data per kecamatan di Kabupaten Pandeglang</p>
+            </div>
+            <div class="map-controls">
+                <div class="control-group">
+                    <label>Level:</label>
+                    <select id="levelSelect">
+                        <option value="kecamatan">Kecamatan</option>
+                        <option value="desa">Desa/Kelurahan</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Indikator:</label>
+                    <select id="indicatorSelect">
+                        <option value="penduduk">Jumlah Penduduk</option>
+                        <option value="putus_sekolah">Angka Putus Sekolah</option>
+                        <option value="stunting">Stunting</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Tahun:</label>
+                    <select id="yearSelect">
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="updateMap()"><i class="fas fa-sync-alt"></i> Update</button>
+            </div>
+            <div id="mapContainer" class="map-container">
+                <div id="mapLoading" class="map-loading"><i class="fas fa-spinner fa-spin"></i><p>Memuat peta...</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="dashboard" class="section dashboard-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>📊 Dashboard Data RT/RW</h2>
+                <p>Ringkasan data dari seluruh RT/RW se-Kabupaten Pandeglang</p>
+            </div>
+            <div class="dashboard-grid" id="dashboardGrid">
+                <div class="card"><div class="card-icon">👨‍👩‍👧‍👦</div><h3>Total Penduduk</h3><p class="card-number" id="totalPopulation">1.283.456</p><p class="card-label">Jiwa (2026)</p></div>
+                <div class="card"><div class="card-icon">📚</div><h3>Angka Putus Sekolah</h3><p class="card-number" id="dropoutRate">3.2%</p><p class="card-label">Dari data RT/RW</p></div>
+                <div class="card"><div class="card-icon">🏥</div><h3>Kematian Ibu</h3><p class="card-number" id="maternalMortality">24</p><p class="card-label">Per 100.000</p></div>
+                <div class="card"><div class="card-icon">👶</div><h3>Stunting</h3><p class="card-number" id="stuntingRate">18.5%</p><p class="card-label">Balita (2025)</p></div>
+                <div class="card"><div class="card-icon">🏠</div><h3>Total RT</h3><p class="card-number" id="totalRTCount">12.500</p><p class="card-label">Seluruh Pandeglang</p></div>
+                <div class="card"><div class="card-icon">🏘️</div><h3>Total RW</h3><p class="card-number" id="totalRWCount">2.500</p><p class="card-label">Seluruh Pandeglang</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="input" class="section data-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>📝 Input Data RT/RW</h2>
+                <p>Update data dari RT/RW secara real-time</p>
+            </div>
+            <div class="input-form">
+                <div class="form-grid">
+                    <div class="form-group"><label>Level</label><select id="inputLevel"><option value="rt">RT</option><option value="rw">RW</option><option value="desa">Desa</option></select></div>
+                    <div class="form-group"><label>Kecamatan</label><select id="inputKecamatan"></select></div>
+                    <div class="form-group"><label>Desa/Kelurahan</label><select id="inputDesa"></select></div>
+                    <div class="form-group"><label>RW</label><input type="text" id="inputRW" placeholder="Contoh: RW-001"></div>
+                    <div class="form-group"><label>RT</label><input type="text" id="inputRT" placeholder="Contoh: RT-001"></div>
+                    <div class="form-group"><label>Jumlah Penduduk</label><input type="number" id="inputPenduduk" placeholder="Total jiwa"></div>
+                    <div class="form-group"><label>Laki-laki</label><input type="number" id="inputLaki" placeholder="Jumlah laki-laki"></div>
+                    <div class="form-group"><label>Perempuan</label><input type="number" id="inputPerempuan" placeholder="Jumlah perempuan"></div>
+                    <div class="form-group"><label>Kepala Keluarga</label><input type="number" id="inputKK" placeholder="Jumlah KK"></div>
+                    <div class="form-group"><label>Anak Putus Sekolah</label><input type="number" id="inputPutusSekolah" placeholder="Jumlah"></div>
+                    <div class="form-group"><label>Balita Stunting</label><input type="number" id="inputStunting" placeholder="Jumlah"></div>
+                    <div class="form-group"><label>Ibu Hamil</label><input type="number" id="inputIbuHamil" placeholder="Jumlah"></div>
+                    <div class="form-group"><label>Penerima Bansos</label><input type="number" id="inputBansos" placeholder="Jumlah"></div>
+                    <div class="form-group"><label>Nama Ketua RT/RW</label><input type="text" id="inputKetua" placeholder="Nama ketua"></div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="submitRTData()"><i class="fas fa-save"></i> Simpan</button>
+                    <button class="btn btn-secondary" onclick="resetForm()"><i class="fas fa-undo"></i> Reset</button>
+                </div>
+            </div>
+            <div id="savedDataList" class="saved-data-list"></div>
+        </div>
+    </section>
+
+    <section id="about" class="section about-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>🤝 Tentang SA DESKA RT/RW</h2>
+                <p>Data dari RT/RW untuk Warga Pandeglang Sejahtera</p>
+            </div>
+            <div class="about-grid">
+                <div class="about-item"><i class="fas fa-bullseye"></i><h3>Visi</h3><p>Data terbaik dari RT/RW untuk perencanaan pembangunan yang tepat sasaran.</p></div>
+                <div class="about-item"><i class="fas fa-rocket"></i><h3>Misi</h3><ul><li>Update data RT/RW setiap bulan</li><li>Data akurat dari sumber terdekat</li><li>Transparansi data hingga level RT</li><li>Mendukung program pemerintah daerah</li></ul></div>
+                <div class="about-item"><i class="fas fa-handshake"></i><h3>Kolaborasi</h3><p>Bersama RT, RW, Desa, Kecamatan, BPS, dan OPD untuk data yang akurat.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section contact-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>📱 Hubungi Kami - WPS</h2>
+                <p>Ada pertanyaan atau ingin berkontribusi? Hubungi kami!</p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-item"><i class="fas fa-envelope"></i><h3>Email</h3><a href="mailto:deskawps@yahoo.co.id">deskawps@yahoo.co.id</a></div>
+                <div class="contact-item"><i class="fab fa-whatsapp"></i><h3>WhatsApp</h3><a href="https://wa.me/6285695272863" target="_blank">0856-9527-2863</a></div>
+                <div class="contact-item"><i class="fab fa-github"></i><h3>GitHub</h3><a href="https://github.com/deskawps23" target="_blank">github.com/deskawps23</a></div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div><h3>🌏 SA DESKA</h3><p>Data RT/RW - Kabupaten Pandeglang</p></div>
+                <div><h4>Statistik</h4><ul><li>35 Kecamatan</li><li>339 Desa/Kelurahan</li><li>2.500+ RW</li><li>12.500+ RT</li></ul></div>
+                <div><h4>Menu</h4><ul><li><a href="#home">Beranda</a></li><li><a href="#map">Peta</a></li><li><a href="#rtrw">Data RT/RW</a></li><li><a href="#input">Input Data</a></li></ul></div>
+                <div><h4>WPS</h4><p>Warga Pandeglang Sejahtera</p><p style="color:#10B981;font-weight:600;margin-top:8px;">🌱 Data RT/RW untuk Semua</p></div>
+            </div>
+            <div class="footer-bottom"><p>© 2026 SA DESKA - Data RT/RW untuk Warga Pandeglang Sejahtera (WPS)</p></div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
