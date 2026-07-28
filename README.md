@@ -1,4 +1,4 @@
-# 🌏 Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten
+# 🌏 Si DESKA - Sistem Informasi Data Entri Statistik Kabupaten
 
 [![Website](https://img.shields.io/badge/Website-Live-brightgreen)](https://deskawps23.github.io/sideska/)
 [![Satu Data](https://img.shields.io/badge/Satu%20Data-Indonesia-red)]()
