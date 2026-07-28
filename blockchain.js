@@ -1,30 +1,31 @@
 // ============================================
-// Si DESKA - Blockchain Engine
-// On-Chain: Hash + Timestamp + Multi-Signature
+// Si DESKA - Blockchain Verifikasi Data
+// Hanya untuk verifikasi keaslian data
+// BUKAN aset keuangan atau kripto
 // ============================================
 
-class BlockchainSiDESKA {
+class BlockchainVerifikasi {
     constructor() {
         this.chain = [];
-        this.pendingHashes = [];
         this.difficulty = 2;
-        this.multiSigRequired = 2; // Minimal tanda tangan
-        this.isMining = false;
+        this.totalData = 0;
         
         this.createGenesisBlock();
-        this.startMining();
     }
 
     createGenesisBlock() {
         const genesis = {
             index: 0,
             timestamp: Date.now(),
-            data: "Genesis Block - Si DESKA Hybrid",
+            data: "Genesis Block - Si DESKA Verifikasi Data",
             previousHash: "0".repeat(64),
-            hash: this.calculateHash(0, Date.now(), "Genesis Block - Si DESKA Hybrid", "0".repeat(64)),
+            hash: this.calculateHash(0, Date.now(), "Genesis Block - Si DESKA Verifikasi Data", "0".repeat(64)),
             nonce: 0,
-            ipfsCID: "QmGenesis",
-            signatures: []
+            verifikasi: {
+                status: 'verified',
+                oleh: 'Sistem Si DESKA',
+                tanggal: new Date().toISOString()
+            }
         };
         this.chain.push(genesis);
         this.updateUI();
@@ -57,160 +58,186 @@ class BlockchainSiDESKA {
         return block;
     }
 
-    // ===== ADD BLOCK (On-Chain) =====
-    addBlock(data, ipfsCID, signatures = []) {
+    // ===== TAMBAH DATA UNTUK VERIFIKASI =====
+    tambahData(dataStatistik, penginput, level, jabatan) {
         const lastBlock = this.chain[this.chain.length - 1];
         
-        // Multi-signature check
-        if (signatures.length < this.multiSigRequired) {
-            return { 
-                success: false, 
-                message: `Butuh ${this.multiSigRequired} tanda tangan, saat ini: ${signatures.length}` 
-            };
-        }
+        const dataEntry = {
+            id: 'DATA-' + Date.now(),
+            statistik: dataStatistik,
+            penginput: penginput,
+            level: level,
+            jabatan: jabatan || 'Warga',
+            timestamp: new Date().toISOString(),
+            verifikasi: {
+                status: 'pending',
+                oleh: null,
+                tanggal: null
+            }
+        };
         
         const newBlock = {
             index: this.chain.length,
             timestamp: Date.now(),
-            data: data,
+            data: dataEntry,
             previousHash: lastBlock.hash,
             hash: '',
             nonce: 0,
-            ipfsCID: ipfsCID,
-            signatures: signatures
+            verifikasi: {
+                status: 'pending',
+                oleh: null,
+                tanggal: null
+            }
         };
         
         const minedBlock = this.mineBlock(newBlock);
         this.chain.push(minedBlock);
-        
-        // Reward token ke penginput
-        const level = data.level || 'rt';
-        const address = data.penginput || 'Warga';
-        const reward = tokenSDT.mintToken(address, level);
+        this.totalData++;
         
         this.updateUI();
         this.drawBlockchain();
-        this.showTransaction(minedBlock, reward);
+        this.showStatus(minedBlock);
         
-        return { 
-            success: true, 
+        return {
+            success: true,
             block: minedBlock,
-            reward: reward,
-            message: `Block #${minedBlock.index} berhasil ditambahkan, reward ${reward} SDT`
+            message: `✅ Data berhasil direkam untuk verifikasi. ID: ${dataEntry.id}`
         };
     }
 
-    // ===== VERIFY DATA =====
-    verifyData(cid, signatures) {
-        // Cari di IPFS
-        const data = ipfs.getData(cid);
-        if (!data) {
-            return { success: false, message: 'Data tidak ditemukan di IPFS' };
-        }
-        
-        // Cari di blockchain
-        const block = this.chain.find(b => b.ipfsCID === cid);
+    // ===== VERIFIKASI DATA OLEH OPD =====
+    verifikasiData(index, oleh) {
+        const block = this.chain.find(b => b.index === index);
         if (!block) {
-            return { success: false, message: 'Data tidak ditemukan di blockchain' };
+            return { success: false, message: 'Data tidak ditemukan' };
         }
         
-        // Verifikasi hash
+        if (block.verifikasi.status === 'verified') {
+            return { success: false, message: 'Data sudah diverifikasi' };
+        }
+        
+        block.verifikasi.status = 'verified';
+        block.verifikasi.oleh = oleh;
+        block.verifikasi.tanggal = new Date().toISOString();
+        block.data.verifikasi = block.verifikasi;
+        
+        // Beri poin ke penginput
+        const reward = sistemPoin.tambahPoin(
+            block.data.penginput,
+            sistemPoin.rewardPoin[block.data.level] || 10,
+            `Verifikasi data ${block.data.level}`
+        );
+        
+        this.updateUI();
+        this.drawBlockchain();
+        
+        return {
+            success: true,
+            message: `✅ Data diverifikasi oleh ${oleh}`,
+            reward: reward
+        };
+    }
+
+    // ===== GET DATA =====
+    getData(index) {
+        return this.chain.find(b => b.index === index) || null;
+    }
+
+    getAllData() {
+        return this.chain.slice(1); // Skip genesis
+    }
+
+    // ===== VERIFIKASI DATA =====
+    verifyData(index) {
+        const block = this.chain.find(b => b.index === index);
+        if (!block) return { success: false, message: 'Data tidak ditemukan' };
+        
         const hashCheck = block.hash === this.calculateHash(
             block.index, block.timestamp, block.data, block.previousHash, block.nonce
         );
         
         return {
             success: true,
-            verified: true,
-            hashCheck: hashCheck,
-            block: block,
-            data: data
+            verified: hashCheck && block.verifikasi.status === 'verified',
+            hashValid: hashCheck,
+            status: block.verifikasi.status,
+            data: block.data
         };
     }
 
-    // ===== MULTI-SIGNATURE =====
-    addSignature(cid, signer) {
-        const block = this.chain.find(b => b.ipfsCID === cid);
-        if (!block) {
-            return { success: false, message: 'Block tidak ditemukan' };
-        }
-        
-        if (block.signatures.includes(signer)) {
-            return { success: false, message: 'Sudah ditandatangani' };
-        }
-        
-        block.signatures.push(signer);
-        return { 
-            success: true, 
-            signatures: block.signatures,
-            required: this.multiSigRequired
-        };
-    }
-
-    startMining() {
-        setInterval(() => {
-            this.isMining = !this.isMining;
-            const status = document.getElementById('miningStatus');
-            if (status) {
-                status.innerHTML = this.isMining ? 
-                    '<i class="fas fa-spinner fa-spin"></i> Menyimpan ke IPFS & Blockchain...' :
-                    '<i class="fas fa-check-circle"></i> Si DESKA Hybrid siap';
-            }
-        }, 3000);
-    }
-
-    showTransaction(block, reward) {
+    showStatus(block) {
         const status = document.getElementById('txStatus');
-        const hash = document.getElementById('txHash');
         if (status) {
             status.innerHTML = `
                 <span style="color: var(--neon-green);">
-                    ⛓️ Block #${block.index} • IPFS: ${block.ipfsCID.substring(0, 12)}...
+                    📋 Data #${block.index} • Menunggu verifikasi OPD
                 </span>
-                <span style="font-size: 12px; color: var(--neon-gold); display: block; margin-top: 4px;">
-                    🪙 Reward: ${reward} SDT
+                <span style="font-size: 12px; color: var(--text-dim); display: block; margin-top: 4px;">
+                    ⭐ ${block.data.level.toUpperCase()} • ${block.data.penginput}
                 </span>
             `;
         }
     }
 
     updateUI() {
-        document.getElementById('totalBlocks').textContent = this.chain.length;
-        document.getElementById('totalData').textContent = ipfs.totalData;
+        document.getElementById('totalData').textContent = this.totalData;
         
-        // Update token stats
-        const stats = tokenSDT.getStats();
-        document.getElementById('totalToken').textContent = stats.totalSupply.toLocaleString();
-        document.getElementById('totalTokenSupply').textContent = stats.totalSupply.toLocaleString() + ' SDT';
-        document.getElementById('totalContributors').textContent = stats.totalContributors + ' Kontributor';
-        document.getElementById('footerSupply').textContent = `Supply: ${stats.totalSupply}`;
-        document.getElementById('footerContributors').textContent = `Kontributor: ${stats.totalContributors}`;
+        // Update poin
+        const stats = sistemPoin.getStats();
+        document.getElementById('totalPoin').textContent = stats.totalPoin;
+        document.getElementById('totalPoinSupply').textContent = stats.totalPoin + ' Poin';
+        document.getElementById('totalKontributor').textContent = stats.totalKontributor + ' Kontributor';
         
-        // Update balance
-        const balance = tokenSDT.getBalance('0xPUBLIC006');
-        document.getElementById('balanceDisplay').textContent = balance;
+        // Update leaderboard
+        this.updateLeaderboard();
         
-        // Last block info
-        if (this.chain.length > 0) {
+        // Last data info
+        if (this.chain.length > 1) {
             const last = this.chain[this.chain.length - 1];
             document.getElementById('currentBlock').textContent = last.index;
             document.getElementById('currentHash').textContent = last.hash.substring(0, 16) + '...';
-            document.getElementById('currentIPFS').textContent = last.ipfsCID.substring(0, 12) + '...';
+            
+            const statusEl = document.getElementById('verificationStatus');
+            if (last.verifikasi.status === 'verified') {
+                statusEl.textContent = '✅ Terverifikasi';
+                statusEl.style.color = 'var(--neon-green)';
+            } else {
+                statusEl.textContent = '⏳ Menunggu Verifikasi';
+                statusEl.style.color = 'var(--neon-gold)';
+            }
         }
         
         this.updateDashboard();
+    }
+
+    updateLeaderboard() {
+        const container = document.getElementById('leaderboardList');
+        if (!container) return;
+        
+        const leaderboard = sistemPoin.getLeaderboard(5);
+        container.innerHTML = leaderboard.map(item => `
+            <div class="leaderboard-item">
+                <span>${item.medali} ${item.nama}</span>
+                <span>${item.poin} Poin • ${item.reputasi}</span>
+            </div>
+        `).join('');
     }
 
     updateDashboard() {
         const container = document.getElementById('dashboardGrid');
         if (!container) return;
         
-        const sektorData = {};
-        ipfs.getAllData().forEach(d => {
-            if (d.sektor) {
-                if (!sektorData[d.sektor]) sektorData[d.sektor] = { count: 0, total: 0 };
-                sektorData[d.sektor].count++;
-                sektorData[d.sektor].total += d.nilai || 0;
+        const data = this.getAllData();
+        const sektorCount = {};
+        const levelCount = { rt: 0, desa: 0, kecamatan: 0 };
+        
+        data.forEach(d => {
+            if (d.data.statistik && d.data.statistik.sektor) {
+                const s = d.data.statistik.sektor;
+                sektorCount[s] = (sektorCount[s] || 0) + 1;
+            }
+            if (d.data.level) {
+                levelCount[d.data.level] = (levelCount[d.data.level] || 0) + 1;
             }
         });
         
@@ -229,8 +256,8 @@ class BlockchainSiDESKA {
             <div class="dashboard-card">
                 <span class="icon">${s.icon}</span>
                 <h3>${s.name}</h3>
-                <div class="number">${sektorData[s.no]?.count || 0}</div>
-                <small style="color: var(--text-dim);">${(sektorData[s.no]?.total || 0).toLocaleString()}</small>
+                <div class="number">${sektorCount[s.no] || 0}</div>
+                <small style="color: var(--text-dim);">${levelCount.rt || 0} RT • ${levelCount.desa || 0} Desa</small>
             </div>
         `).join('');
     }
@@ -293,6 +320,7 @@ class BlockchainSiDESKA {
             const block = displayBlocks[i];
             const x = startX + i * (blockWidth + gap);
             const isGenesis = block.index === 0;
+            const isVerified = block.verifikasi && block.verifikasi.status === 'verified';
             const isLast = i === displayBlocks.length - 1;
             
             // Glow
@@ -300,20 +328,22 @@ class BlockchainSiDESKA {
                 x + blockWidth / 2, y + blockHeight / 2, 5,
                 x + blockWidth / 2, y + blockHeight / 2, blockWidth
             );
-            gradient.addColorStop(0, isLast ? 'rgba(0, 255, 136, 0.2)' : 'rgba(0, 212, 255, 0.06)');
+            const glowColor = isVerified ? 'rgba(0, 255, 136, 0.2)' : 'rgba(245, 158, 11, 0.15)';
+            gradient.addColorStop(0, isLast ? glowColor : 'rgba(0, 212, 255, 0.06)');
             gradient.addColorStop(1, 'transparent');
             ctx.fillStyle = gradient;
             ctx.fillRect(x - 20, y - 20, blockWidth + 40, blockHeight + 40);
             
             // Box
-            ctx.shadowColor = isLast ? 'rgba(0, 255, 136, 0.3)' : 'rgba(0, 212, 255, 0.05)';
-            ctx.shadowBlur = isLast ? 30 : 10;
+            ctx.shadowColor = isLast ? 'rgba(0, 255, 136, 0.2)' : 'rgba(0, 212, 255, 0.05)';
+            ctx.shadowBlur = isLast ? 20 : 10;
             
-            ctx.fillStyle = isGenesis ? 'rgba(0, 255, 136, 0.12)' : 
-                           isLast ? 'rgba(0, 255, 136, 0.18)' : 
-                           'rgba(0, 212, 255, 0.04)';
-            ctx.strokeStyle = isLast ? '#00FF88' : 'rgba(0, 212, 255, 0.2)';
-            ctx.lineWidth = isLast ? 2 : 1;
+            const borderColor = isVerified ? '#00FF88' : (isGenesis ? '#00D4FF' : 'rgba(0, 212, 255, 0.2)');
+            ctx.fillStyle = isGenesis ? 'rgba(0, 255, 136, 0.10)' : 
+                           isVerified ? 'rgba(0, 255, 136, 0.15)' : 
+                           'rgba(245, 158, 11, 0.05)';
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = isVerified ? 2 : 1;
             
             const r = 8;
             ctx.beginPath();
@@ -333,63 +363,56 @@ class BlockchainSiDESKA {
             ctx.shadowBlur = 0;
             
             // Number
-            ctx.fillStyle = isLast ? '#00FF88' : 'rgba(255,255,255,0.5)';
-            ctx.font = isLast ? 'bold 14px monospace' : '11px monospace';
+            ctx.fillStyle = isVerified ? '#00FF88' : 'rgba(255,255,255,0.5)';
+            ctx.font = isVerified ? 'bold 13px monospace' : '11px monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(`#${block.index}`, x + blockWidth / 2, y + 16);
             
-            // Hash
-            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            // Status
+            ctx.fillStyle = isVerified ? 'rgba(0, 255, 136, 0.5)' : 'rgba(245, 158, 11, 0.5)';
             ctx.font = '7px monospace';
-            ctx.fillText((block.hash || '0x...').substring(0, 6) + '...', x + blockWidth / 2, y + 34);
+            const statusText = isVerified ? '✅ Verified' : '⏳ Pending';
+            ctx.fillText(statusText, x + blockWidth / 2, y + 34);
             
-            // IPFS CID
-            ctx.fillStyle = 'rgba(0, 255, 136, 0.3)';
-            ctx.font = '6px monospace';
-            ctx.fillText('IPFS: ' + (block.ipfsCID || 'Qm...').substring(0, 8) + '..', x + blockWidth / 2, y + 48);
+            // Level
+            if (block.data && block.data.level) {
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.font = '7px monospace';
+                ctx.fillText(block.data.level.toUpperCase(), x + blockWidth / 2, y + 48);
+            }
             
             // Genesis
             if (isGenesis) {
-                ctx.fillStyle = '#00FF88';
+                ctx.fillStyle = '#00D4FF';
                 ctx.font = '7px monospace';
                 ctx.textAlign = 'center';
                 ctx.fillText('🔗 GENESIS', x + blockWidth / 2, y - 10);
             }
             
             // Last block glow
-            if (isLast) {
+            if (isLast && !isGenesis) {
                 const pulse = Math.sin(Date.now() / 400) * 0.3 + 0.7;
-                ctx.shadowColor = `rgba(0, 255, 136, ${pulse * 0.3})`;
-                ctx.shadowBlur = 40;
-                ctx.strokeStyle = `rgba(0, 255, 136, ${pulse * 0.4})`;
+                ctx.shadowColor = `rgba(0, 255, 136, ${pulse * 0.2})`;
+                ctx.shadowBlur = 30;
+                ctx.strokeStyle = `rgba(0, 255, 136, ${pulse * 0.3})`;
                 ctx.lineWidth = 1;
                 ctx.strokeRect(x - 4, y - 4, blockWidth + 8, blockHeight + 8);
                 ctx.shadowBlur = 0;
             }
-            
-            // Multi-sig indicator
-            if (block.signatures && block.signatures.length > 0) {
-                ctx.fillStyle = 'rgba(245, 158, 11, 0.5)';
-                ctx.font = '7px monospace';
-                ctx.textAlign = 'right';
-                ctx.fillText('✍️' + block.signatures.length, x + blockWidth - 4, y + blockHeight - 4);
-            }
         }
         
-        // Mining text
-        if (this.isMining) {
-            ctx.fillStyle = 'rgba(0, 255, 136, 0.3)';
-            ctx.font = '12px monospace';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
-            ctx.fillText('⛓️ HYBRID: On-Chain + IPFS', w / 2, h - 10);
-        }
+        // Info text
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('🔗 Verifikasi Data dengan Blockchain • Bukan Aset Keuangan', w / 2, h - 10);
     }
 }
 
 // ===== INIT =====
-const blockchain = new BlockchainSiDESKA();
+const blockchain = new BlockchainVerifikasi();
 
 function animateBlockchain() {
     blockchain.drawBlockchain();
@@ -400,7 +423,6 @@ setTimeout(() => animateBlockchain(), 100);
 
 window.addEventListener('resize', () => blockchain.drawBlockchain());
 
-console.log('⛓️ Si DESKA Blockchain Engine Started (Hybrid)');
-console.log('📊 Genesis Block:', blockchain.chain[0].hash);
-console.log('🪙 Token SDT Active');
-console.log('🌐 IPFS Storage Active');
+console.log('🔗 Si DESKA Blockchain Verifikasi Data Ready');
+console.log('✅ Digunakan hanya untuk verifikasi keaslian data');
+console.log('📋 Bukan aset keuangan atau kripto');
