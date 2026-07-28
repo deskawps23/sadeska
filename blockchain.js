@@ -1,34 +1,30 @@
 // ============================================
 // Si DESKA - Blockchain Engine
-// Sistem Informasi Data Entri Statistika Kabupaten
+// On-Chain: Hash + Timestamp + Multi-Signature
 // ============================================
 
 class BlockchainSiDESKA {
     constructor() {
         this.chain = [];
-        this.pendingData = [];
+        this.pendingHashes = [];
         this.difficulty = 2;
-        this.miningSpeed = 1000;
+        this.multiSigRequired = 2; // Minimal tanda tangan
         this.isMining = false;
-        this.dataCount = 0;
-        this.rtCount = 0;
-        this.rwCount = 0;
-        this.desaCount = 0;
-        this.kecamatanCount = 0;
         
         this.createGenesisBlock();
         this.startMining();
-        this.startAutoGenerate();
     }
 
     createGenesisBlock() {
         const genesis = {
             index: 0,
             timestamp: Date.now(),
-            data: "Genesis Block - Si DESKA",
+            data: "Genesis Block - Si DESKA Hybrid",
             previousHash: "0".repeat(64),
-            hash: this.calculateHash(0, Date.now(), "Genesis Block - Si DESKA", "0".repeat(64)),
-            nonce: 0
+            hash: this.calculateHash(0, Date.now(), "Genesis Block - Si DESKA Hybrid", "0".repeat(64)),
+            nonce: 0,
+            ipfsCID: "QmGenesis",
+            signatures: []
         };
         this.chain.push(genesis);
         this.updateUI();
@@ -61,47 +57,94 @@ class BlockchainSiDESKA {
         return block;
     }
 
-    addBlock(data) {
+    // ===== ADD BLOCK (On-Chain) =====
+    addBlock(data, ipfsCID, signatures = []) {
         const lastBlock = this.chain[this.chain.length - 1];
+        
+        // Multi-signature check
+        if (signatures.length < this.multiSigRequired) {
+            return { 
+                success: false, 
+                message: `Butuh ${this.multiSigRequired} tanda tangan, saat ini: ${signatures.length}` 
+            };
+        }
+        
         const newBlock = {
             index: this.chain.length,
             timestamp: Date.now(),
             data: data,
             previousHash: lastBlock.hash,
             hash: '',
-            nonce: 0
+            nonce: 0,
+            ipfsCID: ipfsCID,
+            signatures: signatures
         };
         
         const minedBlock = this.mineBlock(newBlock);
         this.chain.push(minedBlock);
-        this.dataCount++;
         
-        if (data.level === 'rt') this.rtCount++;
-        else if (data.level === 'rw') this.rwCount++;
-        else if (data.level === 'desa') this.desaCount++;
-        else if (data.level === 'kecamatan') this.kecamatanCount++;
+        // Reward token ke penginput
+        const level = data.level || 'rt';
+        const address = data.penginput || 'Warga';
+        const reward = tokenSDT.mintToken(address, level);
         
         this.updateUI();
         this.drawBlockchain();
-        this.showTransaction(data);
+        this.showTransaction(minedBlock, reward);
         
-        return minedBlock;
+        return { 
+            success: true, 
+            block: minedBlock,
+            reward: reward,
+            message: `Block #${minedBlock.index} berhasil ditambahkan, reward ${reward} SDT`
+        };
     }
 
-    submitData(sektor, level, kecamatan, desa, rw, rt, nilai, keterangan, penginput) {
-        const data = {
-            sektor: parseInt(sektor),
-            level: level,
-            kecamatan: kecamatan,
-            desa: desa || '-',
-            rw: rw || '-',
-            rt: rt || '-',
-            nilai: parseFloat(nilai),
-            keterangan: keterangan || '-',
-            penginput: penginput || 'Warga',
-            timestamp: Date.now()
+    // ===== VERIFY DATA =====
+    verifyData(cid, signatures) {
+        // Cari di IPFS
+        const data = ipfs.getData(cid);
+        if (!data) {
+            return { success: false, message: 'Data tidak ditemukan di IPFS' };
+        }
+        
+        // Cari di blockchain
+        const block = this.chain.find(b => b.ipfsCID === cid);
+        if (!block) {
+            return { success: false, message: 'Data tidak ditemukan di blockchain' };
+        }
+        
+        // Verifikasi hash
+        const hashCheck = block.hash === this.calculateHash(
+            block.index, block.timestamp, block.data, block.previousHash, block.nonce
+        );
+        
+        return {
+            success: true,
+            verified: true,
+            hashCheck: hashCheck,
+            block: block,
+            data: data
         };
-        return this.addBlock(data);
+    }
+
+    // ===== MULTI-SIGNATURE =====
+    addSignature(cid, signer) {
+        const block = this.chain.find(b => b.ipfsCID === cid);
+        if (!block) {
+            return { success: false, message: 'Block tidak ditemukan' };
+        }
+        
+        if (block.signatures.includes(signer)) {
+            return { success: false, message: 'Sudah ditandatangani' };
+        }
+        
+        block.signatures.push(signer);
+        return { 
+            success: true, 
+            signatures: block.signatures,
+            required: this.multiSigRequired
+        };
     }
 
     startMining() {
@@ -110,97 +153,49 @@ class BlockchainSiDESKA {
             const status = document.getElementById('miningStatus');
             if (status) {
                 status.innerHTML = this.isMining ? 
-                    '<i class="fas fa-spinner fa-spin"></i> Mining block baru...' :
-                    '<i class="fas fa-check-circle"></i> Blockchain Si DESKA siap';
-                status.style.color = this.isMining ? '#00FF88' : '#00D4FF';
+                    '<i class="fas fa-spinner fa-spin"></i> Menyimpan ke IPFS & Blockchain...' :
+                    '<i class="fas fa-check-circle"></i> Si DESKA Hybrid siap';
             }
         }, 3000);
     }
 
-    startAutoGenerate() {
-        const sektorList = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
-        const levelList = ['rt', 'rw', 'desa', 'kecamatan'];
-        const kecamatanList = [
-            'Sumur', 'Cimanggu', 'Cibaliung', 'Cikeusik', 'Panimbang',
-            'Sobang', 'Munjul', 'Saketi', 'Bojong', 'Menes'
-        ];
-        const desaList = ['Desa A', 'Desa B', 'Desa C', 'Desa D', 'Desa E'];
-        
-        setInterval(() => {
-            const sektor = sektorList[Math.floor(Math.random() * sektorList.length)];
-            const level = levelList[Math.floor(Math.random() * levelList.length)];
-            const kecamatan = kecamatanList[Math.floor(Math.random() * kecamatanList.length)];
-            const desa = desaList[Math.floor(Math.random() * desaList.length)];
-            const nilai = Math.floor(Math.random() * 1000) + 1;
-            
-            this.submitData(
-                sektor, level, kecamatan,
-                level === 'kecamatan' ? '-' : desa,
-                level === 'rt' || level === 'rw' ? 'RW-' + String(Math.floor(Math.random() * 10) + 1).padStart(3, '0') : '-',
-                level === 'rt' ? 'RT-' + String(Math.floor(Math.random() * 10) + 1).padStart(3, '0') : '-',
-                nilai,
-                `Auto Si DESKA ${new Date().toLocaleTimeString()}`,
-                'Sistem'
-            );
-        }, 4000);
-    }
-
-    showTransaction(data) {
+    showTransaction(block, reward) {
         const status = document.getElementById('txStatus');
+        const hash = document.getElementById('txHash');
         if (status) {
-            const sektorNama = this.getSektorName(data.sektor);
             status.innerHTML = `
                 <span style="color: var(--neon-green);">
-                    ⛓️ Block #${this.chain.length - 1} • ${sektorNama}
+                    ⛓️ Block #${block.index} • IPFS: ${block.ipfsCID.substring(0, 12)}...
                 </span>
-                <span style="font-size: 12px; color: var(--text-dim); display: block; margin-top: 4px;">
-                    ${data.kecamatan} | ${data.level} | ${data.nilai}
+                <span style="font-size: 12px; color: var(--neon-gold); display: block; margin-top: 4px;">
+                    🪙 Reward: ${reward} SDT
                 </span>
             `;
         }
-        setTimeout(() => {
-            if (status) {
-                status.innerHTML = `<span class="tx-hash">⛓️ Menunggu transaksi...</span>`;
-            }
-        }, 3000);
-    }
-
-    getSektorName(no) {
-        const list = [
-            'Kependudukan','Pertanian','Perdagangan','Perindustrian','Pariwisata',
-            'Kesehatan','Pendidikan','Tenaga Kerja','Lingkungan','Energi',
-            'Transportasi','Perumahan','Keuangan','Sosial','Agama'
-        ];
-        return list[no - 1] || `Sektor ${no}`;
     }
 
     updateUI() {
-        const ids = ['totalBlocks', 'totalData', 'totalRT', 'rtCount', 'rwCount', 'desaCount', 'kecamatanCount', 'blockchainCount'];
-        const values = [
-            this.chain.length,
-            this.dataCount,
-            this.rtCount.toLocaleString() + '+',
-            this.rtCount,
-            this.rwCount,
-            this.desaCount,
-            this.kecamatanCount,
-            this.chain.length
-        ];
-        ids.forEach((id, i) => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = values[i];
-        });
+        document.getElementById('totalBlocks').textContent = this.chain.length;
+        document.getElementById('totalData').textContent = ipfs.totalData;
         
-        document.getElementById('footerBlock').textContent = `Block #${this.chain.length - 1}`;
+        // Update token stats
+        const stats = tokenSDT.getStats();
+        document.getElementById('totalToken').textContent = stats.totalSupply.toLocaleString();
+        document.getElementById('totalTokenSupply').textContent = stats.totalSupply.toLocaleString() + ' SDT';
+        document.getElementById('totalContributors').textContent = stats.totalContributors + ' Kontributor';
+        document.getElementById('footerSupply').textContent = `Supply: ${stats.totalSupply}`;
+        document.getElementById('footerContributors').textContent = `Kontributor: ${stats.totalContributors}`;
         
+        // Update balance
+        const balance = tokenSDT.getBalance('0xPUBLIC006');
+        document.getElementById('balanceDisplay').textContent = balance;
+        
+        // Last block info
         if (this.chain.length > 0) {
             const last = this.chain[this.chain.length - 1];
             document.getElementById('currentBlock').textContent = last.index;
             document.getElementById('currentHash').textContent = last.hash.substring(0, 16) + '...';
-            document.getElementById('currentData').textContent = 
-                typeof last.data === 'object' ? 
-                `${last.data.kecamatan} | ${last.data.nilai}` : 
-                last.data.substring(0, 20);
+            document.getElementById('currentIPFS').textContent = last.ipfsCID.substring(0, 12) + '...';
         }
         
         this.updateDashboard();
@@ -210,25 +205,12 @@ class BlockchainSiDESKA {
         const container = document.getElementById('dashboardGrid');
         if (!container) return;
         
-        const stats = this.getStats();
-        container.innerHTML = stats.map(s => `
-            <div class="dashboard-card">
-                <span class="icon">${s.icon}</span>
-                <h3>${s.name}</h3>
-                <div class="number">${s.count}</div>
-                <small style="color: var(--text-dim);">${s.total.toLocaleString()}</small>
-            </div>
-        `).join('');
-    }
-
-    getStats() {
         const sektorData = {};
-        this.chain.forEach(block => {
-            if (block.data && typeof block.data === 'object' && block.data.sektor) {
-                const s = block.data.sektor;
-                if (!sektorData[s]) sektorData[s] = { count: 0, total: 0 };
-                sektorData[s].count++;
-                sektorData[s].total += block.data.nilai || 0;
+        ipfs.getAllData().forEach(d => {
+            if (d.sektor) {
+                if (!sektorData[d.sektor]) sektorData[d.sektor] = { count: 0, total: 0 };
+                sektorData[d.sektor].count++;
+                sektorData[d.sektor].total += d.nilai || 0;
             }
         });
         
@@ -243,11 +225,14 @@ class BlockchainSiDESKA {
             {no:8,name:'Sosial',icon:'🤝'}
         ];
         
-        return sektorList.map(s => ({
-            ...s,
-            count: sektorData[s.no]?.count || 0,
-            total: sektorData[s.no]?.total || 0
-        }));
+        container.innerHTML = sektorList.map(s => `
+            <div class="dashboard-card">
+                <span class="icon">${s.icon}</span>
+                <h3>${s.name}</h3>
+                <div class="number">${sektorData[s.no]?.count || 0}</div>
+                <small style="color: var(--text-dim);">${(sektorData[s.no]?.total || 0).toLocaleString()}</small>
+            </div>
+        `).join('');
     }
 
     drawBlockchain() {
@@ -257,7 +242,7 @@ class BlockchainSiDESKA {
         const ctx = canvas.getContext('2d');
         const rect = canvas.parentElement.getBoundingClientRect();
         canvas.width = rect.width || 800;
-        canvas.height = 420;
+        canvas.height = 400;
         
         const w = canvas.width;
         const h = canvas.height;
@@ -276,18 +261,18 @@ class BlockchainSiDESKA {
         const blockWidth = 80;
         const blockHeight = 60;
         const gap = 20;
-        const totalWidth = Math.min(blocks.length, 20) * (blockWidth + gap) - gap;
+        const displayBlocks = blocks.slice(-15);
+        const totalWidth = displayBlocks.length * (blockWidth + gap) - gap;
         const startX = (w - totalWidth) / 2;
         const y = h / 2 - blockHeight / 2;
         
         // Draw chain curve
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba(0, 255, 136, 0.25)';
+        ctx.strokeStyle = 'rgba(0, 255, 136, 0.2)';
         ctx.lineWidth = 3;
         ctx.setLineDash([6, 8]);
         ctx.lineDashOffset = -Date.now() / 40;
         
-        const displayBlocks = blocks.slice(-20);
         for (let i = 0; i < displayBlocks.length; i++) {
             const x = startX + i * (blockWidth + gap);
             if (i === 0) {
@@ -315,7 +300,7 @@ class BlockchainSiDESKA {
                 x + blockWidth / 2, y + blockHeight / 2, 5,
                 x + blockWidth / 2, y + blockHeight / 2, blockWidth
             );
-            gradient.addColorStop(0, isLast ? 'rgba(0, 255, 136, 0.25)' : 'rgba(0, 212, 255, 0.08)');
+            gradient.addColorStop(0, isLast ? 'rgba(0, 255, 136, 0.2)' : 'rgba(0, 212, 255, 0.06)');
             gradient.addColorStop(1, 'transparent');
             ctx.fillStyle = gradient;
             ctx.fillRect(x - 20, y - 20, blockWidth + 40, blockHeight + 40);
@@ -325,7 +310,7 @@ class BlockchainSiDESKA {
             ctx.shadowBlur = isLast ? 30 : 10;
             
             ctx.fillStyle = isGenesis ? 'rgba(0, 255, 136, 0.12)' : 
-                           isLast ? 'rgba(0, 255, 136, 0.2)' : 
+                           isLast ? 'rgba(0, 255, 136, 0.18)' : 
                            'rgba(0, 212, 255, 0.04)';
             ctx.strokeStyle = isLast ? '#00FF88' : 'rgba(0, 212, 255, 0.2)';
             ctx.lineWidth = isLast ? 2 : 1;
@@ -349,24 +334,22 @@ class BlockchainSiDESKA {
             
             // Number
             ctx.fillStyle = isLast ? '#00FF88' : 'rgba(255,255,255,0.5)';
-            ctx.font = isLast ? 'bold 15px monospace' : '11px monospace';
+            ctx.font = isLast ? 'bold 14px monospace' : '11px monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(`#${block.index}`, x + blockWidth / 2, y + 18);
+            ctx.fillText(`#${block.index}`, x + blockWidth / 2, y + 16);
             
             // Hash
-            ctx.fillStyle = 'rgba(255,255,255,0.25)';
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
             ctx.font = '7px monospace';
-            ctx.fillText((block.hash || '0x...').substring(0, 8) + '...', x + blockWidth / 2, y + 36);
+            ctx.fillText((block.hash || '0x...').substring(0, 6) + '...', x + blockWidth / 2, y + 34);
             
-            // Data
-            if (block.data && typeof block.data === 'object' && block.data.nilai) {
-                ctx.fillStyle = isLast ? '#00FF88' : 'rgba(255,255,255,0.4)';
-                ctx.font = '9px monospace';
-                ctx.fillText(`${block.data.nilai}`, x + blockWidth / 2, y + 50);
-            }
+            // IPFS CID
+            ctx.fillStyle = 'rgba(0, 255, 136, 0.3)';
+            ctx.font = '6px monospace';
+            ctx.fillText('IPFS: ' + (block.ipfsCID || 'Qm...').substring(0, 8) + '..', x + blockWidth / 2, y + 48);
             
-            // Genesis badge
+            // Genesis
             if (isGenesis) {
                 ctx.fillStyle = '#00FF88';
                 ctx.font = '7px monospace';
@@ -374,7 +357,7 @@ class BlockchainSiDESKA {
                 ctx.fillText('🔗 GENESIS', x + blockWidth / 2, y - 10);
             }
             
-            // Last block pulse
+            // Last block glow
             if (isLast) {
                 const pulse = Math.sin(Date.now() / 400) * 0.3 + 0.7;
                 ctx.shadowColor = `rgba(0, 255, 136, ${pulse * 0.3})`;
@@ -384,15 +367,23 @@ class BlockchainSiDESKA {
                 ctx.strokeRect(x - 4, y - 4, blockWidth + 8, blockHeight + 8);
                 ctx.shadowBlur = 0;
             }
+            
+            // Multi-sig indicator
+            if (block.signatures && block.signatures.length > 0) {
+                ctx.fillStyle = 'rgba(245, 158, 11, 0.5)';
+                ctx.font = '7px monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText('✍️' + block.signatures.length, x + blockWidth - 4, y + blockHeight - 4);
+            }
         }
         
         // Mining text
         if (this.isMining) {
-            ctx.fillStyle = 'rgba(0, 255, 136, 0.4)';
+            ctx.fillStyle = 'rgba(0, 255, 136, 0.3)';
             ctx.font = '12px monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
-            ctx.fillText('⛏️ MINING...', w / 2, h - 10);
+            ctx.fillText('⛓️ HYBRID: On-Chain + IPFS', w / 2, h - 10);
         }
     }
 }
@@ -409,6 +400,7 @@ setTimeout(() => animateBlockchain(), 100);
 
 window.addEventListener('resize', () => blockchain.drawBlockchain());
 
-console.log('🌏 Si DESKA Blockchain Engine Started');
-console.log('📊 Genesis Block: ' + blockchain.chain[0].hash);
-console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
+console.log('⛓️ Si DESKA Blockchain Engine Started (Hybrid)');
+console.log('📊 Genesis Block:', blockchain.chain[0].hash);
+console.log('🪙 Token SDT Active');
+console.log('🌐 IPFS Storage Active');
