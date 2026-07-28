@@ -64,6 +64,13 @@ const KECAMATAN = [
 
 // ===== SUBMIT DATA =====
 function submitData() {
+    // Cek consent
+    const consent = document.getElementById('consentCheck');
+    if (!consent.checked) {
+        alert('⚠️ Anda harus menyetujui ketentuan perlindungan data pribadi (UU No. 27/2022)');
+        return;
+    }
+
     const level = document.getElementById('inputLevel').value;
     const sektor = parseInt(document.getElementById('inputSektor').value);
     const kecamatan = document.getElementById('inputKecamatan').value;
@@ -73,15 +80,15 @@ function submitData() {
     const nilai = parseFloat(document.getElementById('inputNilai').value);
     const dataJSON = document.getElementById('inputDataJSON').value || '{}';
     const penginput = document.getElementById('inputPenginput').value || 'Warga';
+    const jabatan = document.getElementById('inputJabatan').value || 'Warga';
 
     // Validasi
     if (!sektor) { alert('⚠️ Pilih sektor!'); return; }
     if (!kecamatan) { alert('⚠️ Pilih kecamatan!'); return; }
     if (isNaN(nilai) || nilai <= 0) { alert('⚠️ Isi nilai data yang valid!'); return; }
 
-    // === STEP 1: SAVE TO IPFS ===
-    const data = {
-        level: level,
+    // === SAVE DATA ===
+    const dataStatistik = {
         sektor: sektor,
         kecamatan: kecamatan,
         desa: desa,
@@ -89,50 +96,32 @@ function submitData() {
         rt: rt,
         nilai: nilai,
         dataJSON: JSON.parse(dataJSON || '{}'),
-        penginput: penginput,
-        timestamp: Date.now()
+        timestamp: new Date().toISOString()
     };
 
-    const ipfsResult = ipfs.saveData(data);
-    const cid = ipfsResult.id;
+    const result = blockchain.tambahData(dataStatistik, penginput, level, jabatan);
 
-    // === STEP 2: MULTI-SIGNATURE ===
-    const signers = ['Kepala Desa', 'Sekretaris Desa'];
-    const signatures = signers.map(s => `${s} (${Date.now().toString(36)})`);
-
-    // === STEP 3: SAVE TO BLOCKCHAIN ===
-    const blockResult = blockchain.addBlock(
-        { 
-            level: level,
-            sektor: sektor,
-            kecamatan: kecamatan,
-            nilai: nilai,
-            penginput: penginput,
-            summary: `${SEKTOR.find(s => s.no === sektor)?.nama || 'Sektor'} - ${kecamatan}`
-        },
-        cid,
-        signatures
-    );
-
-    if (blockResult.success) {
+    if (result.success) {
         // Update badge
-        document.getElementById('inputLevelBadge').innerHTML = 
-            `✅ Data ${level.toUpperCase()} tersimpan! • Block #${blockResult.block.index}`;
+        const levelLabel = document.getElementById('levelLabel');
+        levelLabel.textContent = level.toUpperCase();
 
-        alert(`✅ Data berhasil disimpan!\n\n` +
+        alert(`✅ Data berhasil direkam!\n\n` +
               `📊 ${SEKTOR.find(s => s.no === sektor)?.nama || 'Sektor'}\n` +
               `📍 ${kecamatan}\n` +
               `📝 ${nilai}\n` +
-              `🪙 Reward: ${blockResult.reward} SDT\n` +
-              `🔗 IPFS CID: ${cid.substring(0, 16)}...\n` +
-              `⛓️ Block #${blockResult.block.index}\n` +
-              `✍️ Signatures: ${signatures.length}/${blockchain.multiSigRequired}`);
+              `🔗 ID: ${result.block.data.id}\n` +
+              `⏳ Status: Menunggu verifikasi OPD\n\n` +
+              `⭐ Poin akan diberikan setelah diverifikasi`);
 
         resetForm();
         blockchain.updateUI();
-        document.getElementById('balanceDisplay').textContent = tokenSDT.getBalance('0xPUBLIC006');
+        
+        // Update poin display
+        const poin = sistemPoin.getPoin(penginput);
+        document.getElementById('balanceDisplay').textContent = poin;
     } else {
-        alert(`❌ Gagal: ${blockResult.message}`);
+        alert(`❌ Gagal: ${result.message}`);
     }
 }
 
@@ -142,7 +131,8 @@ function resetForm() {
     document.querySelectorAll('.input-card textarea').forEach(t => t.value = '');
     document.getElementById('inputSektor').selectedIndex = 0;
     document.getElementById('inputKecamatan').selectedIndex = 0;
-    document.getElementById('inputLevelBadge').innerHTML = '📝 RT/RW';
+    document.getElementById('levelLabel').textContent = 'RT/RW';
+    document.getElementById('consentCheck').checked = true;
 }
 
 function updateLevelFields() {
@@ -150,9 +140,9 @@ function updateLevelFields() {
     const rwField = document.getElementById('inputRW');
     const rtField = document.getElementById('inputRT');
     const desaField = document.getElementById('inputDesa');
-    const badge = document.getElementById('inputLevelBadge');
+    const label = document.getElementById('levelLabel');
 
-    badge.innerHTML = `📝 ${level.toUpperCase()}`;
+    label.textContent = level.toUpperCase();
 
     if (level === 'kecamatan') {
         rwField.disabled = true;
@@ -182,6 +172,18 @@ function updateLevelFields() {
         rwField.disabled = false;
         rtField.disabled = false;
         desaField.disabled = false;
+    }
+}
+
+// ===== SIMULASI VERIFIKASI OPD =====
+function verifikasiDataByOPD(index) {
+    const result = blockchain.verifikasiData(index, 'OPD Pandeglang');
+    if (result.success) {
+        alert(`✅ Data berhasil diverifikasi!\n\n${result.message}\n⭐ Poin: +${result.reward}`);
+        blockchain.updateUI();
+        document.getElementById('balanceDisplay').textContent = sistemPoin.getPoin('Warga');
+    } else {
+        alert(`❌ ${result.message}`);
     }
 }
 
@@ -218,8 +220,8 @@ document.addEventListener('DOMContentLoaded', function() {
     blockchain.updateUI();
 
     console.log('🌏 Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten');
-    console.log('⛓️ Hybrid: On-Chain + IPFS');
-    console.log('🪙 Token: SDT Active');
+    console.log('✅ Sesuai: UU PDP • Perpres SDI • SPBE');
+    console.log('⭐ Sistem Poin & Reputasi (Bukan Aset Keuangan)');
     console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
 });
 
@@ -231,12 +233,10 @@ setInterval(() => {
     }
 }, 1000);
 
-// ===== UPDATE BALANCE PERIODICALLY =====
+// ===== UPDATE BALANCE =====
 setInterval(() => {
-    const balance = tokenSDT.getBalance('0xPUBLIC006');
-    document.getElementById('balanceDisplay').textContent = balance;
-    const stats = tokenSDT.getStats();
-    document.getElementById('totalToken').textContent = stats.totalSupply.toLocaleString();
-    document.getElementById('totalTokenSupply').textContent = stats.totalSupply.toLocaleString() + ' SDT';
-    document.getElementById('totalContributors').textContent = stats.totalContributors + ' Kontributor';
+    const stats = sistemPoin.getStats();
+    document.getElementById('totalPoin').textContent = stats.totalPoin;
+    document.getElementById('totalPoinSupply').textContent = stats.totalPoin + ' Poin';
+    document.getElementById('totalKontributor').textContent = stats.totalKontributor + ' Kontributor';
 }, 2000);
