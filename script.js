@@ -63,37 +63,86 @@ const KECAMATAN = [
 ];
 
 // ===== SUBMIT DATA =====
-function submitBlockchainData() {
-    const sektor = document.getElementById('inputSektor').value;
+function submitData() {
     const level = document.getElementById('inputLevel').value;
+    const sektor = parseInt(document.getElementById('inputSektor').value);
     const kecamatan = document.getElementById('inputKecamatan').value;
     const desa = document.getElementById('inputDesa').value || '-';
     const rw = document.getElementById('inputRW').value || '-';
     const rt = document.getElementById('inputRT').value || '-';
-    const nilai = document.getElementById('inputNilai').value;
-    const keterangan = document.getElementById('inputKeterangan').value || '-';
+    const nilai = parseFloat(document.getElementById('inputNilai').value);
+    const dataJSON = document.getElementById('inputDataJSON').value || '{}';
     const penginput = document.getElementById('inputPenginput').value || 'Warga';
 
+    // Validasi
     if (!sektor) { alert('⚠️ Pilih sektor!'); return; }
     if (!kecamatan) { alert('⚠️ Pilih kecamatan!'); return; }
-    if (!nilai) { alert('⚠️ Isi nilai data!'); return; }
+    if (isNaN(nilai) || nilai <= 0) { alert('⚠️ Isi nilai data yang valid!'); return; }
 
-    const result = blockchain.submitData(
-        sektor, level, kecamatan, desa, rw, rt, nilai, keterangan, penginput
+    // === STEP 1: SAVE TO IPFS ===
+    const data = {
+        level: level,
+        sektor: sektor,
+        kecamatan: kecamatan,
+        desa: desa,
+        rw: rw,
+        rt: rt,
+        nilai: nilai,
+        dataJSON: JSON.parse(dataJSON || '{}'),
+        penginput: penginput,
+        timestamp: Date.now()
+    };
+
+    const ipfsResult = ipfs.saveData(data);
+    const cid = ipfsResult.id;
+
+    // === STEP 2: MULTI-SIGNATURE ===
+    const signers = ['Kepala Desa', 'Sekretaris Desa'];
+    const signatures = signers.map(s => `${s} (${Date.now().toString(36)})`);
+
+    // === STEP 3: SAVE TO BLOCKCHAIN ===
+    const blockResult = blockchain.addBlock(
+        { 
+            level: level,
+            sektor: sektor,
+            kecamatan: kecamatan,
+            nilai: nilai,
+            penginput: penginput,
+            summary: `${SEKTOR.find(s => s.no === sektor)?.nama || 'Sektor'} - ${kecamatan}`
+        },
+        cid,
+        signatures
     );
 
-    if (result) {
-        const sektorNama = SEKTOR.find(s => s.no == sektor)?.nama || `Sektor ${sektor}`;
-        alert(`✅ Data berhasil masuk ke Blockchain Si DESKA!\n\n📊 Block #${result.index}\n🔗 Hash: ${result.hash.substring(0, 20)}...\n📍 ${kecamatan}\n📊 ${sektorNama}\n📝 ${nilai}`);
+    if (blockResult.success) {
+        // Update badge
+        document.getElementById('inputLevelBadge').innerHTML = 
+            `✅ Data ${level.toUpperCase()} tersimpan! • Block #${blockResult.block.index}`;
+
+        alert(`✅ Data berhasil disimpan!\n\n` +
+              `📊 ${SEKTOR.find(s => s.no === sektor)?.nama || 'Sektor'}\n` +
+              `📍 ${kecamatan}\n` +
+              `📝 ${nilai}\n` +
+              `🪙 Reward: ${blockResult.reward} SDT\n` +
+              `🔗 IPFS CID: ${cid.substring(0, 16)}...\n` +
+              `⛓️ Block #${blockResult.block.index}\n` +
+              `✍️ Signatures: ${signatures.length}/${blockchain.multiSigRequired}`);
+
         resetForm();
+        blockchain.updateUI();
+        document.getElementById('balanceDisplay').textContent = tokenSDT.getBalance('0xPUBLIC006');
+    } else {
+        alert(`❌ Gagal: ${blockResult.message}`);
     }
 }
 
 function resetForm() {
     document.querySelectorAll('.input-card input').forEach(i => i.value = '');
     document.querySelectorAll('.input-card select').forEach(s => s.selectedIndex = 0);
+    document.querySelectorAll('.input-card textarea').forEach(t => t.value = '');
     document.getElementById('inputSektor').selectedIndex = 0;
     document.getElementById('inputKecamatan').selectedIndex = 0;
+    document.getElementById('inputLevelBadge').innerHTML = '📝 RT/RW';
 }
 
 function updateLevelFields() {
@@ -101,6 +150,9 @@ function updateLevelFields() {
     const rwField = document.getElementById('inputRW');
     const rtField = document.getElementById('inputRT');
     const desaField = document.getElementById('inputDesa');
+    const badge = document.getElementById('inputLevelBadge');
+
+    badge.innerHTML = `📝 ${level.toUpperCase()}`;
 
     if (level === 'kecamatan') {
         rwField.disabled = true;
@@ -163,10 +215,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     updateLevelFields();
+    blockchain.updateUI();
 
     console.log('🌏 Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten');
+    console.log('⛓️ Hybrid: On-Chain + IPFS');
+    console.log('🪙 Token: SDT Active');
     console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
-    console.log('⛓️ Blockchain Real-Time Aktif');
 });
 
 // ===== LIVE CLOCK =====
@@ -176,3 +230,13 @@ setInterval(() => {
         status.innerHTML = `<span class="dot"></span> LIVE ${new Date().toLocaleTimeString()}`;
     }
 }, 1000);
+
+// ===== UPDATE BALANCE PERIODICALLY =====
+setInterval(() => {
+    const balance = tokenSDT.getBalance('0xPUBLIC006');
+    document.getElementById('balanceDisplay').textContent = balance;
+    const stats = tokenSDT.getStats();
+    document.getElementById('totalToken').textContent = stats.totalSupply.toLocaleString();
+    document.getElementById('totalTokenSupply').textContent = stats.totalSupply.toLocaleString() + ' SDT';
+    document.getElementById('totalContributors').textContent = stats.totalContributors + ' Kontributor';
+}, 2000);
