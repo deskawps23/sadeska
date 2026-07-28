@@ -1,6 +1,5 @@
 // ============================================
-// Si DESKA - Main UI Logic
-// Sistem Informasi Data Entri Statistika Kabupaten
+// Si DESKA - Script (Diperbarui untuk UI Modern)
 // ============================================
 
 const SEKTOR = [
@@ -64,7 +63,6 @@ const KECAMATAN = [
 
 // ===== SUBMIT DATA =====
 function submitData() {
-    // Cek consent
     const consent = document.getElementById('consentCheck');
     if (!consent.checked) {
         alert('⚠️ Anda harus menyetujui ketentuan perlindungan data pribadi (UU No. 27/2022)');
@@ -82,12 +80,10 @@ function submitData() {
     const penginput = document.getElementById('inputPenginput').value || 'Warga';
     const jabatan = document.getElementById('inputJabatan').value || 'Warga';
 
-    // Validasi
     if (!sektor) { alert('⚠️ Pilih sektor!'); return; }
     if (!kecamatan) { alert('⚠️ Pilih kecamatan!'); return; }
     if (isNaN(nilai) || nilai <= 0) { alert('⚠️ Isi nilai data yang valid!'); return; }
 
-    // === SAVE DATA ===
     const dataStatistik = {
         sektor: sektor,
         kecamatan: kecamatan,
@@ -102,22 +98,21 @@ function submitData() {
     const result = blockchain.tambahData(dataStatistik, penginput, level, jabatan);
 
     if (result.success) {
-        // Update badge
-        const levelLabel = document.getElementById('levelLabel');
-        levelLabel.textContent = level.toUpperCase();
-
-        alert(`✅ Data berhasil direkam!\n\n` +
-              `📊 ${SEKTOR.find(s => s.no === sektor)?.nama || 'Sektor'}\n` +
-              `📍 ${kecamatan}\n` +
-              `📝 ${nilai}\n` +
-              `🔗 ID: ${result.block.data.id}\n` +
-              `⏳ Status: Menunggu verifikasi OPD\n\n` +
-              `⭐ Poin akan diberikan setelah diverifikasi`);
+        const sektorNama = SEKTOR.find(s => s.no === sektor)?.nama || 'Sektor';
+        document.getElementById('levelLabel').textContent = level.toUpperCase();
+        
+        // Update status
+        const status = document.getElementById('txStatus');
+        status.innerHTML = `
+            <i class="fas fa-check-circle" style="color: var(--success);"></i>
+            <span class="tx-hash">✅ Data berhasil direkam! ID: ${result.block.data.id}</span>
+        `;
+        
+        alert(`✅ Data berhasil direkam!\n\n📊 ${sektorNama}\n📍 ${kecamatan}\n📝 ${nilai}\n⏳ Status: Menunggu verifikasi OPD\n\n⭐ Poin akan diberikan setelah diverifikasi`);
 
         resetForm();
         blockchain.updateUI();
         
-        // Update poin display
         const poin = sistemPoin.getPoin(penginput);
         document.getElementById('balanceDisplay').textContent = poin;
     } else {
@@ -133,6 +128,12 @@ function resetForm() {
     document.getElementById('inputKecamatan').selectedIndex = 0;
     document.getElementById('levelLabel').textContent = 'RT/RW';
     document.getElementById('consentCheck').checked = true;
+    
+    const status = document.getElementById('txStatus');
+    status.innerHTML = `
+        <i class="fas fa-circle-notch fa-spin"></i>
+        <span class="tx-hash">Siap menginput data...</span>
+    `;
 }
 
 function updateLevelFields() {
@@ -145,47 +146,33 @@ function updateLevelFields() {
     label.textContent = level.toUpperCase();
 
     if (level === 'kecamatan') {
-        rwField.disabled = true;
-        rtField.disabled = true;
-        desaField.disabled = true;
-        rwField.placeholder = '-';
-        rtField.placeholder = '-';
-        desaField.placeholder = '-';
-        rwField.value = '';
-        rtField.value = '';
-        desaField.value = '';
+        rwField.disabled = true; rtField.disabled = true; desaField.disabled = true;
+        rwField.placeholder = '-'; rtField.placeholder = '-'; desaField.placeholder = '-';
+        rwField.value = ''; rtField.value = ''; desaField.value = '';
     } else if (level === 'desa') {
-        rwField.disabled = true;
-        rtField.disabled = true;
-        desaField.disabled = false;
-        rwField.placeholder = '-';
-        rtField.placeholder = '-';
-        rwField.value = '';
-        rtField.value = '';
+        rwField.disabled = true; rtField.disabled = true; desaField.disabled = false;
+        rwField.placeholder = '-'; rtField.placeholder = '-';
+        rwField.value = ''; rtField.value = '';
     } else if (level === 'rw') {
-        rwField.disabled = false;
-        rtField.disabled = true;
-        desaField.disabled = false;
-        rtField.placeholder = '-';
-        rtField.value = '';
+        rwField.disabled = false; rtField.disabled = true; desaField.disabled = false;
+        rtField.placeholder = '-'; rtField.value = '';
     } else {
-        rwField.disabled = false;
-        rtField.disabled = false;
-        desaField.disabled = false;
+        rwField.disabled = false; rtField.disabled = false; desaField.disabled = false;
     }
 }
 
-// ===== SIMULASI VERIFIKASI OPD =====
-function verifikasiDataByOPD(index) {
-    const result = blockchain.verifikasiData(index, 'OPD Pandeglang');
-    if (result.success) {
-        alert(`✅ Data berhasil diverifikasi!\n\n${result.message}\n⭐ Poin: +${result.reward}`);
-        blockchain.updateUI();
-        document.getElementById('balanceDisplay').textContent = sistemPoin.getPoin('Warga');
-    } else {
-        alert(`❌ ${result.message}`);
+// ===== THEME TOGGLE =====
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('themeToggle');
+    if (toggle) {
+        toggle.addEventListener('click', function() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') !== 'light';
+            html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            this.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
     }
-}
+});
 
 // ===== NAVBAR =====
 document.addEventListener('DOMContentLoaded', function() {
@@ -217,26 +204,30 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     updateLevelFields();
-    blockchain.updateUI();
+    if (typeof blockchain !== 'undefined') blockchain.updateUI();
 
-    console.log('🌏 Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten');
+    console.log('🌏 Si DESKA - Modern UI v2.0');
     console.log('✅ Sesuai: UU PDP • Perpres SDI • SPBE');
-    console.log('⭐ Sistem Poin & Reputasi (Bukan Aset Keuangan)');
     console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
 });
 
 // ===== LIVE CLOCK =====
 setInterval(() => {
-    const status = document.getElementById('liveStatus');
-    if (status) {
-        status.innerHTML = `<span class="dot"></span> LIVE ${new Date().toLocaleTimeString()}`;
+    const liveBadge = document.querySelector('.live-text');
+    if (liveBadge) {
+        liveBadge.textContent = `Live ${new Date().toLocaleTimeString()}`;
     }
 }, 1000);
 
 // ===== UPDATE BALANCE =====
 setInterval(() => {
-    const stats = sistemPoin.getStats();
-    document.getElementById('totalPoin').textContent = stats.totalPoin;
-    document.getElementById('totalPoinSupply').textContent = stats.totalPoin + ' Poin';
-    document.getElementById('totalKontributor').textContent = stats.totalKontributor + ' Kontributor';
+    if (typeof sistemPoin !== 'undefined') {
+        const stats = sistemPoin.getStats();
+        const totalPoinEl = document.getElementById('totalPoin');
+        const totalPoinSupply = document.getElementById('totalPoinSupply');
+        const totalKontributor = document.getElementById('totalKontributor');
+        if (totalPoinEl) totalPoinEl.textContent = stats.totalPoin;
+        if (totalPoinSupply) totalPoinSupply.textContent = stats.totalPoin;
+        if (totalKontributor) totalKontributor.textContent = stats.totalKontributor + ' Kontributor';
+    }
 }, 2000);
