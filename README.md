@@ -37,4 +37,4 @@
 
 ---
 
-**Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten Pandeglang** 🌏
+**Si DESKA - Sistem Informasi Data Entri Statistik Kabupaten Pandeglang** 🌏
