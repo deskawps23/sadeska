@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sadeska-blockchain-v1';
+const CACHE_NAME = 'sideska-v1';
 const urlsToCache = [
   '/',
   '/index.html',
