@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten</title>
-    <meta name="description" content="Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten Pandeglang berbasis Blockchain Real-Time" />
+    <title>Si DESKA - Blockchain Hibrida + Token Data</title>
+    <meta name="description" content="Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten dengan Blockchain Hibrida + Tokenisasi Data" />
     <meta name="theme-color" content="#00FF88" />
     <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="style.css" />
@@ -18,19 +18,22 @@
             <div class="logo">
                 <span class="logo-icon">🌏</span>
                 <span class="logo-text">Si DESKA</span>
-                <span class="logo-badge">BLOCKCHAIN</span>
+                <span class="logo-badge">HIBRIDA</span>
             </div>
             <ul class="nav-menu" id="navMenu">
                 <li><a href="#home" class="active"><i class="fas fa-home"></i> Beranda</a></li>
                 <li><a href="#blockchain"><i class="fas fa-link"></i> Blockchain</a></li>
-                <li><a href="#data"><i class="fas fa-database"></i> Data Flow</a></li>
                 <li><a href="#input"><i class="fas fa-edit"></i> Input Data</a></li>
+                <li><a href="#token"><i class="fas fa-coins"></i> Token</a></li>
                 <li><a href="#dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
                 <li><a href="#about"><i class="fas fa-info-circle"></i> Tentang</a></li>
             </ul>
             <div class="nav-actions">
                 <span class="live-status" id="liveStatus">
                     <span class="dot"></span> LIVE
+                </span>
+                <span class="token-balance" id="tokenBalance">
+                    <i class="fas fa-coins"></i> <span id="balanceDisplay">0</span> SDT
                 </span>
                 <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
             </div>
@@ -45,29 +48,28 @@
                 <h1 class="hero-title">🌏 <span class="gradient-text">Si DESKA</span></h1>
                 <p class="hero-subtitle">Sistem Informasi Data Entri Statistika Kabupaten</p>
                 <p class="hero-description">
-                    <strong>Si DESKA</strong> adalah sistem data statistik berbasis <strong>Blockchain Real-Time</strong> 
-                    untuk <strong>35 Kecamatan</strong> dan <strong>339 Desa/Kelurahan</strong> 
-                    di Kabupaten Pandeglang.
+                    <strong>Blockchain Hibrida</strong> (On-Chain + IPFS) • <strong>Tokenisasi Data</strong> • 
+                    Dari <strong>RT/RW</strong> hingga <strong>Kecamatan</strong>
                 </p>
                 <div class="hero-stats" id="heroStats">
                     <div class="stat-item"><span class="stat-number" id="totalBlocks">0</span><span class="stat-label">Block</span></div>
                     <div class="stat-item"><span class="stat-number" id="totalData">0</span><span class="stat-label">Data Entry</span></div>
                     <div class="stat-item"><span class="stat-number" id="totalRT">0</span><span class="stat-label">RT Aktif</span></div>
-                    <div class="stat-item"><span class="stat-number" id="totalKecamatan">35</span><span class="stat-label">Kecamatan</span></div>
+                    <div class="stat-item"><span class="stat-number" id="totalToken">0</span><span class="stat-label">Token SDT</span></div>
                 </div>
                 <div class="mining-status" id="miningStatus">
-                    <i class="fas fa-spinner fa-spin"></i> Mining block baru...
+                    <i class="fas fa-spinner fa-spin"></i> Menyimpan ke IPFS & Blockchain...
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ===== BLOCKCHAIN VISUALIZATION ===== -->
+    <!-- ===== BLOCKCHAIN VISUAL ===== -->
     <section id="blockchain" class="section blockchain-section">
         <div class="container">
             <div class="section-header">
                 <h2><i class="fas fa-link"></i> Blockchain Visual</h2>
-                <p>Rantai blockchain bergerak real-time • Setiap block terhubung dengan kurva</p>
+                <p>Hash data di blockchain • Data asli di IPFS • Kurva bergerak real-time</p>
             </div>
             <div class="blockchain-container">
                 <canvas id="blockchainCanvas"></canvas>
@@ -75,54 +77,8 @@
                     <div class="block-info" id="blockInfo">
                         <span>Block #<span id="currentBlock">0</span></span>
                         <span>Hash: <span id="currentHash">0x0000...</span></span>
-                        <span>Data: <span id="currentData">-</span></span>
+                        <span>IPFS: <span id="currentIPFS">Qm...</span></span>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== DATA FLOW ===== -->
-    <section id="data" class="section data-flow-section">
-        <div class="container">
-            <div class="section-header">
-                <h2><i class="fas fa-exchange-alt"></i> Aliran Data Real-Time</h2>
-                <p>Data mengalir dari RT → RW → Desa → Kecamatan → Blockchain Si DESKA</p>
-            </div>
-            <div class="data-flow" id="dataFlow">
-                <div class="flow-node" id="flowRT">
-                    <div class="flow-icon">🏡</div>
-                    <div class="flow-label">RT</div>
-                    <div class="flow-count" id="rtCount">0</div>
-                    <div class="flow-pulse"></div>
-                </div>
-                <div class="flow-arrow">→</div>
-                <div class="flow-node" id="flowRW">
-                    <div class="flow-icon">🏠</div>
-                    <div class="flow-label">RW</div>
-                    <div class="flow-count" id="rwCount">0</div>
-                    <div class="flow-pulse"></div>
-                </div>
-                <div class="flow-arrow">→</div>
-                <div class="flow-node" id="flowDesa">
-                    <div class="flow-icon">🏘️</div>
-                    <div class="flow-label">Desa</div>
-                    <div class="flow-count" id="desaCount">0</div>
-                    <div class="flow-pulse"></div>
-                </div>
-                <div class="flow-arrow">→</div>
-                <div class="flow-node" id="flowKecamatan">
-                    <div class="flow-icon">📍</div>
-                    <div class="flow-label">Kecamatan</div>
-                    <div class="flow-count" id="kecamatanCount">0</div>
-                    <div class="flow-pulse"></div>
-                </div>
-                <div class="flow-arrow">→</div>
-                <div class="flow-node blockchain-node" id="flowBlockchain">
-                    <div class="flow-icon">⛓️</div>
-                    <div class="flow-label">Si DESKA</div>
-                    <div class="flow-count" id="blockchainCount">0</div>
-                    <div class="flow-pulse"></div>
                 </div>
             </div>
         </div>
@@ -132,22 +88,24 @@
     <section id="input" class="section input-section">
         <div class="container">
             <div class="section-header">
-                <h2><i class="fas fa-edit"></i> Input Data Si DESKA</h2>
-                <p>Data langsung masuk ke blockchain + real-time update setiap detik</p>
+                <h2><i class="fas fa-edit"></i> Input Data</h2>
+                <p>Data → IPFS (Off-Chain) • Hash → Blockchain (On-Chain) • Reward → Token SDT</p>
             </div>
             <div class="input-card">
+                <div class="input-level-badge">
+                    <span id="inputLevelBadge">📝 RT/RW</span>
+                </div>
                 <div class="form-grid">
                     <div class="form-group">
                         <label><i class="fas fa-layer-group"></i> Level</label>
                         <select id="inputLevel" onchange="updateLevelFields()">
-                            <option value="rt">RT</option>
-                            <option value="rw">RW</option>
+                            <option value="rt">RT/RW</option>
                             <option value="desa">Desa</option>
                             <option value="kecamatan">Kecamatan</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-tag"></i> Sektor (1-48)</label>
+                        <label><i class="fas fa-tag"></i> Sektor</label>
                         <select id="inputSektor"></select>
                     </div>
                     <div class="form-group">
@@ -171,8 +129,8 @@
                         <input type="number" id="inputNilai" placeholder="Jumlah / nilai" />
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-pen"></i> Keterangan</label>
-                        <input type="text" id="inputKeterangan" placeholder="Deskripsi data" />
+                        <label><i class="fas fa-file-alt"></i> Data (JSON)</label>
+                        <textarea id="inputDataJSON" rows="2" placeholder='{"keterangan": "data tambahan"}'></textarea>
                     </div>
                     <div class="form-group">
                         <label><i class="fas fa-user"></i> Penginput</label>
@@ -180,8 +138,8 @@
                     </div>
                 </div>
                 <div class="form-actions">
-                    <button class="btn btn-primary" onclick="submitBlockchainData()">
-                        <i class="fas fa-link"></i> Submit ke Blockchain
+                    <button class="btn btn-primary" onclick="submitData()">
+                        <i class="fas fa-link"></i> Simpan ke IPFS + Blockchain
                     </button>
                     <button class="btn btn-secondary" onclick="resetForm()">
                         <i class="fas fa-undo"></i> Reset
@@ -194,12 +152,53 @@
         </div>
     </section>
 
+    <!-- ===== TOKEN SECTION ===== -->
+    <section id="token" class="section token-section">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-coins"></i> Token Data SDT</h2>
+                <p>Setiap data yang divalidasi menghasilkan token • Token untuk akses data premium</p>
+            </div>
+            <div class="token-grid">
+                <div class="token-card">
+                    <i class="fas fa-gift"></i>
+                    <h3>Reward Kontributor</h3>
+                    <p>Setiap input data valid mendapat <strong>+10 SDT</strong></p>
+                    <span class="token-badge">RT/RW: 10 SDT</span>
+                    <span class="token-badge">Desa: 20 SDT</span>
+                    <span class="token-badge">Kecamatan: 30 SDT</span>
+                </div>
+                <div class="token-card">
+                    <i class="fas fa-unlock"></i>
+                    <h3>Akses Data Premium</h3>
+                    <p>Bayar dengan token SDT untuk akses data detail</p>
+                    <span class="token-badge">Data RT: 5 SDT</span>
+                    <span class="token-badge">Data Desa: 15 SDT</span>
+                    <span class="token-badge">Data Agregat: 25 SDT</span>
+                </div>
+                <div class="token-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Staking</h3>
+                    <p>Stake token untuk menjadi validator data</p>
+                    <span class="token-badge">Min Stake: 100 SDT</span>
+                    <span class="token-badge">Reward: 5% APY</span>
+                </div>
+                <div class="token-card">
+                    <i class="fas fa-hand-holding-heart"></i>
+                    <h3>Total Token</h3>
+                    <p id="totalTokenSupply">0 SDT</p>
+                    <span id="totalContributors">0 Kontributor</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ===== DASHBOARD ===== -->
     <section id="dashboard" class="section dashboard-section">
         <div class="container">
             <div class="section-header">
-                <h2><i class="fas fa-chart-pie"></i> Live Dashboard Si DESKA</h2>
-                <p>Update setiap detik • Data dari blockchain real-time</p>
+                <h2><i class="fas fa-chart-pie"></i> Live Dashboard</h2>
+                <p>Update setiap detik • Data dari IPFS + Blockchain</p>
             </div>
             <div class="dashboard-grid" id="dashboardGrid"></div>
         </div>
@@ -210,28 +209,35 @@
         <div class="container">
             <div class="section-header">
                 <h2><i class="fas fa-info-circle"></i> Tentang Si DESKA</h2>
-                <p>Sistem Informasi Data Entri Statistika Kabupaten Pandeglang</p>
+                <p>Arsitektur Blockchain Hibrida + Tokenisasi Data</p>
             </div>
             <div class="about-grid">
                 <div class="about-card">
-                    <i class="fas fa-bullseye"></i>
-                    <h3>Visi</h3>
-                    <p>Menjadi sistem data statistik terpercaya berbasis blockchain untuk Kabupaten Pandeglang.</p>
-                </div>
-                <div class="about-card">
-                    <i class="fas fa-rocket"></i>
-                    <h3>Misi</h3>
+                    <i class="fas fa-link"></i>
+                    <h3>Blockchain Hibrida</h3>
                     <ul>
-                        <li>Menyediakan data akurat dari RT/RW</li>
-                        <li>Menjaga integritas data dengan blockchain</li>
-                        <li>Real-time update setiap detik</li>
-                        <li>Mendukung 48 sektor pembangunan</li>
+                        <li><strong>On-Chain:</strong> Hash data, timestamp, multi-signature</li>
+                        <li><strong>Off-Chain (IPFS):</strong> Data mentah RT/RW, Desa, Kecamatan</li>
+                        <li><strong>Keuntungan:</strong> Hemat biaya, tetap terverifikasi</li>
                     </ul>
                 </div>
                 <div class="about-card">
-                    <i class="fas fa-handshake"></i>
-                    <h3>Kolaborasi</h3>
-                    <p>Bekerja sama dengan RT, RW, Desa, Kecamatan, BPS, dan seluruh OPD Pandeglang.</p>
+                    <i class="fas fa-coins"></i>
+                    <h3>Tokenisasi Data (SDT)</h3>
+                    <ul>
+                        <li><strong>Reward:</strong> Kontributor data dapat token</li>
+                        <li><strong>Utilitas:</strong> Bayar untuk akses data premium</li>
+                        <li><strong>Staking:</strong> Validator stake token untuk kualitas data</li>
+                    </ul>
+                </div>
+                <div class="about-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Alur Data</h3>
+                    <ul>
+                        <li><strong>RT/RW:</strong> Input data mentah → +10 SDT</li>
+                        <li><strong>Desa:</strong> Verifikasi + agregasi → +20 SDT</li>
+                        <li><strong>Kecamatan:</strong> Validasi final → +30 SDT</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -241,41 +247,18 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div>
-                    <h3>🌏 Si DESKA</h3>
-                    <p>Sistem Informasi Data Entri Statistika Kabupaten</p>
-                    <p style="color: var(--neon-green); font-size: 13px; margin-top: 4px;">Blockchain Real-Time</p>
-                </div>
-                <div>
-                    <h4>Statistik</h4>
-                    <ul>
-                        <li>48 Sektor</li>
-                        <li>35 Kecamatan</li>
-                        <li>339 Desa/Kelurahan</li>
-                        <li>12.500+ RT</li>
-                    </ul>
-                </div>
-                <div>
-                    <h4>Kontak</h4>
-                    <ul>
-                        <li>📧 deskawps@yahoo.co.id</li>
-                        <li>📱 0856-9527-2863</li>
-                    </ul>
-                </div>
-                <div>
-                    <h4>WPS</h4>
-                    <p>Warga Pandeglang Sejahtera</p>
-                    <p style="color: var(--neon-green); font-size: 13px; margin-top: 4px;">🌱 Data untuk Semua</p>
-                </div>
+                <div><h3>🌏 Si DESKA</h3><p>Sistem Informasi Data Entri Statistika Kabupaten</p><p style="color:var(--neon-green);font-size:13px;">Blockchain Hibrida + Token SDT</p></div>
+                <div><h4>Statistik</h4><ul><li>48 Sektor</li><li>35 Kecamatan</li><li>339 Desa</li><li>12.500+ RT</li></ul></div>
+                <div><h4>Token SDT</h4><ul><li id="footerSupply">Supply: 0</li><li id="footerContributors">Kontributor: 0</li></ul></div>
+                <div><h4>Kontak</h4><ul><li>📧 deskawps@yahoo.co.id</li><li>📱 0856-9527-2863</li></ul></div>
             </div>
-            <div class="footer-bottom">
-                <p>© 2026 Si DESKA - Sistem Informasi Data Entri Statistika Kabupaten Pandeglang</p>
-                <p style="font-size: 12px; color: var(--text-dim);">Blockchain Real-Time • WPS - Warga Pandeglang Sejahtera</p>
-            </div>
+            <div class="footer-bottom"><p>© 2026 Si DESKA - Blockchain Hibrida + Tokenisasi Data untuk Warga Pandeglang Sejahtera</p></div>
         </div>
     </footer>
 
+    <script src="ipfs.js"></script>
+    <script src="token.js"></script>
     <script src="blockchain.js"></script>
     <script src="script.js"></script>
 </body>
-                        </html>
+</html>
