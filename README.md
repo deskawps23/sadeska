@@ -1,39 +1,30 @@
-# 🌏 SA DESKA - Satu Data Entri Statistika Kabupaten Pandeglang
+# ⛓️ SA DESKA Blockchain - Real-Time Data RT/RW
 
 [![Website](https://img.shields.io/badge/Website-Live-brightgreen)](https://deskawps23.github.io/sadeska/)
+[![Blockchain](https://img.shields.io/badge/Blockchain-Active-green)]()
 [![WPS](https://img.shields.io/badge/WPS-Warga%20Pandeglang%20Sejahtera-green)]()
 
-> **SA DESKA** adalah sistem data statistik berbasis RT/RW untuk Kabupaten Pandeglang. Data dikumpulkan dari **12.500+ RT** dan **2.500+ RW** di **35 Kecamatan** dan **339 Desa/Kelurahan**.
+> **SA DESKA Blockchain** adalah sistem data statistik **48 sektor** berbasis **blockchain real-time** untuk Kabupaten Pandeglang.
 
----
+## ✨ Fitur Utama
+- ⛓️ **Blockchain Visual** - Kurva bergerak seperti rantai blockchain
+- ⚡ **Real-Time Update** - Data masuk setiap detik
+- 🎨 **UI Neon Futuristic** - Efek glow dan animasi
+- 🔄 **Auto-Generate Data** - Simulasi data dari RT/RW
+- 📊 **Live Dashboard** - Update otomatis
+- 🏡 **Data dari RT/RW** - 12.500+ RT, 2.500+ RW
 
-## 📊 **Fitur Utama**
+## 🔗 Akses
+- 🌐 https://deskawps23.github.io/sadeska/
+- 📧 deskawps@yahoo.co.id
+- 📱 0856-9527-2863
 
-- 📍 **Peta Interaktif** - Visualisasi data per kecamatan
-- 🏡 **Data RT/RW** - Detail hingga tingkat RT
-- 📊 **Dashboard** - Ringkasan data kabupaten
-- 📝 **Input Data** - Update data dari RT/RW
-- 📱 **Mobile Friendly** - Akses dari HP
+## 🎥 Demo Fitur
+| Fitur | Deskripsi |
+|-------|-----------|
+| Blockchain Visual | Animasi rantai bergerak real-time |
+| Data Flow | Visualisasi aliran RT → RW → Desa → Kecamatan |
+| Auto Mining | Simulasi proof-of-work setiap 3 detik |
+| Live Counter | Jumlah data bertambah otomatis |
 
----
-
-## 📈 **Statistik**
-
-| Level | Jumlah |
-|-------|--------|
-| Kecamatan | 35 |
-| Desa/Kelurahan | 339 |
-| RW | 2.500+ |
-| RT | 12.500+ |
-
----
-
-## 🚀 **Akses Cepat**
-
-- 🌐 **Website**: [https://deskawps23.github.io/sadeska/](https://deskawps23.github.io/sadeska/)
-- 📧 **Email**: deskawps@yahoo.co.id
-- 📱 **WhatsApp**: 0856-9527-2863
-
----
-
-**SA DESKA - Data RT/RW untuk Warga Pandeglang Sejahtera!** 🌏
+**SA DESKA Blockchain - Data RT/RW untuk Warga Pandeglang Sejahtera!** 🌏
