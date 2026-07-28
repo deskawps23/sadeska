@@ -1,0 +1,16 @@
+{
+  "name": "SA DESKA Blockchain",
+  "short_name": "SA DESKA",
+  "description": "Blockchain Data RT/RW 48 Sektor Kabupaten Pandeglang",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A1A",
+  "theme_color": "#00FF88",
+  "icons": [
+    {
+      "src": "https://cdn.jsdelivr.net/npm/emoji-datasource-apple/img/apple/64/26d3.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    }
+  ]
+}
