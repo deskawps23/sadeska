@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <!-- Chart.js untuk Grafik -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -70,16 +69,16 @@
                 </h1>
                 <p class="hero-desc">
                     Platform data statistik berbasis <strong>verifikasi blockchain</strong> dengan 
-                    <strong>grafik realtime</strong> untuk <strong>35 Kecamatan</strong> dan 
+                    <strong>pencarian otomatis</strong> untuk <strong>35 Kecamatan</strong> dan 
                     <strong>339 Desa/Kelurahan</strong> di Kabupaten Pandeglang.
                 </p>
                 <div class="hero-buttons">
-                    <a href="#grafik" class="btn btn-primary">
-                        <i class="fas fa-chart-line"></i> Lihat Grafik
+                    <a href="#input" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Input Data
                         <span class="btn-ripple"></span>
                     </a>
-                    <a href="#input" class="btn btn-secondary">
-                        <i class="fas fa-edit"></i> Input Data
+                    <a href="#grafik" class="btn btn-secondary">
+                        <i class="fas fa-chart-line"></i> Grafik
                     </a>
                     <a href="#dashboard" class="btn btn-outline">
                         <i class="fas fa-chart-pie"></i> Dashboard
@@ -217,13 +216,13 @@
         </div>
     </section>
 
-    <!-- ===== INPUT DATA ===== -->
+    <!-- ===== INPUT DATA DENGAN AUTOCOMPLETE ===== -->
     <section id="input" class="section input-section">
         <div class="container">
             <div class="section-header">
                 <div class="section-icon"><i class="fas fa-edit"></i></div>
                 <h2>Input <span>Data</span></h2>
-                <p>Isi data statistik sesuai standar Satu Data Indonesia</p>
+                <p>Isi data statistik dengan pencarian otomatis</p>
             </div>
             <div class="input-card">
                 <div class="input-header">
@@ -251,13 +250,27 @@
                         <label><i class="fas fa-tag"></i> Sektor</label>
                         <select id="inputSektor"></select>
                     </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-map-marker-alt"></i> Kecamatan</label>
-                        <select id="inputKecamatan"></select>
+                    <!-- ===== KECAMATAN DENGAN AUTOCOMPLETE ===== -->
+                    <div class="form-group autocomplete-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Kecamatan <span class="autocomplete-hint">(Ketik untuk cari)</span></label>
+                        <div class="autocomplete-wrapper">
+                            <input type="text" id="inputKecamatan" placeholder="Cari kecamatan..." autocomplete="off" />
+                            <button class="autocomplete-clear" id="clearKecamatan" title="Hapus" style="display:none;">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                            <div class="autocomplete-dropdown" id="kecamatanDropdown"></div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-home"></i> Desa</label>
-                        <input type="text" id="inputDesa" placeholder="Nama desa" />
+                    <!-- ===== DESA DENGAN AUTOCOMPLETE ===== -->
+                    <div class="form-group autocomplete-group">
+                        <label><i class="fas fa-home"></i> Desa <span class="autocomplete-hint">(Ketik untuk cari)</span></label>
+                        <div class="autocomplete-wrapper">
+                            <input type="text" id="inputDesa" placeholder="Cari desa..." autocomplete="off" />
+                            <button class="autocomplete-clear" id="clearDesa" title="Hapus" style="display:none;">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                            <div class="autocomplete-dropdown" id="desaDropdown"></div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label><i class="fas fa-road"></i> RW</label>
@@ -394,3 +407,66 @@
                 <div class="about-card">
                     <div class="about-icon"><i class="fas fa-handshake"></i></div>
                     <h3>Kolaborasi</h3>
+                    <ul>
+                        <li>🏛️ BPS Kabupaten Pandeglang</li>
+                        <li>📊 Diskomsantik Pandeglang</li>
+                        <li>📋 Seluruh OPD</li>
+                        <li>🌱 Masyarakat & WPS</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>🌏 Si DESKA</h3>
+                    <p>Sistem Informasi Data Entri Statistik Kabupaten</p>
+                    <div class="footer-badges">
+                        <span class="footer-badge">🇮🇩 SDI</span>
+                        <span class="footer-badge">✅ UU PDP</span>
+                        <span class="footer-badge">🔒 Aman</span>
+                        <span class="footer-badge">📊 Realtime</span>
+                        <span class="footer-badge">🔍 Autocomplete</span>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Statistik</h4>
+                    <ul>
+                        <li>48 Sektor</li>
+                        <li>35 Kecamatan</li>
+                        <li>339 Desa</li>
+                        <li>12.500+ RT</li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Regulasi</h4>
+                    <ul>
+                        <li>✅ UU PDP</li>
+                        <li>✅ Perpres SDI</li>
+                        <li>✅ SPBE</li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Kontak</h4>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> deskawps@yahoo.co.id</li>
+                        <li><i class="fas fa-phone"></i> 0856-9527-2863</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Si DESKA - Kabupaten Pandeglang</p>
+                <p class="footer-disclaimer">✅ Sesuai UU PDP, Perpres SDI, dan SPBE • Bukan aset keuangan</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="blockchain.js"></script>
+    <script src="poin.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
