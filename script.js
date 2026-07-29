@@ -1,5 +1,5 @@
 // ============================================
-// Si DESKA - Script dengan Grafik Realtime
+// Si DESKA - Script dengan Autocomplete
 // ============================================
 
 const SEKTOR = [
@@ -61,6 +61,179 @@ const KECAMATAN = [
     "Ciawi","Cimanuk","Carita","Labuan","Pandeglang","Patia","Karang Tanjung","Cikeupa"
 ];
 
+// ===== DATA DESA =====
+const DESA = [
+    "Sumur","Cigebang","Kertajaya","Tunggilis","Cimadang",
+    "Cimanggu","Bojong","Tugu","Cipalabuh",
+    "Cibaliung","Sorongan","Mendung","Curug","Cibodas",
+    "Cikeusik","Cikadu","Sukamaju","Kurung",
+    "Panimbang","Mekarjaya","Tanagara","Sukajaya","Karyajaya",
+    "Sobang","Cipadang","Kertaraharja","Cakung","Mekarsari",
+    "Munjul","Lebak","Palasari","Cibitung",
+    "Angsana","Kadupandak","Sumurwuluh","Pasir","Cikayas",
+    "Sindangresmi","Bojongkoneng","Pasirngampar","Sindangjaya",
+    "Saketi","Sodong","Mekarwangi","Kadumekar","Sindanghayu",
+    "Jiput","Sukamanah","Kiarapayung",
+    "Mandalawangi","Nusawungu","Sinarjaya",
+    "Cadasari","Kaung",
+    "Pulosari","Cilentung",
+    "Kaduhejo",
+    "Cikeudal",
+    "Cipeucang","Pasir",
+    "Menes","Muruy",
+    "Koroncong",
+    "Picung",
+    "Cibitu",
+    "Garum",
+    "Caret",
+    "Ciawi",
+    "Cimanuk",
+    "Carita",
+    "Labuan",
+    "Pandeglang",
+    "Patia",
+    "Karang Tanjung",
+    "Cikeupa",
+    "Kadupandak","Sukamanah","Nusawungu","Sinarjaya",
+    "Sodong","Mekarwangi","Kadumekar","Sindanghayu"
+];
+
+// ===== AUTOCOMPLETE ENGINE =====
+function initAutocomplete(inputId, dropdownId, dataList, placeholder, clearId) {
+    const input = document.getElementById(inputId);
+    const dropdown = document.getElementById(dropdownId);
+    const clearBtn = document.getElementById(clearId);
+    let selectedIndex = -1;
+    let currentItems = [];
+
+    if (!input || !dropdown) return;
+
+    // Hide dropdown on outside click
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('active');
+        }
+    });
+
+    // Input event
+    input.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        dropdown.classList.remove('active');
+        clearBtn.style.display = query ? 'block' : 'none';
+        selectedIndex = -1;
+
+        if (!query) {
+            dropdown.innerHTML = '';
+            return;
+        }
+
+        // Filter data
+        const filtered = dataList.filter(item => 
+            item.toLowerCase().includes(query)
+        );
+
+        currentItems = filtered;
+
+        if (filtered.length === 0) {
+            dropdown.innerHTML = `<div class="autocomplete-empty">Tidak ditemukan</div>`;
+            dropdown.classList.add('active');
+            return;
+        }
+
+        // Build dropdown
+        let html = '';
+        filtered.slice(0, 15).forEach((item, index) => {
+            const highlighted = item.replace(
+                new RegExp(query, 'gi'),
+                match => `<strong style="color: var(--primary-light);">${match}</strong>`
+            );
+            html += `
+                <div class="autocomplete-item" data-index="${index}" data-value="${item}">
+                    <span class="item-icon">📍</span>
+                    <span class="item-name">${highlighted}</span>
+                    <span class="item-badge">${dataList.length} total</span>
+                </div>
+            `;
+        });
+
+        dropdown.innerHTML = html;
+        dropdown.classList.add('active');
+
+        // Click handler for items
+        dropdown.querySelectorAll('.autocomplete-item').forEach(el => {
+            el.addEventListener('click', function() {
+                const value = this.dataset.value;
+                input.value = value;
+                dropdown.classList.remove('active');
+                clearBtn.style.display = 'block';
+                input.dispatchEvent(new Event('change'));
+            });
+
+            // Hover
+            el.addEventListener('mouseenter', function() {
+                dropdown.querySelectorAll('.autocomplete-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                selectedIndex = parseInt(this.dataset.index);
+            });
+        });
+    });
+
+    // Keyboard navigation
+    input.addEventListener('keydown', function(e) {
+        const items = dropdown.querySelectorAll('.autocomplete-item');
+        if (items.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+            updateActiveItem(items, selectedIndex);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, -1);
+            updateActiveItem(items, selectedIndex);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedIndex >= 0 && selectedIndex < items.length) {
+                const value = items[selectedIndex].dataset.value;
+                input.value = value;
+                dropdown.classList.remove('active');
+                clearBtn.style.display = 'block';
+                input.dispatchEvent(new Event('change'));
+            }
+        } else if (e.key === 'Escape') {
+            dropdown.classList.remove('active');
+            input.blur();
+        }
+    });
+
+    // Focus event - show dropdown if has value
+    input.addEventListener('focus', function() {
+        if (this.value.trim()) {
+            this.dispatchEvent(new Event('input'));
+        }
+    });
+
+    // Clear button
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            input.value = '';
+            clearBtn.style.display = 'none';
+            dropdown.classList.remove('active');
+            input.focus();
+            input.dispatchEvent(new Event('input'));
+        });
+    }
+}
+
+function updateActiveItem(items, index) {
+    items.forEach((el, i) => {
+        el.classList.toggle('active', i === index);
+    });
+    if (index >= 0 && index < items.length) {
+        items[index].scrollIntoView({ block: 'nearest' });
+    }
+}
+
 // ===== GRAFIK REALTIME =====
 let trendChart, pieChart, barChart, doughnutChart;
 let chartData = {
@@ -72,7 +245,6 @@ let chartData = {
 };
 
 function initCharts() {
-    // Trend Chart (Line)
     const ctx1 = document.getElementById('trendChart').getContext('2d');
     trendChart = new Chart(ctx1, {
         type: 'line',
@@ -93,25 +265,15 @@ function initCharts() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
+            plugins: { legend: { display: false } },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { color: 'rgba(255,255,255,0.03)' },
-                    ticks: { color: '#8888AA' }
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#8888AA', font: { size: 9 } }
-                }
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#8888AA' } },
+                x: { grid: { display: false }, ticks: { color: '#8888AA', font: { size: 9 } } }
             },
             animation: { duration: 500 }
         }
     });
 
-    // Pie Chart (Distribusi Sektor)
     const ctx2 = document.getElementById('pieChart').getContext('2d');
     pieChart = new Chart(ctx2, {
         type: 'doughnut',
@@ -127,17 +289,13 @@ function initCharts() {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { color: '#8888AA', font: { size: 9 }, boxWidth: 10, padding: 6 }
-                }
+                legend: { position: 'bottom', labels: { color: '#8888AA', font: { size: 9 }, boxWidth: 10, padding: 6 } }
             },
             cutout: '60%',
             animation: { animateRotate: true }
         }
     });
 
-    // Bar Chart (Data per Kecamatan)
     const ctx3 = document.getElementById('barChart').getContext('2d');
     barChart = new Chart(ctx3, {
         type: 'bar',
@@ -155,25 +313,15 @@ function initCharts() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
+            plugins: { legend: { display: false } },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { color: 'rgba(255,255,255,0.03)' },
-                    ticks: { color: '#8888AA' }
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#8888AA', font: { size: 8 } }
-                }
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#8888AA' } },
+                x: { grid: { display: false }, ticks: { color: '#8888AA', font: { size: 8 } } }
             },
             animation: { duration: 500 }
         }
     });
 
-    // Doughnut Chart (Poin Kontributor)
     const ctx4 = document.getElementById('doughnutChart').getContext('2d');
     doughnutChart = new Chart(ctx4, {
         type: 'doughnut',
@@ -189,17 +337,13 @@ function initCharts() {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'right',
-                    labels: { color: '#8888AA', font: { size: 11 }, boxWidth: 12, padding: 8 }
-                }
+                legend: { position: 'right', labels: { color: '#8888AA', font: { size: 11 }, boxWidth: 12, padding: 8 } }
             },
             cutout: '55%',
             animation: { animateRotate: true }
         }
     });
 
-    // Initial seed data
     seedChartData();
 }
 
@@ -212,18 +356,11 @@ function seedChartData() {
         chartData.trend.push(Math.floor(Math.random() * 20) + 5);
     }
     
-    // Pie data
     const sektorNames = ['Kependudukan', 'Pertanian', 'Kesehatan', 'Pendidikan', 'Ekonomi', 'Infrastruktur', 'Sosial', 'Lingkungan'];
-    sektorNames.forEach(s => {
-        chartData.pie[s] = Math.floor(Math.random() * 30) + 5;
-    });
+    sektorNames.forEach(s => chartData.pie[s] = Math.floor(Math.random() * 30) + 5);
     
-    // Bar data
-    KECAMATAN.slice(0, 10).forEach(k => {
-        chartData.bar[k] = Math.floor(Math.random() * 25) + 3;
-    });
+    KECAMATAN.slice(0, 10).forEach(k => chartData.bar[k] = Math.floor(Math.random() * 25) + 3);
     
-    // Doughnut data
     ['Pak RT', 'Bu RW', 'Kepala Desa', 'Camat', 'Warga A', 'Warga B'].forEach(n => {
         chartData.doughnut.push({ name: n, poin: Math.floor(Math.random() * 100) + 20 });
     });
@@ -232,7 +369,6 @@ function seedChartData() {
 }
 
 function updateCharts() {
-    // Update Trend Chart
     const now = new Date();
     chartData.labels.push(now.toLocaleTimeString());
     chartData.trend.push(Math.floor(Math.random() * 15) + 5);
@@ -245,33 +381,23 @@ function updateCharts() {
     trendChart.data.datasets[0].data = chartData.trend;
     trendChart.update('none');
     
-    // Update Pie Chart (with random fluctuations)
     const sektorNames = Object.keys(chartData.pie);
-    sektorNames.forEach(s => {
-        chartData.pie[s] = Math.max(2, chartData.pie[s] + (Math.random() - 0.5) * 4);
-    });
+    sektorNames.forEach(s => chartData.pie[s] = Math.max(2, chartData.pie[s] + (Math.random() - 0.5) * 4));
     pieChart.data.labels = sektorNames;
     pieChart.data.datasets[0].data = Object.values(chartData.pie);
     pieChart.update('none');
     
-    // Update Bar Chart
     const barKeys = Object.keys(chartData.bar);
-    barKeys.forEach(k => {
-        chartData.bar[k] = Math.max(1, chartData.bar[k] + (Math.random() - 0.5) * 3);
-    });
+    barKeys.forEach(k => chartData.bar[k] = Math.max(1, chartData.bar[k] + (Math.random() - 0.5) * 3));
     barChart.data.labels = barKeys;
     barChart.data.datasets[0].data = Object.values(chartData.bar);
     barChart.update('none');
     
-    // Update Doughnut Chart
-    chartData.doughnut.forEach(d => {
-        d.poin = Math.max(10, d.poin + (Math.random() - 0.5) * 8);
-    });
+    chartData.doughnut.forEach(d => d.poin = Math.max(10, d.poin + (Math.random() - 0.5) * 8));
     doughnutChart.data.labels = chartData.doughnut.map(d => d.name);
     doughnutChart.data.datasets[0].data = chartData.doughnut.map(d => d.poin);
     doughnutChart.update('none');
     
-    // Update info
     const total = chartData.trend.reduce((a, b) => a + b, 0);
     document.getElementById('totalGrafikData').textContent = total;
     document.getElementById('totalGrafikPoin').textContent = chartData.doughnut.reduce((a, b) => a + b.poin, 0);
@@ -301,6 +427,12 @@ function submitData() {
     if (!kecamatan) { alert('⚠️ Pilih kecamatan!'); return; }
     if (isNaN(nilai) || nilai <= 0) { alert('⚠️ Isi nilai data yang valid!'); return; }
 
+    // Cek apakah kecamatan valid
+    if (!KECAMATAN.includes(kecamatan)) {
+        alert('⚠️ Kecamatan tidak valid! Silakan pilih dari saran yang muncul.');
+        return;
+    }
+
     const dataStatistik = {
         sektor: sektor,
         kecamatan: kecamatan,
@@ -324,7 +456,7 @@ function submitData() {
             <span class="tx-hash">✅ Data berhasil direkam! ID: ${result.block.data.id}</span>
         `;
         
-        // Update charts with new data
+        // Update charts
         const sektorNames = Object.keys(chartData.pie);
         if (sektorNames.length > 0) {
             const idx = Math.floor(Math.random() * sektorNames.length);
@@ -368,9 +500,12 @@ function resetForm() {
     document.querySelectorAll('.input-card select').forEach(s => s.selectedIndex = 0);
     document.querySelectorAll('.input-card textarea').forEach(t => t.value = '');
     document.getElementById('inputSektor').selectedIndex = 0;
-    document.getElementById('inputKecamatan').selectedIndex = 0;
+    document.getElementById('inputKecamatan').value = '';
+    document.getElementById('inputDesa').value = '';
     document.getElementById('levelLabel').textContent = 'RT/RW';
     document.getElementById('consentCheck').checked = true;
+    document.getElementById('clearKecamatan').style.display = 'none';
+    document.getElementById('clearDesa').style.display = 'none';
     
     const status = document.getElementById('txStatus');
     status.innerHTML = `
@@ -394,110 +529,4 @@ function updateLevelFields() {
         rwField.value = ''; rtField.value = ''; desaField.value = '';
     } else if (level === 'desa') {
         rwField.disabled = true; rtField.disabled = true; desaField.disabled = false;
-        rwField.placeholder = '-'; rtField.placeholder = '-';
-        rwField.value = ''; rtField.value = '';
-    } else if (level === 'rw') {
-        rwField.disabled = false; rtField.disabled = true; desaField.disabled = false;
-        rtField.placeholder = '-'; rtField.value = '';
-    } else {
-        rwField.disabled = false; rtField.disabled = false; desaField.disabled = false;
-    }
-}
-
-// ===== THEME TOGGLE =====
-document.addEventListener('DOMContentLoaded', function() {
-    const toggle = document.getElementById('themeToggle');
-    if (toggle) {
-        toggle.addEventListener('click', function() {
-            const html = document.documentElement;
-            const isDark = html.getAttribute('data-theme') !== 'light';
-            html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            this.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-            // Update chart colors
-            updateChartColors();
-        });
-    }
-});
-
-function updateChartColors() {
-    // Re-render charts with new theme colors
-    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-    const textColor = isDark ? '#8888AA' : '#666680';
-    const gridColor = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)';
-    
-    [trendChart, pieChart, barChart, doughnutChart].forEach(chart => {
-        if (chart) {
-            chart.options.scales?.y?.grid?.color = gridColor;
-            chart.options.scales?.y?.ticks?.color = textColor;
-            chart.options.scales?.x?.ticks?.color = textColor;
-            chart.options.plugins?.legend?.labels?.color = textColor;
-            chart.update('none');
-        }
-    });
-}
-
-// ===== NAVBAR =====
-document.addEventListener('DOMContentLoaded', function() {
-    const h = document.getElementById('hamburger');
-    const m = document.getElementById('navMenu');
-    if (h) {
-        h.addEventListener('click', () => m.classList.toggle('active'));
-    }
-    document.querySelectorAll('.nav-menu a').forEach(a => {
-        a.addEventListener('click', () => m.classList.remove('active'));
-    });
-
-    // Sektor dropdown
-    const ss = document.getElementById('inputSektor');
-    SEKTOR.forEach(s => {
-        const o = document.createElement('option');
-        o.value = s.no;
-        o.textContent = s.no + '. ' + s.nama;
-        ss.appendChild(o);
-    });
-
-    // Kecamatan dropdown
-    const ks = document.getElementById('inputKecamatan');
-    KECAMATAN.forEach(k => {
-        const o = document.createElement('option');
-        o.value = k;
-        o.textContent = k;
-        ks.appendChild(o);
-    });
-
-    updateLevelFields();
-    initCharts();
-    if (typeof blockchain !== 'undefined') blockchain.updateUI();
-
-    console.log('🌏 Si DESKA - Grafik Realtime v2.0');
-    console.log('✅ Sesuai: UU PDP • Perpres SDI • SPBE');
-    console.log('📊 Grafik update setiap 2 detik');
-    console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
-});
-
-// ===== UPDATE GRAFIK SETIAP 2 DETIK =====
-setInterval(() => {
-    updateCharts();
-    updateStats();
-}, 2000);
-
-// ===== UPDATE STATS =====
-function updateStats() {
-    if (typeof sistemPoin !== 'undefined') {
-        const stats = sistemPoin.getStats();
-        const totalPoinEl = document.getElementById('totalPoin');
-        const totalPoinSupply = document.getElementById('totalPoinSupply');
-        const totalKontributor = document.getElementById('totalKontributor');
-        if (totalPoinEl) totalPoinEl.textContent = stats.totalPoin;
-        if (totalPoinSupply) totalPoinSupply.textContent = stats.totalPoin;
-        if (totalKontributor) totalKontributor.textContent = stats.totalKontributor + ' Kontributor';
-    }
-}
-
-// ===== LIVE CLOCK =====
-setInterval(() => {
-    const liveBadge = document.querySelector('.live-text');
-    if (liveBadge) {
-        liveBadge.textContent = `Live ${new Date().toLocaleTimeString()}`;
-    }
-}, 1000);
+        rwField.placeholder = '-'; rtField.p
