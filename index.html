@@ -4,65 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Si DESKA - Sistem Informasi Data Entri Statistik Kabupaten</title>
-    <meta name="description" content="Si DESKA - Sistem Informasi Data Entri Statistik Kabupaten Pandeglang" />
-    <meta name="theme-color" content="#0A0A1A" />
-    <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
     <!-- ===== NAVBAR ===== -->
-    <nav class="navbar" id="navbar">
+    <nav class="navbar">
         <div class="container">
             <div class="logo">
-                <div class="logo-icon">🌏</div>
-                <div class="logo-text">Si <span>DESKA</span></div>
-                <div class="logo-badge">v3.0</div>
+                <span class="logo-icon">🌏</span>
+                <span class="logo-text">Si <span>DESKA</span></span>
+                <span class="logo-badge">v3.0</span>
             </div>
             <ul class="nav-menu" id="navMenu">
                 <li><a href="#home" class="active"><i class="fas fa-home"></i> Beranda</a></li>
-                <li><a href="#peta"><i class="fas fa-map"></i> Peta Tematik</a></li>
-                <li><a href="#input"><i class="fas fa-edit"></i> Input Data</a></li>
+                <li><a href="#peta"><i class="fas fa-map"></i> Peta</a></li>
                 <li><a href="#metadata"><i class="fas fa-tags"></i> Metadata</a></li>
-                <li><a href="#dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
                 <li><a href="#api"><i class="fas fa-code"></i> API</a></li>
             </ul>
             <div class="nav-actions">
-                <button class="theme-toggle" id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <div class="live-badge">
-                    <span class="live-dot"></span>
-                    <span class="live-text">Live</span>
-                </div>
-                <div class="poin-badge">
-                    <i class="fas fa-star"></i>
-                    <span id="balanceDisplay">0</span>
-                </div>
-                <button class="hamburger" id="hamburger">
-                    <span></span><span></span><span></span>
-                </button>
+                <div class="live-badge"><span class="live-dot"></span> Live</div>
+                <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
             </div>
         </div>
     </nav>
 
     <!-- ===== HERO ===== -->
     <section id="home" class="hero">
-        <div class="hero-bg">
-            <div class="hero-glow-1"></div>
-            <div class="hero-glow-2"></div>
-        </div>
         <div class="container">
             <div class="hero-content">
                 <div class="hero-badges">
                     <span class="badge sdi">🇮🇩 Satu Data Indonesia</span>
                     <span class="badge wps">🌱 WPS</span>
-                    <span class="badge compliance">✅ UU PDP</span>
                     <span class="badge geo">🗺️ Geospasial</span>
                 </div>
                 <h1 class="hero-title">
@@ -71,198 +48,46 @@
                     <span class="title-sub">Data Entri Statistik Kabupaten</span>
                 </h1>
                 <p class="hero-desc">
-                    Platform data statistik berbasis <strong>verifikasi blockchain</strong> dengan 
-                    <strong>peta tematik geospasial</strong>, <strong>metadata standar SDI</strong>, dan 
-                    <strong>pencarian otomatis</strong> untuk <strong>35 Kecamatan</strong> dan 
-                    <strong>339 Desa/Kelurahan</strong> di Kabupaten Pandeglang.
+                    Data statistik berbasis <strong>verifikasi blockchain</strong> dengan 
+                    <strong>peta tematik</strong> dan <strong>metadata standar SDI</strong> 
+                    untuk <strong>35 Kecamatan</strong> Kabupaten Pandeglang.
                 </p>
-                <div class="hero-buttons">
-                    <a href="#peta" class="btn btn-primary">
-                        <i class="fas fa-map"></i> Peta Tematik
-                    </a>
-                    <a href="#input" class="btn btn-secondary">
-                        <i class="fas fa-edit"></i> Input Data
-                    </a>
-                    <a href="#metadata" class="btn btn-outline">
-                        <i class="fas fa-tags"></i> Metadata
-                    </a>
-                </div>
                 <div class="hero-stats">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalData">0</div>
-                        <div class="stat-label">Data Entry</div>
-                    </div>
+                    <div class="stat-card"><span class="stat-number" id="totalData">0</span><span class="stat-label">Data Entry</span></div>
                     <div class="stat-divider"></div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalRT">0</div>
-                        <div class="stat-label">RT Aktif</div>
-                    </div>
+                    <div class="stat-card"><span class="stat-number">35</span><span class="stat-label">Kecamatan</span></div>
                     <div class="stat-divider"></div>
-                    <div class="stat-card">
-                        <div class="stat-number">35</div>
-                        <div class="stat-label">Kecamatan</div>
-                    </div>
-                    <div class="stat-divider"></div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalPoin">0</div>
-                        <div class="stat-label">Total Poin</div>
-                    </div>
+                    <div class="stat-card"><span class="stat-number" id="totalPoin">0</span><span class="stat-label">Total Poin</span></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ===== PETA TEMATIK ===== -->
+    <!-- ===== PETA ===== -->
     <section id="peta" class="section peta-section">
         <div class="container">
             <div class="section-header">
-                <div class="section-icon"><i class="fas fa-map"></i></div>
-                <h2>Peta <span>Tematik</span></h2>
-                <p>Visualisasi data statistik per kecamatan berbasis geospasial</p>
+                <h2><i class="fas fa-map"></i> Peta Tematik</h2>
+                <p>Visualisasi data per kecamatan Kabupaten Pandeglang</p>
             </div>
             <div class="peta-controls">
-                <div class="control-group">
-                    <label><i class="fas fa-chart-simple"></i> Indikator</label>
-                    <select id="indicatorSelect">
-                        <option value="putus_sekolah">📚 Angka Putus Sekolah</option>
-                        <option value="kematian_ibu">🏥 Angka Kematian Ibu</option>
-                        <option value="kematian_bayi">👶 Angka Kematian Bayi</option>
-                        <option value="stunting">📊 Stunting</option>
-                        <option value="kemiskinan">💰 Kemiskinan</option>
-                        <option value="populasi">👨‍👩‍👧‍👦 Populasi</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label><i class="fas fa-calendar"></i> Tahun</label>
-                    <select id="yearSelect">
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026" selected>2026</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label><i class="fas fa-search"></i> Cari Kecamatan</label>
-                    <div class="autocomplete-wrapper">
-                        <input type="text" id="searchKecamatan" placeholder="Ketik nama kecamatan..." autocomplete="off" />
-                        <div class="autocomplete-dropdown" id="searchDropdown"></div>
-                    </div>
-                </div>
+                <select id="indicatorSelect">
+                    <option value="putus_sekolah">📚 Angka Putus Sekolah</option>
+                    <option value="kematian_ibu">🏥 Kematian Ibu</option>
+                    <option value="stunting">📊 Stunting</option>
+                    <option value="kemiskinan">💰 Kemiskinan</option>
+                    <option value="populasi">👨‍👩‍👧‍👦 Populasi</option>
+                </select>
+                <select id="yearSelect">
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026" selected>2026</option>
+                </select>
             </div>
-            <div class="peta-container" id="petaContainer">
-                <div id="petaMap"></div>
-                <div class="peta-legend" id="petaLegend">
-                    <div class="legend-title">Legenda</div>
-                    <div class="legend-gradient" id="legendGradient"></div>
-                    <div class="legend-labels">
-                        <span id="legendMin">0</span>
-                        <span id="legendMax">100</span>
-                    </div>
-                </div>
-            </div>
-            <div class="peta-info" id="petaInfo">
-                <div class="info-item">
-                    <span class="info-dot" style="background: var(--primary);"></span>
-                    <span class="info-text">Klik kecamatan untuk detail data</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-dot" style="background: var(--success);"></span>
-                    <span class="info-text">Data bersumber dari BPS & OPD Pandeglang</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== INPUT DATA ===== -->
-    <section id="input" class="section input-section">
-        <div class="container">
-            <div class="section-header">
-                <div class="section-icon"><i class="fas fa-edit"></i></div>
-                <h2>Input <span>Data</span></h2>
-                <p>Isi data statistik dengan pencarian otomatis kecamatan & desa</p>
-            </div>
-            <div class="input-card">
-                <div class="input-header">
-                    <div class="input-level-badge">
-                        <i class="fas fa-layer-group"></i>
-                        <span id="levelLabel">RT/RW</span>
-                    </div>
-                    <div class="input-consent">
-                        <input type="checkbox" id="consentCheck" checked />
-                        <label for="consentCheck">
-                            <i class="fas fa-shield-alt"></i> Setuju UU PDP
-                        </label>
-                    </div>
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label><i class="fas fa-layer-group"></i> Level</label>
-                        <select id="inputLevel" onchange="updateLevelFields()">
-                            <option value="rt">RT/RW</option>
-                            <option value="desa">Desa</option>
-                            <option value="kecamatan">Kecamatan</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-tag"></i> Sektor</label>
-                        <select id="inputSektor"></select>
-                    </div>
-                    <div class="form-group autocomplete-group">
-                        <label><i class="fas fa-map-marker-alt"></i> Kecamatan</label>
-                        <div class="autocomplete-wrapper">
-                            <input type="text" id="inputKecamatan" placeholder="Ketik untuk cari..." autocomplete="off" />
-                            <button class="autocomplete-clear" id="clearKecamatan" style="display:none;">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
-                            <div class="autocomplete-dropdown" id="kecamatanDropdown"></div>
-                        </div>
-                    </div>
-                    <div class="form-group autocomplete-group">
-                        <label><i class="fas fa-home"></i> Desa</label>
-                        <div class="autocomplete-wrapper">
-                            <input type="text" id="inputDesa" placeholder="Ketik untuk cari..." autocomplete="off" />
-                            <button class="autocomplete-clear" id="clearDesa" style="display:none;">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
-                            <div class="autocomplete-dropdown" id="desaDropdown"></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-road"></i> RW</label>
-                        <input type="text" id="inputRW" placeholder="RW-001" />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-house"></i> RT</label>
-                        <input type="text" id="inputRT" placeholder="RT-001" />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-chart-simple"></i> Nilai Data</label>
-                        <input type="number" id="inputNilai" placeholder="Jumlah" />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-file-alt"></i> Data Tambahan</label>
-                        <textarea id="inputDataJSON" rows="2" placeholder='{"keterangan": "..."}'></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> Penginput</label>
-                        <input type="text" id="inputPenginput" placeholder="Nama lengkap" />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-id-card"></i> Jabatan</label>
-                        <input type="text" id="inputJabatan" placeholder="Ketua RT / Kepala Desa" />
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button class="btn btn-primary" onclick="submitData()">
-                        <i class="fas fa-save"></i> Simpan Data
-                    </button>
-                    <button class="btn btn-secondary" onclick="resetForm()">
-                        <i class="fas fa-undo"></i> Reset
-                    </button>
-                </div>
-                <div class="tx-status" id="txStatus">
-                    <i class="fas fa-circle-notch fa-spin"></i>
-                    <span class="tx-hash">Siap menginput data...</span>
-                </div>
+            <div id="petaMap" style="height:400px;border-radius:12px;border:1px solid var(--glass-border);"></div>
+            <div class="peta-info">
+                <span>🟢 Klik kecamatan untuk detail data</span>
+                <span>📊 Data dari BPS & OPD Pandeglang</span>
             </div>
         </div>
     </section>
@@ -271,37 +96,10 @@
     <section id="metadata" class="section metadata-section">
         <div class="container">
             <div class="section-header">
-                <div class="section-icon"><i class="fas fa-tags"></i></div>
-                <h2>Metadata <span>Data</span></h2>
-                <p>Standar metadata sesuai Satu Data Indonesia (Perpres No. 39/2019)</p>
+                <h2><i class="fas fa-tags"></i> Metadata SDI</h2>
+                <p>Standar metadata sesuai Perpres No. 39/2019</p>
             </div>
             <div class="metadata-grid" id="metadataGrid"></div>
-            <div class="metadata-info">
-                <div class="info-item">
-                    <i class="fas fa-check-circle" style="color: var(--success);"></i>
-                    <span>Metadata lengkap dengan kode referensi BPS</span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-check-circle" style="color: var(--success);"></i>
-                    <span>Interoperable dengan sistem lain (JSON-LD)</span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-check-circle" style="color: var(--success);"></i>
-                    <span>Siap integrasi dengan Satu Data Indonesia</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== DASHBOARD ===== -->
-    <section id="dashboard" class="section dashboard-section">
-        <div class="container">
-            <div class="section-header">
-                <div class="section-icon"><i class="fas fa-chart-pie"></i></div>
-                <h2>Live <span>Dashboard</span></h2>
-                <p>Ringkasan data statistik real-time dari seluruh kecamatan</p>
-            </div>
-            <div class="dashboard-grid" id="dashboardGrid"></div>
         </div>
     </section>
 
@@ -309,68 +107,28 @@
     <section id="api" class="section api-section">
         <div class="container">
             <div class="section-header">
-                <div class="section-icon"><i class="fas fa-code"></i></div>
-                <h2>API <span>Endpoint</span></h2>
-                <p>RESTful API untuk interoperabilitas data antar OPD</p>
+                <h2><i class="fas fa-code"></i> API Endpoint</h2>
+                <p>RESTful API untuk interoperabilitas data</p>
             </div>
             <div class="api-grid">
-                <div class="api-card">
-                    <div class="api-method get">GET</div>
-                    <div class="api-path">/api/data</div>
-                    <div class="api-desc">Ambil semua data statistik</div>
-                </div>
-                <div class="api-card">
-                    <div class="api-method get">GET</div>
-                    <div class="api-path">/api/data?kecamatan=Menes</div>
-                    <div class="api-desc">Filter data per kecamatan</div>
-                </div>
-                <div class="api-card">
-                    <div class="api-method get">GET</div>
-                    <div class="api-path">/api/metadata</div>
-                    <div class="api-desc">Ambil metadata sesuai SDI</div>
-                </div>
-                <div class="api-card">
-                    <div class="api-method get">GET</div>
-                    <div class="api-path">/api/wilayah/kecamatan</div>
-                    <div class="api-desc">Daftar 35 kecamatan</div>
-                </div>
-                <div class="api-card">
-                    <div class="api-method post">POST</div>
-                    <div class="api-path">/api/data</div>
-                    <div class="api-desc">Tambah data baru</div>
-                </div>
-                <div class="api-card">
-                    <div class="api-method get">GET</div>
-                    <div class="api-path">/api/export/csv</div>
-                    <div class="api-desc">Download data (CSV)</div>
-                </div>
+                <div class="api-card"><span class="api-method get">GET</span><span class="api-path">/api/data</span><span class="api-desc">Ambil semua data</span></div>
+                <div class="api-card"><span class="api-method get">GET</span><span class="api-path">/api/data?kecamatan=Menes</span><span class="api-desc">Filter per kecamatan</span></div>
+                <div class="api-card"><span class="api-method get">GET</span><span class="api-path">/api/metadata</span><span class="api-desc">Ambil metadata SDI</span></div>
+                <div class="api-card"><span class="api-method get">GET</span><span class="api-path">/api/wilayah/kecamatan</span><span class="api-desc">Daftar 35 kecamatan</span></div>
+                <div class="api-card"><span class="api-method post">POST</span><span class="api-path">/api/data</span><span class="api-desc">Tambah data baru</span></div>
+                <div class="api-card"><span class="api-method get">GET</span><span class="api-path">/api/export/csv</span><span class="api-desc">Download CSV</span></div>
             </div>
             <div class="api-response">
                 <div class="api-response-header">
-                    <i class="fas fa-code"></i>
-                    <span>Contoh Response JSON</span>
-                    <button class="btn-copy" onclick="copyResponse()">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
+                    <span><i class="fas fa-code"></i> Contoh Response JSON</span>
+                    <button onclick="copyResponse()"><i class="fas fa-copy"></i> Copy</button>
                 </div>
-                <pre id="apiResponse">
-{
+                <pre id="apiResponse">{
   "success": true,
   "data": [
-    {
-      "kecamatan": "Menes",
-      "indikator": "Angka Putus Sekolah",
-      "nilai": 4.2,
-      "tahun": 2026,
-      "sumber": "Disdikpora Pandeglang",
-      "metadata": {
-        "kode_data": "3601.EDU.001",
-        "definisi": "Persentase anak usia 7-18 tahun yang tidak bersekolah"
-      }
-    }
+    {"kecamatan":"Menes","indikator":"Angka Putus Sekolah","nilai":4.2,"tahun":2026}
   ]
-}
-                </pre>
+}</pre>
             </div>
         </div>
     </section>
@@ -378,37 +136,14 @@
     <!-- ===== FOOTER ===== -->
     <footer class="footer">
         <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <h3>🌏 Si DESKA</h3>
-                    <p>Sistem Informasi Data Entri Statistik Kabupaten</p>
-                    <div class="footer-badges">
-                        <span class="footer-badge">🇮🇩 SDI</span>
-                        <span class="footer-badge">✅ UU PDP</span>
-                        <span class="footer-badge">🗺️ Geospasial</span>
-                        <span class="footer-badge">🔍 Autocomplete</span>
-                        <span class="footer-badge">📊 API Ready</span>
-                    </div>
-                </div>
-                <div class="footer-links">
-                    <h4>Statistik</h4>
-                    <ul>
-                        <li>48 Sektor</li>
-                        <li>35 Kecamatan</li>
-                        <li>339 Desa</li>
-                        <li>12.500+ RT</li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4>Regulasi</h4>
-                    <ul>
-                        <li>✅ Perpres No. 39/2019</li>
-                        <li>✅ UU No. 27/2022</li>
-                        <li>✅ Perpres No. 95/2018</li>
-                        <li>✅ UU No. 6/2014</li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4>Kontak</h4>
-                    <ul>
-                        <li><i class="fas fa-envelope"></i> deskawps@
+            <div class="footer-content">
+                <div><h3>🌏 Si DESKA</h3><p>Sistem Informasi Data Entri Statistik Kabupaten</p></div>
+                <div><h4>Kontak</h4><p>📧 deskawps@yahoo.co.id<br>📱 0856-9527-2863</p></div>
+            </div>
+            <div class="footer-bottom"><p>© 2026 Si DESKA - Siap Audiensi Bupati & Sekda</p></div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+    </html>
