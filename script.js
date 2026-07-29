@@ -1,5 +1,6 @@
 // ============================================
-// Si DESKA - Script v3.0 (DIPERBAIKI)
+// Si DESKA - Script Big Data Platform
+// Instagram/TikTok Style
 // ============================================
 
 // ===== DATA =====
@@ -11,7 +12,6 @@ const KECAMATAN = [
     "Ciawi","Cimanuk","Carita","Labuan","Pandeglang","Patia","Karang Tanjung","Cikeupa"
 ];
 
-// ===== DATA STATISTIK =====
 const dataStatistik = {
     "Sumur": {populasi:45231, putus_sekolah:3.2, kematian_ibu:2, stunting:18.5, kemiskinan:8.2},
     "Cimanggu": {populasi:62341, putus_sekolah:4.1, kematian_ibu:3, stunting:21.3, kemiskinan:9.7},
@@ -50,14 +50,143 @@ const dataStatistik = {
     "Cikeupa": {populasi:35234, putus_sekolah:2.6, kematian_ibu:1, stunting:15.5, kemiskinan:6.8}
 };
 
-// ===== METADATA =====
-const METADATA = [
-    {kode:'3601.EDU.001', nama:'Angka Putus Sekolah', sektor:'Pendidikan', sumber:'Disdikpora', unit:'%', periode:'Tahunan'},
-    {kode:'3601.HLT.001', nama:'Angka Kematian Ibu', sektor:'Kesehatan', sumber:'Dinkes', unit:'per 100.000', periode:'Tahunan'},
-    {kode:'3601.HLT.003', nama:'Prevalensi Stunting', sektor:'Kesehatan', sumber:'Dinkes', unit:'%', periode:'Tahunan'},
-    {kode:'3601.POP.001', nama:'Jumlah Penduduk', sektor:'Kependudukan', sumber:'Disdukcapil', unit:'Jiwa', periode:'Semesteran'},
-    {kode:'3601.ECO.001', nama:'Tingkat Kemiskinan', sektor:'Ekonomi', sumber:'BPS', unit:'%', periode:'Tahunan'}
+const SEKTOR = [
+    {no:1,nama:"Kependudukan",icon:"👨‍👩‍👧‍👦"},
+    {no:2,nama:"Pertanian",icon:"🌾"},
+    {no:3,nama:"Perdagangan",icon:"🛒"},
+    {no:4,nama:"Perindustrian",icon:"🏭"},
+    {no:5,nama:"Pariwisata",icon:"🏖️"},
+    {no:6,nama:"Kesehatan",icon:"🏥"},
+    {no:7,nama:"Pendidikan",icon:"📚"},
+    {no:8,nama:"Tenaga Kerja",icon:"👷"}
 ];
+
+// ===== SPLASH SCREEN =====
+setTimeout(() => {
+    document.getElementById('splashScreen').classList.add('hidden');
+}, 2500);
+
+// ===== BOTTOM NAV =====
+document.querySelectorAll('.bottom-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.bottom-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const tab = this.dataset.tab;
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+    });
+});
+
+// ===== NAVBAR =====
+const hamburger = document.getElementById('hamburger');
+hamburger.addEventListener('click', function() {
+    this.classList.toggle('active');
+    // Sidebar atau menu bisa ditambahkan di sini
+});
+
+// ===== THEME TOGGLE =====
+let isDark = true;
+document.getElementById('themeToggle').addEventListener('click', function() {
+    isDark = !isDark;
+    document.documentElement.style.setProperty('--dark', isDark ? '#0A0A1A' : '#F5F5FA');
+    document.documentElement.style.setProperty('--dark-card', isDark ? 'rgba(10,10,30,0.8)' : 'rgba(255,255,255,0.8)');
+    document.documentElement.style.setProperty('--text', isDark ? '#E8E8F0' : '#1A1A2E');
+    document.documentElement.style.setProperty('--text-dim', isDark ? '#8888AA' : '#666680');
+    document.documentElement.style.setProperty('--glass-border', isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)');
+    document.documentElement.style.setProperty('--glass-bg', isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)');
+    this.innerHTML = isDark ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+});
+
+// ===== FEED GENERATOR =====
+function generateFeed() {
+    const container = document.getElementById('feedContainer');
+    const feedItems = [];
+
+    KECAMATAN.forEach((kec, idx) => {
+        const data = dataStatistik[kec] || {};
+        const sektor = SEKTOR[idx % SEKTOR.length];
+        const value = data.putus_sekolah || data.kematian_ibu || data.stunting || 0;
+        const label = data.putus_sekolah ? 'Putus Sekolah' :
+                     data.kematian_ibu ? 'Kematian Ibu' :
+                     data.stunting ? 'Stunting' : 'Populasi';
+        const unit = data.putus_sekolah ? '%' :
+                    data.kematian_ibu ? 'per 100.000' :
+                    data.stunting ? '%' : 'jiwa';
+        const time = new Date(Date.now() - Math.random() * 3600000);
+        const timeStr = time.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+        
+        feedItems.push(`
+            <div class="feed-item" style="animation-delay: ${idx * 0.05}s">
+                <div class="feed-header">
+                    <div class="feed-user">
+                        <div class="feed-avatar">${sektor.icon}</div>
+                        <div>
+                            <div class="feed-name">${kec}</div>
+                            <div class="feed-time">${timeStr} • ${sektor.nama}</div>
+                        </div>
+                    </div>
+                    <span style="font-size:12px;color:var(--text-dim);">📍 ${Math.floor(Math.random() * 20) + 1} RT</span>
+                </div>
+                <div class="feed-content">
+                    <div>
+                        <span class="value">${value}</span>
+                        <span style="font-size:14px;color:var(--text-dim);"> ${unit}</span>
+                    </div>
+                    <div class="label">${label} • Populasi: ${(data.populasi || 0).toLocaleString()} jiwa</div>
+                </div>
+                <div class="feed-actions">
+                    <button onclick="likeFeed(this)"><i class="fas fa-heart"></i> <span class="like-count">${Math.floor(Math.random() * 100) + 10}</span></button>
+                    <button><i class="fas fa-comment"></i> ${Math.floor(Math.random() * 20)}</button>
+                    <button onclick="shareFeed('${kec}')"><i class="fas fa-share"></i> Bagikan</button>
+                    <button><i class="fas fa-bookmark"></i></button>
+                </div>
+            </div>
+        `);
+    });
+
+    container.innerHTML = feedItems.join('');
+    document.getElementById('feedLoading').style.display = 'none';
+}
+
+function likeFeed(btn) {
+    const count = btn.querySelector('.like-count');
+    const current = parseInt(count.textContent);
+    count.textContent = current + 1;
+    btn.querySelector('i').style.color = '#FF4444';
+    btn.querySelector('i').style.transform = 'scale(1.3)';
+    setTimeout(() => {
+        btn.querySelector('i').style.transform = 'scale(1)';
+    }, 300);
+    showNotification('❤️ Anda menyukai data ini!');
+}
+
+function shareFeed(kec) {
+    showNotification(`📤 Data ${kec} dibagikan!`);
+}
+
+// ===== NOTIFICATION =====
+function showNotification(text) {
+    const notif = document.getElementById('notification');
+    document.getElementById('notifText').textContent = text;
+    notif.classList.add('show');
+    setTimeout(() => notif.classList.remove('show'), 2500);
+}
+
+// ===== AUTO REFRESH =====
+setInterval(() => {
+    // Refresh feed dengan data baru
+    const container = document.getElementById('feedContainer');
+    const firstItem = container.querySelector('.feed-item');
+    if (firstItem) {
+        const clone = firstItem.cloneNode(true);
+        container.prepend(clone);
+        clone.style.animation = 'feedAppear 0.5s ease';
+        if (container.children.length > 20) {
+            container.removeChild(container.lastChild);
+        }
+    }
+    showNotification('📊 Data baru masuk!');
+}, 10000);
 
 // ===== MAP =====
 let map = null;
@@ -152,66 +281,136 @@ function renderChoropleth() {
             layer.on('click', function() { map.fitBounds(layer.getBounds()); });
         }
     }).addTo(map);
+
+    document.getElementById('mapInfoText').textContent = 
+        `📊 ${labels[indicator] || indicator} • Tahun 2026 • Klik kecamatan untuk detail`;
 }
 
-// ===== METADATA =====
-function renderMetadata() {
-    const container = document.getElementById('metadataGrid');
-    container.innerHTML = METADATA.map(m => `
-        <div class="metadata-card">
-            <div class="code">${m.kode}</div>
-            <div class="name">${m.nama}</div>
-            <div class="details">
-                <span>${m.sektor}</span>
-                <span>${m.sumber}</span>
-                <span>${m.unit}</span>
-                <span>${m.periode}</span>
+document.getElementById('indicatorSelect').addEventListener('change', renderChoropleth);
+
+// ===== LEADERBOARD =====
+function generateLeaderboard() {
+    const container = document.getElementById('leaderboardList');
+    const ranks = ['🥇', '🥈', '🥉', '4', '5', '6', '7', '8', '9', '10'];
+    const names = ['Pak RT', 'Bu RW', 'Kepala Desa', 'Camat', 'Warga A', 'Warga B', 'Relawan 1', 'Relawan 2', 'Mahasiswa', 'Peneliti'];
+    const points = [320, 280, 240, 200, 180, 150, 120, 100, 80, 60];
+
+    container.innerHTML = names.map((name, i) => `
+        <div class="leaderboard-item">
+            <span class="rank ${i < 3 ? ['gold','silver','bronze'][i] : ''}">${ranks[i]}</span>
+            <div class="avatar">${['🏆','🌟','⭐','👤','👤','👤','👤','👤','👤','👤'][i]}</div>
+            <div class="info">
+                <div class="name">${name}</div>
+                <div class="sub">${i < 3 ? 'Kontributor Terbaik' : 'Kontributor'} • ${Math.floor(Math.random() * 50) + 10} data</div>
             </div>
-            <div class="status">✅ Terverifikasi BPS</div>
+            <div class="points">${points[i]} Poin</div>
         </div>
     `).join('');
 }
 
-// ===== STATS =====
-function updateStats() {
-    const total = Object.keys(dataStatistik).length;
-    document.getElementById('totalData').textContent = total * 5;
-    document.getElementById('totalPoin').textContent = total * 10;
-}
+// ===== CHARTS =====
+let trendChart, pieChart, barChart;
 
-// ===== COPY =====
-function copyResponse() {
-    const pre = document.getElementById('apiResponse');
-    navigator.clipboard.writeText(pre.textContent).then(() => {
-        alert('✅ Response JSON disalin!');
+function initCharts() {
+    const ctx1 = document.getElementById('trendChart').getContext('2d');
+    trendChart = new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+            datasets: [{
+                label: 'Data Entry',
+                data: [12,19,3,5,2,3,15,8,12,9,14,20],
+                borderColor: '#6C63FF',
+                backgroundColor: 'rgba(108,99,255,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#8888AA' } },
+                x: { grid: { display: false }, ticks: { color: '#8888AA', font: { size: 8 } } }
+            }
+        }
     });
+
+    const ctx2 = document.getElementById('pieChart').getContext('2d');
+    pieChart = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: ['Kependudukan','Pertanian','Kesehatan','Pendidikan','Ekonomi'],
+            datasets: [{
+                data: [30,20,25,15,10],
+                backgroundColor: ['#6C63FF','#00D4FF','#FF6B6B','#FFD700','#00FF88'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { color: '#8888AA', font: { size: 8 }, boxWidth: 8, padding: 4 } } },
+            cutout: '60%'
+        }
+    });
+
+    const ctx3 = document.getElementById('barChart').getContext('2d');
+    barChart = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: ['Menes','Pandeglang','Cimanggu','Labuan','Bojong'],
+            datasets: [{
+                label: 'Data Entry',
+                data: [42,38,35,30,28],
+                backgroundColor: 'rgba(108,99,255,0.6)',
+                borderColor: '#6C63FF',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#8888AA' } },
+                x: { grid: { display: false }, ticks: { color: '#8888AA', font: { size: 9 } } }
+            }
+        }
+    });
+
+    // Auto update charts
+    setInterval(() => {
+        const data = trendChart.data.datasets[0].data;
+        data.push(Math.floor(Math.random() * 15) + 5);
+        data.shift();
+        trendChart.update('none');
+
+        const pieData = pieChart.data.datasets[0].data;
+        pieData.forEach((d, i) => {
+            pieData[i] = Math.max(5, d + (Math.random() - 0.5) * 8);
+        });
+        pieChart.update('none');
+
+        const barData = barChart.data.datasets[0].data;
+        barData.forEach((d, i) => {
+            barData[i] = Math.max(10, d + (Math.random() - 0.5) * 6);
+        });
+        barChart.update('none');
+    }, 5000);
 }
 
-// ===== NAVBAR =====
+// ===== INIT =====
 document.addEventListener('DOMContentLoaded', function() {
-    const h = document.getElementById('hamburger');
-    const m = document.getElementById('navMenu');
-    if (h) h.addEventListener('click', () => m.classList.toggle('active'));
-    document.querySelectorAll('.nav-menu a').forEach(a => {
-        a.addEventListener('click', () => m.classList.remove('active'));
-    });
-
-    renderMetadata();
-    updateStats();
+    generateFeed();
+    generateLeaderboard();
     initMap();
+    initCharts();
 
-    document.getElementById('indicatorSelect').addEventListener('change', renderChoropleth);
-    document.getElementById('yearSelect').addEventListener('change', function() {
-        document.querySelector('.peta-info span:first-child').textContent = 
-            `📅 Tahun ${this.value} • Klik kecamatan untuk detail`;
-    });
-
-    console.log('🌏 Si DESKA v3.0 - Siap Presentasi');
+    console.log('🌏 Si DESKA - Big Data Platform');
+    console.log('📊 Dari RT/RW untuk Dunia');
     console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
 });
-
-// ===== LIVE CLOCK =====
-setInterval(() => {
-    document.querySelector('.live-badge').textContent = 
-        `● Live ${new Date().toLocaleTimeString()}`;
-}, 1000);
