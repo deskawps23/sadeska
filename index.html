@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Si DESKA - Command Center 48 Sektor</title>
     
-    <!-- ===== FIREBASE SDK ===== -->
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
     <style>
-        /* ===== RESET & VARIABLES ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg: #0A0A1A;
@@ -38,12 +37,10 @@
             line-height: 1.5;
         }
         
-        /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
-        /* ===== UTILITY ===== */
         .container { max-width: 480px; margin: 0 auto; }
         .hidden { display: none !important; }
         .flex { display: flex; }
@@ -57,7 +54,6 @@
         .mb-8 { margin-bottom: 8px; }
         .mb-12 { margin-bottom: 12px; }
         
-        /* ===== NAVBAR ===== */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -92,7 +88,6 @@
         }
         .btn-logout:hover { background: rgba(255,68,68,0.25); }
 
-        /* ===== USER BADGE ===== */
         .user-badge {
             display: flex; align-items: center; gap: 6px;
             padding: 4px 12px; background: var(--card);
@@ -105,7 +100,6 @@
             color: #fff; padding: 1px 8px; border-radius: 10px;
         }
 
-        /* ===== STATS ===== */
         .stats {
             display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 8px; margin: 12px 0;
@@ -119,7 +113,6 @@
         .stat-card .label { font-size: 8px; color: var(--dim); }
         .stat-card.health .number { color: var(--health); }
 
-        /* ===== INFO DESA ===== */
         .info-desa {
             font-size: 10px; color: var(--dim);
             background: var(--card); padding: 6px 12px;
@@ -127,7 +120,6 @@
         }
         .info-desa strong { color: var(--secondary); }
 
-        /* ===== SEKTOR GRID ===== */
         .sektor-grid {
             display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 6px; margin: 8px 0 12px;
@@ -149,7 +141,6 @@
         .sektor-item.health-active { border-color: var(--health); background: rgba(255,107,107,0.05); }
         .sektor-item.active { border-color: var(--primary); background: rgba(108,99,255,0.05); }
 
-        /* ===== SECTION TITLE ===== */
         .section-title {
             font-size: 14px; font-weight: 700; margin: 12px 0 8px;
             display: flex; align-items: center; gap: 8px;
@@ -157,7 +148,6 @@
         .section-title i { color: var(--primary); }
         .section-title.health i { color: var(--health); }
 
-        /* ===== FORM ===== */
         .form-card {
             background: var(--card); border: 1px solid var(--border);
             border-radius: var(--radius); padding: 14px;
@@ -205,7 +195,6 @@
         .status-msg.error { display: block; background: rgba(255,68,68,0.1); color: #FF4444; }
         .status-msg.info { display: block; background: rgba(0,212,255,0.1); color: var(--secondary); }
 
-        /* ===== FEED ===== */
         .feed-item {
             background: var(--card); border: 1px solid var(--border);
             border-radius: 8px; padding: 10px; margin-bottom: 6px;
@@ -230,7 +219,6 @@
             display: flex; justify-content: space-between;
         }
 
-        /* ===== HISTORY ===== */
         .history-item {
             background: var(--card); border: 1px solid var(--border);
             border-radius: 8px; padding: 8px 12px; margin-bottom: 6px;
@@ -245,12 +233,10 @@
         .history-item .verified { color: var(--success); }
         .history-item .pending { color: #F59E0B; }
 
-        /* ===== TAB ===== */
         .tab { display: none; }
         .tab.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ===== BOTTOM NAV ===== */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
             display: flex; justify-content: space-around;
@@ -270,7 +256,6 @@
         .nav-btn.active { color: var(--primary); }
         .nav-btn.health-active { color: var(--health); }
 
-        /* ===== NOTIF ===== */
         .notif {
             position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
             background: var(--card); border: 1px solid var(--border);
@@ -280,7 +265,6 @@
         }
         .notif.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-        /* ===== SPLASH ===== */
         .splash {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             z-index: 9999; background: var(--bg);
@@ -307,7 +291,6 @@
         }
         @keyframes loadBar { 0% { width: 0%; } 100% { width: 100%; } }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 480px) {
             .stats { grid-template-columns: 1fr 1fr; }
             .sektor-grid { grid-template-columns: 1fr 1fr 1fr; }
@@ -325,7 +308,7 @@
 </head>
 <body>
 
-    <!-- ===== SPLASH ===== -->
+    <!-- SPLASH -->
     <div id="splash" class="splash">
         <div class="splash-content">
             <div class="splash-icon">🌏</div>
@@ -335,13 +318,13 @@
         </div>
     </div>
 
-    <!-- ===== NOTIF ===== -->
+    <!-- NOTIF -->
     <div id="notif" class="notif">📊 Selamat datang di Si DESKA!</div>
 
-    <!-- ===== MAIN CONTENT ===== -->
+    <!-- MAIN CONTENT -->
     <div class="container" id="app">
 
-        <!-- ===== NAVBAR ===== -->
+        <!-- NAVBAR -->
         <nav class="navbar">
             <div class="logo">
                 <span class="logo-icon">🌏</span>
@@ -360,13 +343,13 @@
             </div>
         </nav>
 
-        <!-- ===== INFO DESA ===== -->
+        <!-- INFO DESA -->
         <div class="info-desa">
             📍 <strong>35 Kecamatan</strong> • 🏘️ <strong>326 Desa</strong> • 🏛️ <strong>13 Kelurahan</strong> • ✅ <strong>48 Sektor</strong>
             <span class="badge badge-health" style="margin-left:6px;">🏥 Kesehatan</span>
         </div>
 
-        <!-- ===== STATS ===== -->
+        <!-- STATS -->
         <div class="stats" id="statsContainer">
             <div class="stat-card"><span class="number" id="totalData">0</span><span class="label">Total Data</span></div>
             <div class="stat-card"><span class="number" id="totalSektor">48</span><span class="label">Sektor</span></div>
@@ -374,7 +357,7 @@
             <div class="stat-card"><span class="number" id="totalDesa">339</span><span class="label">Desa/Kel</span></div>
         </div>
 
-        <!-- ===== TAB CONTENT ===== -->
+        <!-- TAB CONTENT -->
         <div id="tab-dashboard" class="tab active">
             <div class="section-title"><i class="fas fa-th-list"></i> 48 Sektor</div>
             <div class="sektor-grid" id="sektorGrid"></div>
@@ -400,7 +383,7 @@
                     </select>
                 </div>
 
-                <!-- ===== FORM UMUM ===== -->
+                <!-- FORM UMUM -->
                 <div id="generalForm">
                     <div class="form-row">
                         <div class="form-group">
@@ -432,7 +415,7 @@
                     </div>
                 </div>
 
-                <!-- ===== FORM KESEHATAN ===== -->
+                <!-- FORM KESEHATAN -->
                 <div id="healthForm" style="display:none;">
                     <div class="form-row">
                         <div class="form-group">
@@ -522,7 +505,7 @@
                     </div>
                 </div>
 
-                <!-- ===== PELAPOR ===== -->
+                <!-- PELAPOR -->
                 <div class="form-row" style="margin-top:10px;">
                     <div class="form-group">
                         <label><i class="fas fa-user"></i> Nama Pelapor</label>
@@ -600,7 +583,7 @@
 
     </div>
 
-    <!-- ===== BOTTOM NAV ===== -->
+    <!-- BOTTOM NAV -->
     <div class="bottom-nav">
         <button class="nav-btn active" onclick="switchTab('dashboard')"><i class="fas fa-home"></i>Dashboard</button>
         <button class="nav-btn" onclick="switchTab('input')"><i class="fas fa-edit"></i>Input</button>
@@ -608,7 +591,7 @@
         <button class="nav-btn" onclick="switchTab('profile')"><i class="fas fa-user"></i>Profil</button>
     </div>
 
-    <!-- ===== AUTH MODAL ===== -->
+    <!-- AUTH MODAL -->
     <div id="authModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;">
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:400px;width:100%;max-height:90vh;overflow-y:auto;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -675,37 +658,28 @@
 
     <script>
         // ============================================================
-        // 🔥 FIREBASE CONFIG (GANTI DENGAN PUNYA ANDA)
+        // 🔥 FIREBASE CONFIG - SUDAH PAKAI API KEY ANDA
         // ============================================================
-   // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAHGLNVtubgL4lYZuZL3I4QwqUR6NBNfqQ",
-  authDomain: "si-deska-wps.firebaseapp.com",
-  projectId: "si-deska-wps",
-  storageBucket: "si-deska-wps.firebasestorage.app",
-  messagingSenderId: "595163960871",
-  appId: "1:595163960871:web:40a884615f28556ed6e002"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);     
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHGLNvTubgL4LYZuZL3I4QwqUR6NBNfqQ",
+            authDomain: "si-deska-wps.firebaseapp.com",
+            projectId: "si-deska-wps",
+            storageBucket: "si-deska-wps.firebasestorage.googleapis.com",
+            messagingSenderId: "595163960871",
+            appId: "1:595163960871:web:40a884615f28556ed6e0e8b3"
+        };
 
         // ============================================================
         // 🚀 INISIALISASI FIREBASE
         // ============================================================
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        var auth = firebase.auth();
+        var db = firebase.firestore();
 
         // ============================================================
         // 📊 DATA MASTER
         // ============================================================
-        const SEKTOR = [
+        var SEKTOR = [
             {id:1, nama:"Kependudukan", icon:"👨‍👩‍👧‍👦"},
             {id:2, nama:"Pertanian", icon:"🌾"},
             {id:3, nama:"Perdagangan", icon:"🛒"},
@@ -756,7 +730,7 @@ const app = initializeApp(firebaseConfig);
             {id:48, nama:"Pertambangan", icon:"⛏️"}
         ];
 
-        const KECAMATAN = [
+        var KECAMATAN = [
             "Sumur","Cimanggu","Cibaliung","Cibitung","Cikeusik","Cigeulis",
             "Panimbang","Sobang","Munjul","Angsana","Sindangresmi","Picung",
             "Bojong","Saketi","Cisata","Pagelaran","Patia","Sukaresmi",
@@ -766,11 +740,13 @@ const app = initializeApp(firebaseConfig);
             "Koroncong"
         ];
 
+        var currentUser = null;
+        var allData = [];
+        var chart1 = null, chart2 = null, chartHealth = null;
+
         // ============================================================
         // 🔐 AUTH FUNCTIONS
         // ============================================================
-        let currentUser = null;
-
         function showAuth() {
             document.getElementById('authModal').style.display = 'flex';
             document.getElementById('authStatus').className = 'status-msg';
@@ -796,13 +772,13 @@ const app = initializeApp(firebaseConfig);
         }
 
         function register() {
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
-            const confirm = document.getElementById('regConfirm').value;
-            const role = document.getElementById('regRole').value;
-            const kecamatan = document.getElementById('regKecamatan').value;
-            const status = document.getElementById('authStatus');
+            var name = document.getElementById('regName').value.trim();
+            var email = document.getElementById('regEmail').value.trim();
+            var password = document.getElementById('regPassword').value;
+            var confirm = document.getElementById('regConfirm').value;
+            var role = document.getElementById('regRole').value;
+            var kecamatan = document.getElementById('regKecamatan').value;
+            var status = document.getElementById('authStatus');
 
             if (!name || !email || !password || !kecamatan) {
                 status.className = 'status-msg error';
@@ -853,9 +829,9 @@ const app = initializeApp(firebaseConfig);
         }
 
         function login() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const status = document.getElementById('authStatus');
+            var email = document.getElementById('loginEmail').value.trim();
+            var password = document.getElementById('loginPassword').value;
+            var status = document.getElementById('authStatus');
 
             if (!email || !password) {
                 status.className = 'status-msg error';
@@ -934,7 +910,6 @@ const app = initializeApp(firebaseConfig);
             }
 
             if (isHealth) {
-                // === DATA KESEHATAN ===
                 var kecamatan = document.getElementById('inputKecamatanHealth').value;
                 var desa = document.getElementById('inputDesaHealth').value.trim();
                 var rw = document.getElementById('inputRWHealth').value.trim() || '-';
@@ -992,14 +967,12 @@ const app = initializeApp(firebaseConfig);
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                // Reset health form
                 document.getElementById('inputDesaHealth').value = '';
                 document.getElementById('inputRWHealth').value = '';
                 document.getElementById('inputRThealth').value = '';
                 document.querySelectorAll('#healthForm input[type="number"]').forEach(function(el) { el.value = ''; });
 
             } else {
-                // === DATA UMUM ===
                 var kecamatan = document.getElementById('inputKecamatan').value;
                 var desa = document.getElementById('inputDesa').value.trim();
                 var rw = document.getElementById('inputRW').value.trim() || '-';
@@ -1037,7 +1010,6 @@ const app = initializeApp(firebaseConfig);
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                // Reset general form
                 document.getElementById('inputDesa').value = '';
                 document.getElementById('inputRW').value = '';
                 document.getElementById('inputRT').value = '';
@@ -1051,7 +1023,6 @@ const app = initializeApp(firebaseConfig);
             status.className = 'status-msg info';
             status.textContent = '⏳ Menyimpan data...';
 
-            // Simpan ke Firestore
             var collectionName = 'data_' + sektor;
             db.collection(collectionName).add(data)
                 .then(function() {
@@ -1069,8 +1040,6 @@ const app = initializeApp(firebaseConfig);
         // ============================================================
         // 📊 LOAD DATA
         // ============================================================
-        var allData = [];
-
         function loadAllData() {
             var promises = [];
             for (var i = 1; i <= 48; i++) {
@@ -1098,7 +1067,7 @@ const app = initializeApp(firebaseConfig);
                 }
                 updateDashboard();
                 updateHistory();
-                initCharts();
+                setTimeout(initCharts, 300);
             });
         }
 
@@ -1116,7 +1085,6 @@ const app = initializeApp(firebaseConfig);
             }
             document.getElementById('totalHealth').textContent = healthCount;
 
-            // Sektor Grid
             var grid = document.getElementById('sektorGrid');
             var html = '';
             for (var j = 0; j < SEKTOR.length; j++) {
@@ -1131,7 +1099,6 @@ const app = initializeApp(firebaseConfig);
             }
             grid.innerHTML = html;
 
-            // Health Summary
             var summary = document.getElementById('healthSummary');
             var totalIbuHamil = 0, totalStunting = 0, totalAKI = 0, totalAKB = 0;
             for (var k = 0; k < allData.length; k++) {
@@ -1151,7 +1118,6 @@ const app = initializeApp(firebaseConfig);
                 '<div style="text-align:center;"><span style="color:var(--dim);font-size:9px;">AKB</span><br><strong style="color:var(--health);font-size:16px;">' + totalAKB + '</strong></div>' +
                 '</div>';
 
-            // Feed
             var feed = document.getElementById('updateFeed');
             var recent = allData.slice(0, 5);
             if (recent.length === 0) {
@@ -1215,14 +1181,11 @@ const app = initializeApp(firebaseConfig);
         // ============================================================
         // 📊 CHARTS
         // ============================================================
-        var chart1 = null, chart2 = null, chartHealth = null;
-
         function initCharts() {
             if (chart1) { chart1.destroy(); chart1 = null; }
             if (chart2) { chart2.destroy(); chart2 = null; }
             if (chartHealth) { chartHealth.destroy(); chartHealth = null; }
 
-            // Chart 1: Data per Sektor (top 10)
             var sektorCounts = {};
             for (var i = 0; i < allData.length; i++) {
                 var s = allData[i].sektor;
@@ -1266,7 +1229,6 @@ const app = initializeApp(firebaseConfig);
                 });
             }
 
-            // Chart 2: Data per Kecamatan (top 10)
             var kecCounts = {};
             for (var l = 0; l < allData.length; l++) {
                 var k = allData[l].kecamatan;
@@ -1305,7 +1267,6 @@ const app = initializeApp(firebaseConfig);
                 });
             }
 
-            // Chart Health
             var healthKec = {};
             for (var n = 0; n < allData.length; n++) {
                 if (allData[n].sektor === 6 && allData[n].isHealth) {
@@ -1444,7 +1405,6 @@ const app = initializeApp(firebaseConfig);
         // 📝 INIT DROPDOWNS
         // ============================================================
         function initDropdowns() {
-            // Sektor
             var sektorSelect = document.getElementById('inputSektor');
             sektorSelect.innerHTML = '<option value="">-- Pilih Sektor --</option>';
             for (var i = 0; i < SEKTOR.length; i++) {
@@ -1455,7 +1415,6 @@ const app = initializeApp(firebaseConfig);
                 sektorSelect.appendChild(opt);
             }
 
-            // Kecamatan
             var kecSelect = document.getElementById('inputKecamatan');
             var kecSelect2 = document.getElementById('inputKecamatanHealth');
             var regKec = document.getElementById('regKecamatan');
@@ -1473,14 +1432,12 @@ const app = initializeApp(firebaseConfig);
         // 🚀 MAIN INIT
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
-            // Splash
             setTimeout(function() {
                 document.getElementById('splash').classList.add('hidden');
             }, 1800);
 
             initDropdowns();
 
-            // Auth state listener
             auth.onAuthStateChanged(function(user) {
                 if (user) {
                     db.collection('users').doc(user.uid).get().then(function(doc) {
@@ -1498,12 +1455,12 @@ const app = initializeApp(firebaseConfig);
 
             console.log('🌏 Si DESKA - Command Center 48 Sektor + Firebase siap!');
             console.log('📊 48 Sektor • 35 Kecamatan • 326 Desa • 13 Kelurahan');
-            console.log('🏥 Sektor Kesehatan memiliki form khusus (Ibu Hamil, Stunting, AKI, AKB, Imunisasi)');
+            console.log('🏥 Sektor Kesehatan memiliki form khusus');
             console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
         });
 
         // ============================================================
-        // 🔄 AUTO REFRESH (Update data real-time)
+        // 🔄 AUTO REFRESH
         // ============================================================
         setInterval(function() {
             loadAllData();
