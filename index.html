@@ -2,182 +2,178 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Si DESKA - Big Data Platform</title>
-    <meta name="description" content="Si DESKA - Big Data Platform dari RT/RW untuk Dunia" />
-    <meta name="theme-color" content="#0A0A1A" />
-    <link rel="manifest" href="manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Si DESKA - Command Center</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
-    <!-- ===== SPLASH SCREEN ===== -->
-    <div id="splashScreen" class="splash-screen">
+    <!-- ===== SPLASH ===== -->
+    <div id="splash" class="splash">
         <div class="splash-content">
-            <div class="splash-logo">🌏</div>
+            <div class="splash-icon">🌏</div>
             <h1>Si DESKA</h1>
-            <p>Big Data • One Platform</p>
-            <div class="splash-loader">
-                <div class="loader-bar"></div>
-            </div>
-            <p class="splash-sub">@deskawps • Warga Pandeglang Sejahtera</p>
+            <p>Command Center • Kabupaten Pandeglang</p>
+            <div class="splash-bar"><div class="splash-progress"></div></div>
         </div>
     </div>
 
     <!-- ===== NAVBAR ===== -->
-    <nav class="navbar" id="navbar">
+    <nav class="navbar">
         <div class="container">
             <div class="logo">
                 <span class="logo-icon">🌏</span>
-                <span class="logo-text">Si DESKA</span>
-                <span class="logo-badge">BETA</span>
+                <span class="logo-text">Si <span>DESKA</span></span>
+                <span class="logo-badge">COMMAND</span>
             </div>
             <div class="nav-actions">
-                <button class="nav-btn" id="themeToggle"><i class="fas fa-moon"></i></button>
-                <button class="nav-btn" id="langToggle"><i class="fas fa-globe"></i></button>
+                <span class="live-badge">● LIVE</span>
+                <button class="nav-btn" id="themeBtn">🌙</button>
                 <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
             </div>
         </div>
     </nav>
 
     <!-- ===== BOTTOM NAV ===== -->
-    <nav class="bottom-nav" id="bottomNav">
-        <button class="bottom-btn active" data-tab="feed">
-            <i class="fas fa-home"></i>
-            <span>Feed</span>
-        </button>
-        <button class="bottom-btn" data-tab="map">
-            <i class="fas fa-map"></i>
-            <span>Peta</span>
-        </button>
-        <button class="bottom-btn" data-tab="chart">
-            <i class="fas fa-chart-line"></i>
-            <span>Grafik</span>
-        </button>
-        <button class="bottom-btn" data-tab="leaderboard">
-            <i class="fas fa-trophy"></i>
-            <span>Leaderboard</span>
-        </button>
-        <button class="bottom-btn" data-tab="profile">
-            <i class="fas fa-user"></i>
-            <span>Profil</span>
-        </button>
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></button>
+        <button class="nav-item" data-tab="peta"><i class="fas fa-map"></i><span>Peta</span></button>
+        <button class="nav-item" data-tab="sektor"><i class="fas fa-th-list"></i><span>Sektor</span></button>
+        <button class="nav-item" data-tab="update"><i class="fas fa-edit"></i><span>Update</span></button>
+        <button class="nav-item" data-tab="profile"><i class="fas fa-user"></i><span>Profil</span></button>
     </nav>
 
     <!-- ===== MAIN CONTENT ===== -->
-    <main class="main-content" id="mainContent">
+    <main class="main">
 
-        <!-- ===== FEED TAB ===== -->
-        <section class="tab-content active" id="tab-feed">
-            <div class="feed-header">
-                <h2>📊 Data Feed</h2>
-                <span class="feed-counter" id="feedCounter">12.500+ RT • 35 Kecamatan</span>
+        <!-- ===== DASHBOARD ===== -->
+        <section class="tab active" id="tab-dashboard">
+            <div class="dashboard-header">
+                <h2>📊 Command Center</h2>
+                <span class="update-time" id="updateTime">Update: sekarang</span>
             </div>
-            <div class="feed-container" id="feedContainer">
-                <!-- Feed items akan di-generate oleh JavaScript -->
+
+            <!-- Statistik Kunci -->
+            <div class="stats-grid">
+                <div class="stat-card"><span class="stat-number" id="totalData">0</span><span class="stat-label">Total Data</span></div>
+                <div class="stat-card"><span class="stat-number" id="totalSektor">0</span><span class="stat-label">Sektor Aktif</span></div>
+                <div class="stat-card"><span class="stat-number" id="totalKader">0</span><span class="stat-label">Kader Desa</span></div>
+                <div class="stat-card"><span class="stat-number" id="totalDesa">339</span><span class="stat-label">Desa</span></div>
             </div>
-            <div class="feed-loading" id="feedLoading">
-                <div class="spinner"></div>
-                <p>Memuat data terbaru...</p>
+
+            <!-- Update Terbaru -->
+            <div class="section-title">
+                <h3>🔄 Update Terbaru</h3>
+                <span class="badge">Real-time</span>
             </div>
+            <div id="updateFeed" class="update-feed"></div>
         </section>
 
-        <!-- ===== MAP TAB ===== -->
-        <section class="tab-content" id="tab-map">
-            <div class="map-header">
+        <!-- ===== PETA ===== -->
+        <section class="tab" id="tab-peta">
+            <div class="peta-header">
                 <h2>🗺️ Peta Tematik</h2>
-                <div class="map-controls">
-                    <select id="indicatorSelect">
-                        <option value="putus_sekolah">📚 Putus Sekolah</option>
-                        <option value="kematian_ibu">🏥 Kematian Ibu</option>
-                        <option value="stunting">📊 Stunting</option>
-                        <option value="kemiskinan">💰 Kemiskinan</option>
-                        <option value="populasi">👨‍👩‍👧‍👦 Populasi</option>
+                <select id="indicatorSelect">
+                    <option value="populasi">👨‍👩‍👧‍👦 Populasi</option>
+                    <option value="kesehatan">🏥 Kesehatan</option>
+                    <option value="pendidikan">📚 Pendidikan</option>
+                    <option value="ekonomi">💰 Ekonomi</option>
+                </select>
+            </div>
+            <div id="mapContainer" class="map-container"></div>
+            <div class="map-info" id="mapInfo">Klik kecamatan untuk detail data</div>
+        </section>
+
+        <!-- ===== SEKTOR ===== -->
+        <section class="tab" id="tab-sektor">
+            <div class="sektor-header">
+                <h2>📋 Sektor-Sektor</h2>
+                <span class="badge">48 Sektor</span>
+            </div>
+            <div class="sektor-grid" id="sektorGrid"></div>
+        </section>
+
+        <!-- ===== UPDATE ===== -->
+        <section class="tab" id="tab-update">
+            <div class="update-header">
+                <h2>📝 Update Data Sektor</h2>
+                <p>Untuk Kader Desa • Input data dari HP</p>
+            </div>
+            <div class="update-card">
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Sektor</label>
+                    <select id="inputSektor">
+                        <option value="kesehatan">🏥 Kesehatan</option>
+                        <option value="pendidikan">📚 Pendidikan</option>
+                        <option value="kependudukan">👨‍👩‍👧‍👦 Kependudukan</option>
+                        <option value="pertanian">🌾 Pertanian</option>
+                        <option value="ekonomi">💰 Ekonomi</option>
+                        <option value="infrastruktur">🏗️ Infrastruktur</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Kecamatan</label>
+                    <select id="inputKecamatan"></select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-home"></i> Desa</label>
+                    <input type="text" id="inputDesa" placeholder="Nama desa" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-chart-simple"></i> Nilai Data</label>
+                    <input type="number" id="inputNilai" placeholder="Jumlah / nilai" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Nama Kader</label>
+                    <input type="text" id="inputKader" placeholder="Nama lengkap" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> No. HP</label>
+                    <input type="text" id="inputHP" placeholder="0856-xxxx-xxxx" />
+                </div>
+                <button class="btn-primary" onclick="submitUpdate()">
+                    <i class="fas fa-save"></i> Kirim Data
+                </button>
+                <div id="updateStatus" class="update-status"></div>
             </div>
-            <div id="petaMap" class="map-container"></div>
-            <div class="map-info">
-                <span id="mapInfoText">🟢 Klik kecamatan untuk detail</span>
+            <div class="update-history" id="updateHistory">
+                <h4>📋 Riwayat Update</h4>
+                <div id="historyList"></div>
             </div>
         </section>
 
-        <!-- ===== CHART TAB ===== -->
-        <section class="tab-content" id="tab-chart">
-            <div class="chart-header">
-                <h2>📈 Live Analytics</h2>
-                <span class="live-badge">🔴 LIVE</span>
-            </div>
-            <div class="chart-grid">
-                <div class="chart-card">
-                    <h3>Tren Data Entry</h3>
-                    <canvas id="trendChart"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>Distribusi Sektor</h3>
-                    <canvas id="pieChart"></canvas>
-                </div>
-                <div class="chart-card full-width">
-                    <h3>Top Kecamatan</h3>
-                    <canvas id="barChart"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== LEADERBOARD TAB ===== -->
-        <section class="tab-content" id="tab-leaderboard">
-            <div class="leaderboard-header">
-                <h2>🏆 Leaderboard</h2>
-                <span>Kontributor Terbaik</span>
-            </div>
-            <div class="leaderboard-list" id="leaderboardList">
-                <!-- Akan di-generate oleh JavaScript -->
-            </div>
-        </section>
-
-        <!-- ===== PROFILE TAB ===== -->
-        <section class="tab-content" id="tab-profile">
+        <!-- ===== PROFILE ===== -->
+        <section class="tab" id="tab-profile">
             <div class="profile-header">
-                <div class="profile-avatar">🌏</div>
+                <div class="avatar">🌏</div>
                 <h2>@deskawps</h2>
                 <p>Warga Pandeglang Sejahtera</p>
                 <div class="profile-stats">
-                    <div class="profile-stat">
-                        <span class="stat-number">12.500+</span>
-                        <span class="stat-label">RT</span>
-                    </div>
-                    <div class="profile-stat">
-                        <span class="stat-number">48</span>
-                        <span class="stat-label">Sektor</span>
-                    </div>
-                    <div class="profile-stat">
-                        <span class="stat-number">35</span>
-                        <span class="stat-label">Kecamatan</span>
-                    </div>
+                    <div><span id="profileData">0</span><label>Data</label></div>
+                    <div><span id="profileSektor">0</span><label>Sektor</label></div>
+                    <div><span id="profileKader">0</span><label>Kader</label></div>
                 </div>
             </div>
             <div class="profile-bio">
-                <p>🌱 Misi: Mengubah data kecil menjadi <strong>Big Data</strong> dalam 1 genggaman.</p>
-                <p>📊 Dari RT/RW hingga Dunia.</p>
+                <p>🌱 Misi: Dari data kecil menjadi <strong>Big Data</strong> dalam 1 genggaman.</p>
+                <p>📊 48 Sektor • 35 Kecamatan • 339 Desa</p>
+                <p>👥 Dikembangkan oleh <strong>WPS - Warga Pandeglang Sejahtera</strong></p>
             </div>
             <div class="profile-actions">
-                <button class="btn-primary">📧 Hubungi</button>
-                <button class="btn-secondary">🌐 Website</button>
+                <button class="btn-primary" onclick="alert('📧 deskawps@yahoo.co.id')">📧 Email</button>
+                <button class="btn-secondary" onclick="alert('📱 0856-9527-2863')">📱 WhatsApp</button>
             </div>
         </section>
 
     </main>
 
-    <!-- ===== NOTIFICATION ===== -->
-    <div id="notification" class="notification">
-        <span id="notifText">📊 Data baru masuk!</span>
-    </div>
+    <!-- ===== NOTIF ===== -->
+    <div id="notif" class="notif">📊 Data baru masuk!</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="script.js"></script>
 </body>
-</html>
+    </html>
