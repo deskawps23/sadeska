@@ -32,6 +32,7 @@
             font-weight: 700;
         }
         .badge-chain { background: #00D4FF; color: #000; }
+        .badge-health { background: #FF6B6B; }
         .live { color: #00FF88; font-size: 11px; }
 
         .stats {
@@ -49,6 +50,7 @@
         }
         .stat-card .number { font-size: 20px; font-weight: 900; color: #6C63FF; }
         .stat-card .label { font-size: 9px; color: #8888AA; }
+        .stat-card.health .number { color: #FF6B6B; }
 
         .section-title {
             font-size: 15px;
@@ -59,6 +61,7 @@
             gap: 8px;
         }
         .section-title i { color: #6C63FF; }
+        .section-title.health i { color: #FF6B6B; }
 
         .form-group { margin-bottom: 10px; }
         .form-group label {
@@ -69,6 +72,7 @@
             font-weight: 600;
         }
         .form-group label i { color: #6C63FF; margin-right: 4px; }
+        .form-group label.health i { color: #FF6B6B; }
         .form-group input, .form-group select {
             width: 100%;
             padding: 10px 12px;
@@ -83,10 +87,27 @@
             border-color: #6C63FF;
             outline: none;
         }
+        .form-group input.health-focus:focus, .form-group select.health-focus:focus {
+            border-color: #FF6B6B;
+        }
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
+        }
+
+        .health-section {
+            background: rgba(255,107,107,0.03);
+            border: 1px solid rgba(255,107,107,0.08);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        .health-section .section-label {
+            color: #FF6B6B;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 8px;
         }
 
         .btn-primary {
@@ -102,6 +123,10 @@
             transition: all 0.3s;
         }
         .btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-health {
+            background: #FF6B6B;
+        }
+        .btn-health:hover { background: #e05555; }
 
         .status { padding: 10px; border-radius: 8px; text-align: center; font-size: 13px; display: none; margin-top: 10px; }
         .status.success { display: block; background: rgba(0,255,136,0.1); color: #00FF88; }
@@ -126,6 +151,9 @@
             font-size: 8px;
             font-weight: 700;
             color: #fff;
+        }
+        .history-item .tag-health {
+            background: #FF6B6B;
         }
         .history-item .verified { color: #00FF88; font-size: 12px; }
         .history-item .pending { color: #F59E0B; font-size: 12px; }
@@ -159,6 +187,7 @@
         }
         .nav-btn i { font-size: 18px; }
         .nav-btn.active { color: #6C63FF; }
+        .nav-btn.health.active { color: #FF6B6B; }
 
         .notif {
             position: fixed;
@@ -233,6 +262,7 @@
             margin-top: 2px;
         }
         .sektor-item.active { border-color: #6C63FF; background: rgba(108,99,255,0.05); }
+        .sektor-item.health-active { border-color: #FF6B6B; background: rgba(255,107,107,0.05); }
 
         .info-desa {
             font-size: 10px;
@@ -244,6 +274,17 @@
             text-align: center;
         }
         .info-desa strong { color: #00D4FF; }
+
+        .health-badge {
+            display: inline-block;
+            background: #FF6B6B;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 8px;
+            font-weight: 700;
+            color: #fff;
+            margin-left: 4px;
+        }
 
         @media (max-width: 480px) {
             .stats { grid-template-columns: 1fr 1fr; }
@@ -272,6 +313,7 @@
             <span class="live">● LIVE</span>
             <span class="badge badge-chain">⛓️ CHAIN</span>
             <span class="badge">48 SEKTOR</span>
+            <span class="badge badge-health">🏥 HEALTH</span>
         </div>
     </div>
 
@@ -290,17 +332,21 @@
 
             <div class="info-desa">
                 📍 <strong>35 Kecamatan</strong> • 🏘️ <strong>326 Desa</strong> • 🏛️ <strong>13 Kelurahan</strong> • ✅ <strong>48 Sektor</strong>
+                <span class="health-badge">🏥 Kesehatan Detail</span>
             </div>
 
             <div class="stats">
                 <div class="stat-card"><span class="number" id="totalData">0</span><div class="label">Total Data</div></div>
                 <div class="stat-card"><span class="number" id="totalSektor">48</span><div class="label">Sektor</div></div>
-                <div class="stat-card"><span class="number" id="totalKecamatan">35</span><div class="label">Kecamatan</div></div>
+                <div class="stat-card health"><span class="number" id="totalHealth">0</span><div class="label">Data Kesehatan</div></div>
                 <div class="stat-card"><span class="number" id="totalDesa">339</span><div class="label">Desa/Kelurahan</div></div>
             </div>
 
             <div class="section-title"><i class="fas fa-th-list"></i> 48 Sektor</div>
             <div class="sektor-grid" id="sektorGrid"></div>
+
+            <div class="section-title health"><i class="fas fa-heartbeat"></i> Ringkasan Kesehatan</div>
+            <div id="healthSummary" style="margin-bottom:12px;"></div>
 
             <div class="section-title"><i class="fas fa-clock"></i> Update Terbaru</div>
             <div id="updateFeed"></div>
@@ -309,64 +355,167 @@
         <!-- ===== INPUT DATA ===== -->
         <div id="tab-input" class="tab">
             <h2 style="padding:8px 0;">📝 Input Data</h2>
-            <p style="color:#8888AA;font-size:13px;margin-bottom:12px;">Pilih sektor, isi data dari RT/RW/Kader Desa</p>
+            <p style="color:#8888AA;font-size:13px;margin-bottom:12px;">
+                Pilih sektor. Untuk <strong style="color:#FF6B6B;">Sektor 6 (Kesehatan)</strong> akan muncul form khusus kesehatan.
+            </p>
 
             <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;">
                 <div class="form-group">
                     <label><i class="fas fa-tag"></i> Pilih Sektor</label>
-                    <select id="inputSektor"></select>
+                    <select id="inputSektor" onchange="toggleHealthForm()">
+                        <option value="">-- Pilih Sektor --</option>
+                    </select>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label><i class="fas fa-map-marker-alt"></i> Kecamatan</label>
-                        <select id="inputKecamatan"></select>
+                <!-- ===== FORM UMUM (SEMUA SEKTOR) ===== -->
+                <div id="generalForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-map-marker-alt"></i> Kecamatan</label>
+                            <select id="inputKecamatan"></select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-home"></i> Desa/Kelurahan</label>
+                            <input type="text" id="inputDesa" placeholder="Nama desa" />
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-home"></i> Desa/Kelurahan</label>
-                        <input type="text" id="inputDesa" placeholder="Nama desa" />
-                    </div>
-                </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> RW</label>
-                        <input type="text" id="inputRW" placeholder="RW-001" />
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> RW</label>
+                            <input type="text" id="inputRW" placeholder="RW-001" />
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user-friends"></i> RT</label>
+                            <input type="text" id="inputRT" placeholder="RT-001" />
+                        </div>
                     </div>
+
                     <div class="form-group">
-                        <label><i class="fas fa-user-friends"></i> RT</label>
-                        <input type="text" id="inputRT" placeholder="RT-001" />
+                        <label><i class="fas fa-chart-simple"></i> Nilai Data</label>
+                        <input type="number" id="inputNilai" placeholder="Jumlah / nilai" />
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label><i class="fas fa-chart-simple"></i> Nilai Data</label>
-                    <input type="number" id="inputNilai" placeholder="Jumlah / nilai" />
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-file-alt"></i> Keterangan</label>
-                    <input type="text" id="inputKeterangan" placeholder="Deskripsi data (opsional)" />
-                </div>
-
-                <div class="form-row">
                     <div class="form-group">
-                        <label><i class="fas fa-user"></i> Nama Pelapor</label>
-                        <input type="text" id="inputPelapor" placeholder="Nama lengkap" />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-tag"></i> Jabatan</label>
-                        <select id="inputJabatan">
-                            <option value="kader">Kader Desa</option>
-                            <option value="rt">Ketua RT</option>
-                            <option value="rw">Ketua RW</option>
-                            <option value="opd">OPD</option>
-                            <option value="warga">Warga</option>
-                        </select>
+                        <label><i class="fas fa-file-alt"></i> Keterangan</label>
+                        <input type="text" id="inputKeterangan" placeholder="Deskripsi data (opsional)" />
                     </div>
                 </div>
 
-                <button class="btn-primary" onclick="submitData()">
+                <!-- ===== FORM KHUSUS KESEHATAN (SEKTOR 6) ===== -->
+                <div id="healthForm" style="display:none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-map-marker-alt"></i> Kecamatan</label>
+                            <select id="inputKecamatanHealth"></select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-home"></i> Desa/Kelurahan</label>
+                            <input type="text" id="inputDesaHealth" placeholder="Nama desa" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> RW</label>
+                            <input type="text" id="inputRWHealth" placeholder="RW-001" />
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user-friends"></i> RT</label>
+                            <input type="text" id="inputRThealth" placeholder="RT-001" />
+                        </div>
+                    </div>
+
+                    <div class="health-section">
+                        <div class="section-label">👶 Kehamilan & Persalinan</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="health"><i class="fas fa-female"></i> Ibu Hamil</label>
+                                <input type="number" id="inputIbuHamil" class="health-focus" placeholder="Jumlah" />
+                            </div>
+                            <div class="form-group">
+                                <label class="health"><i class="fas fa-baby"></i> Ibu Melahirkan</label>
+                                <input type="number" id="inputIbuMelahirkan" class="health-focus" placeholder="Jumlah" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="health-section">
+                        <div class="section-label">📊 Stunting & Gizi</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="health"><i class="fas fa-child"></i> Balita Stunting</label>
+                                <input type="number" id="inputStunting" class="health-focus" placeholder="Jumlah" />
+                            </div>
+                            <div class="form-group">
+                                <label class="health"><i class="fas fa-weight"></i> Balita Gizi Kurang</label>
+                                <input type="number" id="inputGiziKurang" class="health-focus" placeholder="Jumlah" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="health-section">
+                        <div class="section-label">💀 Kematian</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="health"><i class="fas fa-heartbeat"></i> AKI (Kematian Ibu)</label>
+                                <input type="number" id="inputAKI" class="health-focus" placeholder="Jumlah" />
+                            </div>
+                            <div class="form-group">
+                                <label class="health"><i class="fas fa-baby"></i> AKB (Kematian Bayi)</label>
+                                <input type="number" id="inputAKB" class="health-focus" placeholder="Jumlah" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="health-section">
+                        <div class="section-label">💉 Imunisasi & Posyandu</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="health"><i class="fas fa-syringe"></i> Imunisasi Dasar Lengkap</label>
+                                <input type="number" id="inputImunisasi" class="health-focus" placeholder="Jumlah" />
+                            </div>
+                            <div class="form-group">
+                                <label class="health"><i class="fas fa-hospital"></i> Posyandu Aktif</label>
+                                <input type="number" id="inputPosyandu" class="health-focus" placeholder="Jumlah" />
+                            </div>
+                        </div>
+                        <div class="form-row" style="margin-top:8px;">
+                            <div class="form-group">
+                                <label class="health"><i class="fas fa-user-md"></i> Kader Posyandu</label>
+                                <input type="number" id="inputKaderPosyandu" class="health-focus" placeholder="Jumlah" />
+                            </div>
+                            <div class="form-group">
+                                <label class="health"><i class="fas fa-weight"></i> Balita Ditimbang</label>
+                                <input type="number" id="inputBalitaDitimbang" class="health-focus" placeholder="Jumlah" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== PELAPOR ===== -->
+                <div style="margin-top:12px;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Nama Pelapor</label>
+                            <input type="text" id="inputPelapor" placeholder="Nama lengkap" />
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-tag"></i> Jabatan</label>
+                            <select id="inputJabatan">
+                                <option value="kader">Kader Desa</option>
+                                <option value="rt">Ketua RT</option>
+                                <option value="rw">Ketua RW</option>
+                                <option value="posyandu">Kader Posyandu</option>
+                                <option value="bidan">Bidan Desa</option>
+                                <option value="opd">OPD</option>
+                                <option value="warga">Warga</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="submitBtn" onclick="submitData()">
                     <i class="fas fa-save"></i> Kirim Data
                 </button>
                 <div id="updateStatus" class="status" style="margin-top:10px;"></div>
@@ -391,6 +540,10 @@
                 <h4 style="font-size:13px;color:#6C63FF;margin-bottom:8px;">📍 Data per Kecamatan</h4>
                 <canvas id="chart2" style="width:100%;height:150px;"></canvas>
             </div>
+            <div style="background:rgba(255,107,107,0.03);border:1px solid rgba(255,107,107,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
+                <h4 style="font-size:13px;color:#FF6B6B;margin-bottom:8px;">🏥 Data Kesehatan per Kecamatan</h4>
+                <canvas id="chartHealth" style="width:100%;height:150px;"></canvas>
+            </div>
         </div>
 
     </div>
@@ -407,10 +560,11 @@
     <script>
         // ============================================
         // Si DESKA - COMMAND CENTER ALL 48 SEKTORS
+        // DENGAN FITUR KHUSUS KESEHATAN
         // ============================================
 
         // ===== 48 SEKTOR =====
-        const SEKTOR = [
+        var SEKTOR = [
             {id:1, nama:"Kependudukan", icon:"👨‍👩‍👧‍👦"},
             {id:2, nama:"Pertanian", icon:"🌾"},
             {id:3, nama:"Perdagangan", icon:"🛒"},
@@ -461,7 +615,7 @@
             {id:48, nama:"Pertambangan", icon:"⛏️"}
         ];
 
-        const KECAMATAN = [
+        var KECAMATAN = [
             "Sumur","Cimanggu","Cibaliung","Cibitung","Cikeusik","Cigeulis",
             "Panimbang","Sobang","Munjul","Angsana","Sindangresmi","Picung",
             "Bojong","Saketi","Cisata","Pagelaran","Patia","Sukaresmi",
@@ -472,27 +626,24 @@
         ];
 
         // ===== DATA =====
-        let allData = [];
-        let historyData = [];
+        var allData = [];
+        var historyData = [];
 
         // ===== SPLASH =====
         setTimeout(function() {
             document.getElementById('splash').classList.add('hidden');
         }, 1500);
 
-        // ===== SWITCH TAB (DIPERBAIKI) =====
+        // ===== SWITCH TAB =====
         function switchTab(tabName) {
-            // Sembunyikan semua tab
             var tabs = document.querySelectorAll('.tab');
             for (var i = 0; i < tabs.length; i++) {
                 tabs[i].classList.remove('active');
             }
-            // Tampilkan tab yang dipilih
             var target = document.getElementById('tab-' + tabName);
             if (target) {
                 target.classList.add('active');
             }
-            // Update nav buttons
             var btns = document.querySelectorAll('.nav-btn');
             for (var j = 0; j < btns.length; j++) {
                 btns[j].classList.remove('active');
@@ -501,19 +652,51 @@
             if (activeBtn) {
                 activeBtn.classList.add('active');
             }
-            // Jika tab chart, inisialisasi chart
             if (tabName === 'chart') {
                 initCharts();
             }
         }
 
-        // ===== DROPDOWNS (DIPERBAIKI) =====
+        // ===== TOGGLE HEALTH FORM =====
+        function toggleHealthForm() {
+            var sektor = parseInt(document.getElementById('inputSektor').value);
+            var generalForm = document.getElementById('generalForm');
+            var healthForm = document.getElementById('healthForm');
+            var submitBtn = document.getElementById('submitBtn');
+
+            if (sektor === 6) {
+                generalForm.style.display = 'none';
+                healthForm.style.display = 'block';
+                submitBtn.innerHTML = '<i class="fas fa-heartbeat"></i> Kirim Data Kesehatan';
+                submitBtn.className = 'btn-primary btn-health';
+                // Sync kecamatan dropdown
+                syncHealthKecamatan();
+            } else {
+                generalForm.style.display = 'block';
+                healthForm.style.display = 'none';
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Kirim Data';
+                submitBtn.className = 'btn-primary';
+            }
+        }
+
+        function syncHealthKecamatan() {
+            var source = document.getElementById('inputKecamatan');
+            var target = document.getElementById('inputKecamatanHealth');
+            target.innerHTML = source.innerHTML;
+            target.value = source.value;
+        }
+
+        // ===== DROPDOWNS =====
         function initDropdowns() {
             var sektorSelect = document.getElementById('inputSektor');
+            sektorSelect.innerHTML = '<option value="">-- Pilih Sektor --</option>';
             for (var i = 0; i < SEKTOR.length; i++) {
                 var opt = document.createElement('option');
                 opt.value = SEKTOR[i].id;
                 opt.textContent = SEKTOR[i].id + '. ' + SEKTOR[i].nama + ' ' + SEKTOR[i].icon;
+                if (SEKTOR[i].id === 6) {
+                    opt.textContent += ' 🏥';
+                }
                 sektorSelect.appendChild(opt);
             }
 
@@ -524,97 +707,188 @@
                 opt2.textContent = KECAMATAN[j];
                 kecSelect.appendChild(opt2);
             }
+
+            // Copy ke health dropdown
+            var kecHealth = document.getElementById('inputKecamatanHealth');
+            kecHealth.innerHTML = kecSelect.innerHTML;
         }
         initDropdowns();
 
         // ===== SUBMIT DATA =====
         function submitData() {
             var sektor = parseInt(document.getElementById('inputSektor').value);
-            var kecamatan = document.getElementById('inputKecamatan').value;
-            var desa = document.getElementById('inputDesa').value;
-            var rw = document.getElementById('inputRW').value || '-';
-            var rt = document.getElementById('inputRT').value || '-';
-            var nilai = parseFloat(document.getElementById('inputNilai').value);
-            var keterangan = document.getElementById('inputKeterangan').value || '-';
-            var pelapor = document.getElementById('inputPelapor').value || 'Warga';
-            var jabatan = document.getElementById('inputJabatan').value;
             var status = document.getElementById('updateStatus');
 
-            if (!sektor || !kecamatan || !desa) {
+            if (!sektor) {
                 status.className = 'status error';
-                status.textContent = '⚠️ Isi Sektor, Kecamatan, dan Desa!';
+                status.textContent = '⚠️ Pilih sektor terlebih dahulu!';
                 return;
             }
 
-            if (!nilai || nilai <= 0) {
-                status.className = 'status error';
-                status.textContent = '⚠️ Isi nilai data yang valid!';
-                return;
-            }
+            var data = {};
+            var isHealth = (sektor === 6);
 
-            var data = {
-                id: 'DATA-' + Date.now(),
-                sektor: sektor,
-                kecamatan: kecamatan,
-                desa: desa,
-                rw: rw,
-                rt: rt,
-                nilai: nilai,
-                keterangan: keterangan,
-                pelapor: pelapor,
-                jabatan: jabatan,
-                timestamp: new Date().toISOString(),
-                verified: false
-            };
+            if (isHealth) {
+                // ===== DATA KESEHATAN =====
+                var kecamatan = document.getElementById('inputKecamatanHealth').value;
+                var desa = document.getElementById('inputDesaHealth').value;
+                var rw = document.getElementById('inputRWHealth').value || '-';
+                var rt = document.getElementById('inputRThealth').value || '-';
+                var pelapor = document.getElementById('inputPelapor').value || 'Warga';
+                var jabatan = document.getElementById('inputJabatan').value;
+
+                var ibuHamil = parseInt(document.getElementById('inputIbuHamil').value) || 0;
+                var ibuMelahirkan = parseInt(document.getElementById('inputIbuMelahirkan').value) || 0;
+                var stunting = parseInt(document.getElementById('inputStunting').value) || 0;
+                var giziKurang = parseInt(document.getElementById('inputGiziKurang').value) || 0;
+                var aki = parseInt(document.getElementById('inputAKI').value) || 0;
+                var akb = parseInt(document.getElementById('inputAKB').value) || 0;
+                var imunisasi = parseInt(document.getElementById('inputImunisasi').value) || 0;
+                var posyandu = parseInt(document.getElementById('inputPosyandu').value) || 0;
+                var kaderPosyandu = parseInt(document.getElementById('inputKaderPosyandu').value) || 0;
+                var balitaDitimbang = parseInt(document.getElementById('inputBalitaDitimbang').value) || 0;
+
+                if (!kecamatan || !desa) {
+                    status.className = 'status error';
+                    status.textContent = '⚠️ Isi Kecamatan dan Desa!';
+                    return;
+                }
+
+                if (ibuHamil === 0 && stunting === 0 && aki === 0 && akb === 0) {
+                    status.className = 'status error';
+                    status.textContent = '⚠️ Isi minimal satu data kesehatan!';
+                    return;
+                }
+
+                data = {
+                    id: 'HEALTH-' + Date.now(),
+                    sektor: 6,
+                    kecamatan: kecamatan,
+                    desa: desa,
+                    rw: rw,
+                    rt: rt,
+                    pelapor: pelapor,
+                    jabatan: jabatan,
+                    isHealth: true,
+                    ibuHamil: ibuHamil,
+                    ibuMelahirkan: ibuMelahirkan,
+                    stunting: stunting,
+                    giziKurang: giziKurang,
+                    aki: aki,
+                    akb: akb,
+                    imunisasi: imunisasi,
+                    posyandu: posyandu,
+                    kaderPosyandu: kaderPosyandu,
+                    balitaDitimbang: balitaDitimbang,
+                    nilai: stunting + aki + akb + ibuHamil, // agregat
+                    keterangan: 'Data Kesehatan - Ibu Hamil:' + ibuHamil + ' Stunting:' + stunting + ' AKI:' + aki + ' AKB:' + akb,
+                    timestamp: new Date().toISOString(),
+                    verified: false
+                };
+
+                // Reset health form
+                document.getElementById('inputDesaHealth').value = '';
+                document.getElementById('inputRWHealth').value = '';
+                document.getElementById('inputRThealth').value = '';
+                document.querySelectorAll('#healthForm input[type="number"]').forEach(function(el) { el.value = ''; });
+
+            } else {
+                // ===== DATA UMUM (SEKTOR LAIN) =====
+                var kecamatan = document.getElementById('inputKecamatan').value;
+                var desa = document.getElementById('inputDesa').value;
+                var rw = document.getElementById('inputRW').value || '-';
+                var rt = document.getElementById('inputRT').value || '-';
+                var nilai = parseFloat(document.getElementById('inputNilai').value);
+                var keterangan = document.getElementById('inputKeterangan').value || '-';
+                var pelapor = document.getElementById('inputPelapor').value || 'Warga';
+                var jabatan = document.getElementById('inputJabatan').value;
+
+                if (!kecamatan || !desa) {
+                    status.className = 'status error';
+                    status.textContent = '⚠️ Isi Kecamatan dan Desa!';
+                    return;
+                }
+                if (!nilai || nilai <= 0) {
+                    status.className = 'status error';
+                    status.textContent = '⚠️ Isi nilai data yang valid!';
+                    return;
+                }
+
+                data = {
+                    id: 'DATA-' + Date.now(),
+                    sektor: sektor,
+                    kecamatan: kecamatan,
+                    desa: desa,
+                    rw: rw,
+                    rt: rt,
+                    nilai: nilai,
+                    keterangan: keterangan,
+                    pelapor: pelapor,
+                    jabatan: jabatan,
+                    isHealth: false,
+                    timestamp: new Date().toISOString(),
+                    verified: false
+                };
+
+                // Reset general form
+                document.getElementById('inputDesa').value = '';
+                document.getElementById('inputRW').value = '';
+                document.getElementById('inputRT').value = '';
+                document.getElementById('inputNilai').value = '';
+                document.getElementById('inputKeterangan').value = '';
+            }
 
             allData.push(data);
+            var sektorNama = '';
+            for (var i = 0; i < SEKTOR.length; i++) {
+                if (SEKTOR[i].id === sektor) { sektorNama = SEKTOR[i].nama; break; }
+            }
+
             historyData.push({
                 sektor: sektor,
-                kecamatan: kecamatan,
-                desa: desa,
-                nilai: nilai,
-                pelapor: pelapor,
+                sektorNama: sektorNama,
+                kecamatan: data.kecamatan,
+                desa: data.desa,
+                nilai: data.isHealth ? data.nilai : data.nilai,
+                isHealth: data.isHealth,
+                pelapor: data.pelapor,
                 waktu: new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}),
                 verified: false
             });
 
             status.className = 'status success';
-            var sektorNama = '';
-            for (var i = 0; i < SEKTOR.length; i++) {
-                if (SEKTOR[i].id === sektor) { sektorNama = SEKTOR[i].nama; break; }
-            }
-            status.textContent = '✅ Data ' + sektorNama + ' untuk ' + kecamatan + ' berhasil!';
+            status.textContent = '✅ Data ' + sektorNama + (data.isHealth ? ' (Kesehatan)' : '') + ' untuk ' + data.kecamatan + ' berhasil!';
 
-            document.getElementById('inputDesa').value = '';
-            document.getElementById('inputRW').value = '';
-            document.getElementById('inputRT').value = '';
-            document.getElementById('inputNilai').value = '';
-            document.getElementById('inputKeterangan').value = '';
             document.getElementById('inputPelapor').value = '';
+            document.getElementById('inputJabatan').selectedIndex = 0;
 
             setTimeout(function() {
                 data.verified = true;
-                var hist = null;
                 for (var j = 0; j < historyData.length; j++) {
-                    if (historyData[j].sektor === sektor && historyData[j].kecamatan === kecamatan) {
-                        hist = historyData[j];
+                    if (historyData[j].sektor === sektor && historyData[j].kecamatan === data.kecamatan) {
+                        historyData[j].verified = true;
                         break;
                     }
                 }
-                if (hist) hist.verified = true;
                 updateDashboard();
                 updateHistory();
-                showNotif('✅ Data ' + sektorNama + ' terverifikasi!');
+                showNotif('✅ Data ' + sektorNama + (data.isHealth ? ' (Kesehatan)' : '') + ' terverifikasi!');
             }, 2000);
 
             updateDashboard();
             updateHistory();
-            showNotif('📊 Data ' + sektorNama + ' dari ' + desa + ' masuk!');
+            showNotif('📊 Data ' + sektorNama + (data.isHealth ? ' (Kesehatan)' : '') + ' dari ' + data.desa + ' masuk!');
         }
 
         // ===== DASHBOARD =====
         function updateDashboard() {
             document.getElementById('totalData').textContent = allData.length;
+
+            var healthCount = 0;
+            for (var i = 0; i < allData.length; i++) {
+                if (allData[i].sektor === 6) healthCount++;
+            }
+            document.getElementById('totalHealth').textContent = healthCount;
 
             // Sektor Grid
             var grid = document.getElementById('sektorGrid');
@@ -625,35 +899,59 @@
                 for (var j = 0; j < allData.length; j++) {
                     if (allData[j].sektor === s.id) count++;
                 }
-                html += '<div class="sektor-item" onclick="selectSektor(' + s.id + ')">';
+                var isHealth = (s.id === 6);
+                html += '<div class="sektor-item' + (isHealth ? ' health-active' : '') + '" onclick="selectSektor(' + s.id + ')">';
                 html += '<div class="icon">' + s.icon + '</div>';
-                html += '<div class="name">' + s.nama + '</div>';
+                html += '<div class="name">' + s.nama + (isHealth ? ' 🏥' : '') + '</div>';
                 html += '<div class="count">' + count + ' data</div>';
                 html += '</div>';
             }
             grid.innerHTML = html;
 
+            // Health Summary
+            var summary = document.getElementById('healthSummary');
+            var totalIbuHamil = 0, totalStunting = 0, totalAKI = 0, totalAKB = 0, totalImunisasi = 0;
+            for (var k = 0; k < allData.length; k++) {
+                if (allData[k].sektor === 6 && allData[k].isHealth) {
+                    var d = allData[k];
+                    totalIbuHamil += d.ibuHamil || 0;
+                    totalStunting += d.stunting || 0;
+                    totalAKI += d.aki || 0;
+                    totalAKB += d.akb || 0;
+                    totalImunisasi += d.imunisasi || 0;
+                }
+            }
+            summary.innerHTML =
+                '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;background:rgba(255,107,107,0.04);border:1px solid rgba(255,107,107,0.06);border-radius:10px;padding:12px;">' +
+                '<div><span style="color:#8888AA;font-size:10px;">Ibu Hamil</span><br><strong style="color:#FF6B6B;font-size:18px;">' + totalIbuHamil + '</strong></div>' +
+                '<div><span style="color:#8888AA;font-size:10px;">Stunting</span><br><strong style="color:#FF6B6B;font-size:18px;">' + totalStunting + '</strong></div>' +
+                '<div><span style="color:#8888AA;font-size:10px;">AKI</span><br><strong style="color:#FF6B6B;font-size:18px;">' + totalAKI + '</strong></div>' +
+                '<div><span style="color:#8888AA;font-size:10px;">AKB</span><br><strong style="color:#FF6B6B;font-size:18px;">' + totalAKB + '</strong></div>' +
+                '</div>';
+
             // Feed
             var feed = document.getElementById('updateFeed');
             var recent = [];
-            for (var k = allData.length - 1; k >= Math.max(0, allData.length - 5); k--) {
-                recent.push(allData[k]);
+            for (var l = allData.length - 1; l >= Math.max(0, allData.length - 5); l--) {
+                recent.push(allData[l]);
             }
             var feedHtml = '';
-            for (var l = 0; l < recent.length; l++) {
-                var d = recent[l];
+            for (var m = 0; m < recent.length; m++) {
+                var d = recent[m];
                 var sektorNama = '';
-                for (var m = 0; m < SEKTOR.length; m++) {
-                    if (SEKTOR[m].id === d.sektor) { sektorNama = SEKTOR[m].icon + ' ' + SEKTOR[m].nama; break; }
+                for (var n = 0; n < SEKTOR.length; n++) {
+                    if (SEKTOR[n].id === d.sektor) { sektorNama = SEKTOR[n].icon + ' ' + SEKTOR[n].nama; break; }
                 }
+                var isHealthTag = (d.sektor === 6 && d.isHealth) ? ' 🏥' : '';
                 var time = new Date(d.timestamp).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+                var displayValue = d.isHealth ? (d.ibuHamil || 0) + '👶 ' + (d.stunting || 0) + '📊' : d.nilai;
                 feedHtml += '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px;margin-bottom:6px;">';
                 feedHtml += '<div style="display:flex;justify-content:space-between;font-size:12px;color:#8888AA;">';
-                feedHtml += '<span><strong style="color:#6C63FF;">' + sektorNama + '</strong> - ' + d.kecamatan + '</span>';
+                feedHtml += '<span><strong style="color:' + (d.sektor === 6 ? '#FF6B6B' : '#6C63FF') + ';">' + sektorNama + isHealthTag + '</strong> - ' + d.kecamatan + '</span>';
                 feedHtml += '<span>' + time + '</span>';
                 feedHtml += '</div>';
                 feedHtml += '<div style="display:flex;gap:12px;font-size:13px;margin-top:4px;flex-wrap:wrap;">';
-                feedHtml += '<span style="font-weight:700;color:#6C63FF;">' + d.nilai + '</span>';
+                feedHtml += '<span style="font-weight:700;color:' + (d.sektor === 6 ? '#FF6B6B' : '#6C63FF') + ';">' + displayValue + '</span>';
                 feedHtml += '<span style="color:#8888AA;font-size:11px;">' + d.desa + '</span>';
                 feedHtml += '<span>' + (d.verified ? '✅' : '⏳') + '</span>';
                 feedHtml += '</div>';
@@ -668,17 +966,25 @@
             var items = document.querySelectorAll('.sektor-item');
             for (var i = 0; i < items.length; i++) {
                 items[i].classList.remove('active');
+                items[i].classList.remove('health-active');
             }
             if (event && event.target) {
                 var el = event.target.closest('.sektor-item');
-                if (el) el.classList.add('active');
+                if (el) {
+                    if (id === 6) {
+                        el.classList.add('health-active');
+                    } else {
+                        el.classList.add('active');
+                    }
+                }
             }
+            toggleHealthForm();
             switchTab('input');
             var sektorNama = '';
             for (var j = 0; j < SEKTOR.length; j++) {
                 if (SEKTOR[j].id === id) { sektorNama = SEKTOR[j].nama; break; }
             }
-            showNotif('📊 Sektor ' + sektorNama + ' dipilih');
+            showNotif('📊 Sektor ' + sektorNama + (id === 6 ? ' (Kesehatan - Form Khusus)' : '') + ' dipilih');
         }
 
         // ===== HISTORY =====
@@ -691,16 +997,15 @@
             var html = '';
             for (var i = historyData.length - 1; i >= 0; i--) {
                 var h = historyData[i];
-                var sektorNama = '';
-                for (var j = 0; j < SEKTOR.length; j++) {
-                    if (SEKTOR[j].id === h.sektor) { sektorNama = SEKTOR[j].nama; break; }
-                }
+                var isHealth = h.isHealth;
+                var tagClass = isHealth ? 'tag-health' : '';
+                var displayValue = isHealth ? '🏥 ' + h.nilai : h.nilai;
                 html += '<div class="history-item">';
-                html += '<div><span class="tag">' + sektorNama + '</span>';
-                html += '<span style="font-weight:600;color:#6C63FF;"> ' + h.kecamatan + '</span>';
+                html += '<div><span class="tag ' + tagClass + '">' + h.sektorNama + (isHealth ? ' 🏥' : '') + '</span>';
+                html += '<span style="font-weight:600;color:' + (isHealth ? '#FF6B6B' : '#6C63FF') + ';"> ' + h.kecamatan + '</span>';
                 html += '<span style="color:#8888AA;font-size:11px;"> ' + h.desa + '</span></div>';
                 html += '<div style="display:flex;gap:8px;align-items:center;">';
-                html += '<span style="font-weight:700;color:#6C63FF;">' + h.nilai + '</span>';
+                html += '<span style="font-weight:700;color:' + (isHealth ? '#FF6B6B' : '#6C63FF') + ';">' + displayValue + '</span>';
                 html += '<span class="' + (h.verified ? 'verified' : 'pending') + '">' + (h.verified ? '✅' : '⏳') + '</span>';
                 html += '</div>';
                 html += '<div style="font-size:10px;color:#8888AA;width:100%;margin-top:4px;">';
@@ -711,14 +1016,14 @@
         }
 
         // ===== CHARTS =====
-        var chart1 = null;
-        var chart2 = null;
+        var chart1 = null, chart2 = null, chartHealth = null;
 
         function initCharts() {
             if (chart1) { chart1.destroy(); chart1 = null; }
             if (chart2) { chart2.destroy(); chart2 = null; }
+            if (chartHealth) { chartHealth.destroy(); chartHealth = null; }
 
-            // Chart 1: Data per Sektor (top 10)
+            // Chart 1: Data per Sektor
             var sektorCounts = {};
             for (var i = 0; i < allData.length; i++) {
                 var s = allData[i].sektor;
@@ -731,8 +1036,7 @@
             sorted.sort(function(a, b) { return b.count - a.count; });
             sorted = sorted.slice(0, 10);
 
-            var labels1 = [];
-            var data1 = [];
+            var labels1 = [], data1 = [];
             for (var j = 0; j < sorted.length; j++) {
                 var s = sorted[j];
                 var nama = '';
@@ -767,7 +1071,7 @@
                 }
             });
 
-            // Chart 2: Data per Kecamatan (top 10)
+            // Chart 2: Data per Kecamatan
             var kecCounts = {};
             for (var l = 0; l < allData.length; l++) {
                 var k = allData[l].kecamatan;
@@ -780,8 +1084,7 @@
             sortedKec.sort(function(a, b) { return b.count - a.count; });
             sortedKec = sortedKec.slice(0, 10);
 
-            var labels2 = [];
-            var data2 = [];
+            var labels2 = [], data2 = [];
             for (var m = 0; m < sortedKec.length; m++) {
                 labels2.push(sortedKec[m].nama.substring(0, 10));
                 data2.push(sortedKec[m].count);
@@ -799,6 +1102,53 @@
                         borderColor: '#00D4FF',
                         borderWidth: 1
                     }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#8888AA', font: { size: 9 } } } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#8888AA', font: { size: 8 } } },
+                        x: { grid: { display: false }, ticks: { color: '#8888AA', font: { size: 7 } } }
+                    }
+                }
+            });
+
+            // Chart Health: Data Kesehatan per Kecamatan
+            var healthKec = {};
+            for (var n = 0; n < allData.length; n++) {
+                if (allData[n].sektor === 6 && allData[n].isHealth) {
+                    var kc = allData[n].kecamatan;
+                    if (!healthKec[kc]) healthKec[kc] = { ibuHamil: 0, stunting: 0, aki: 0, akb: 0 };
+                    healthKec[kc].ibuHamil += allData[n].ibuHamil || 0;
+                    healthKec[kc].stunting += allData[n].stunting || 0;
+                    healthKec[kc].aki += allData[n].aki || 0;
+                    healthKec[kc].akb += allData[n].akb || 0;
+                }
+            }
+            var sortedHealth = [];
+            for (var key3 in healthKec) {
+                sortedHealth.push({nama: key3, data: healthKec[key3]});
+            }
+            sortedHealth.sort(function(a, b) { return b.data.ibuHamil - a.data.ibuHamil; });
+            sortedHealth = sortedHealth.slice(0, 10);
+
+            var labelsH = [], dataH_ibuHamil = [], dataH_stunting = [];
+            for (var o = 0; o < sortedHealth.length; o++) {
+                labelsH.push(sortedHealth[o].nama.substring(0, 10));
+                dataH_ibuHamil.push(sortedHealth[o].data.ibuHamil);
+                dataH_stunting.push(sortedHealth[o].data.stunting);
+            }
+
+            var ctxH = document.getElementById('chartHealth').getContext('2d');
+            chartHealth = new Chart(ctxH, {
+                type: 'bar',
+                data: {
+                    labels: labelsH,
+                    datasets: [
+                        { label: 'Ibu Hamil', data: dataH_ibuHamil, backgroundColor: 'rgba(255,107,107,0.6)', borderColor: '#FF6B6B', borderWidth: 1 },
+                        { label: 'Stunting', data: dataH_stunting, backgroundColor: 'rgba(255,215,0,0.6)', borderColor: '#FFD700', borderWidth: 1 }
+                    ]
                 },
                 options: {
                     responsive: true,
@@ -829,7 +1179,7 @@
 
         // ===== SEED DATA =====
         function seedData() {
-            var seedSektors = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+            var seedSektors = [1,2,3,4,5,6,6,6,7,8,9,10,11,12,13,14,15];
             var seedKec = ['Menes','Sumur','Labuan','Pandeglang','Cimanggu','Bojong'];
             var seedDesa = ['Menes','Sumur','Labuan','Pandeglang','Cimanggu','Bojong'];
 
@@ -838,30 +1188,52 @@
                 var idx = i % seedKec.length;
                 var kec = seedKec[idx];
                 var desa = seedDesa[idx];
-                var nilai = Math.floor(Math.random() * 100) + 10;
                 var sektorNama = '';
                 for (var j = 0; j < SEKTOR.length; j++) {
                     if (SEKTOR[j].id === s) { sektorNama = SEKTOR[j].nama; break; }
                 }
-                allData.push({
+
+                var isHealth = (s === 6);
+                var data = {
                     id: 'SEED-' + Date.now() + '-' + s,
                     sektor: s,
                     kecamatan: kec,
                     desa: desa,
                     rw: 'RW-001',
                     rt: 'RT-001',
-                    nilai: nilai,
-                    keterangan: 'Data seed ' + sektorNama,
                     pelapor: 'Sistem',
                     jabatan: 'admin',
                     timestamp: new Date(Date.now() - Math.random() * 86400000).toISOString(),
-                    verified: true
-                });
+                    verified: true,
+                    isHealth: isHealth
+                };
+
+                if (isHealth) {
+                    data.ibuHamil = Math.floor(Math.random() * 15) + 5;
+                    data.ibuMelahirkan = Math.floor(data.ibuHamil * 0.7);
+                    data.stunting = Math.floor(Math.random() * 10) + 3;
+                    data.giziKurang = Math.floor(data.stunting * 0.6);
+                    data.aki = Math.floor(Math.random() * 3);
+                    data.akb = Math.floor(Math.random() * 5);
+                    data.imunisasi = Math.floor(data.ibuHamil * 0.9);
+                    data.posyandu = Math.floor(Math.random() * 3) + 1;
+                    data.kaderPosyandu = Math.floor(Math.random() * 5) + 3;
+                    data.balitaDitimbang = Math.floor(Math.random() * 20) + 10;
+                    data.nilai = data.stunting + data.aki + data.akb + data.ibuHamil;
+                    data.keterangan = 'Data Kesehatan - Ibu Hamil:' + data.ibuHamil + ' Stunting:' + data.stunting;
+                } else {
+                    data.nilai = Math.floor(Math.random() * 100) + 10;
+                    data.keterangan = 'Data seed ' + sektorNama;
+                }
+
+                allData.push(data);
                 historyData.push({
                     sektor: s,
+                    sektorNama: sektorNama,
                     kecamatan: kec,
                     desa: desa,
-                    nilai: nilai,
+                    nilai: data.nilai,
+                    isHealth: isHealth,
                     pelapor: 'Sistem',
                     waktu: new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}),
                     verified: true
@@ -874,8 +1246,9 @@
             seedData();
             updateDashboard();
             updateHistory();
-            console.log('🌏 Si DESKA - Command Center 48 Sektor siap!');
+            console.log('🌏 Si DESKA - Command Center 48 Sektor + Kesehatan Khusus siap!');
             console.log('📊 48 Sektor • 35 Kecamatan • 326 Desa • 13 Kelurahan');
+            console.log('🏥 Sektor Kesehatan memiliki form khusus (Ibu Hamil, Stunting, AKI, AKB, Imunisasi)');
             console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
         });
     </script>
