@@ -7,7 +7,7 @@
     <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
         body { font-family: Arial; background: #0A0A1A; color: #fff; padding: 20px; max-width: 400px; margin: 0 auto; }
         input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #333; background: #1a1a2e; color: #fff; }
@@ -116,11 +116,12 @@
 
     <script>
         // ============================================================
-        // 🔥 FIREBASE CONFIG - API KEY ANDA
+        // 🔥 FIREBASE CONFIG - INI YANG PASTI BENAR
         // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyAHGLNvTubgL4LYZuZL3I4QwqUR6NBNfqQ",
             authDomain: "si-deska-wps.firebaseapp.com",
+            databaseURL: "https://si-deska-wps-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "si-deska-wps",
             storageBucket: "si-deska-wps.firebasestorage.googleapis.com",
             messagingSenderId: "595163960871",
@@ -132,7 +133,7 @@
         // ============================================================
         firebase.initializeApp(firebaseConfig);
         var auth = firebase.auth();
-        var db = firebase.firestore();
+        var db = firebase.database();
 
         // ============================================================
         // 📊 DATA
@@ -243,13 +244,13 @@
             auth.createUserWithEmailAndPassword(email, pass)
                 .then(function(userCred) {
                     var user = userCred.user;
-                    return db.collection('users').doc(user.uid).set({
+                    return db.ref('users/' + user.uid).set({
                         uid: user.uid,
                         nama: name,
                         email: email,
                         role: role,
                         kecamatan: kec,
-                        createdAt: new Date()
+                        createdAt: new Date().toISOString()
                     });
                 })
                 .then(function() {
@@ -280,11 +281,11 @@
             auth.signInWithEmailAndPassword(email, pass)
                 .then(function(userCred) {
                     var user = userCred.user;
-                    return db.collection('users').doc(user.uid).get();
+                    return db.ref('users/' + user.uid).once('value');
                 })
-                .then(function(doc) {
-                    if (doc.exists) {
-                        currentUser = doc.data();
+                .then(function(snapshot) {
+                    if (snapshot.exists()) {
+                        currentUser = snapshot.val();
                         updateUI();
                         closeAuth();
                         alert('👋 Selamat datang, ' + currentUser.nama + '!');
@@ -351,13 +352,13 @@
                 pelapor: pelapor,
                 inputBy: currentUser.uid,
                 inputByName: currentUser.nama,
-                createdAt: new Date()
+                createdAt: new Date().toISOString()
             };
 
             status.textContent = '⏳ Menyimpan...';
             status.className = '';
 
-            db.collection('data_' + sektor).add(data)
+            db.ref('data/' + sektor).push(data)
                 .then(function() {
                     status.textContent = '✅ Data berhasil disimpan!';
                     status.className = 'success';
@@ -378,12 +379,12 @@
             var promises = [];
             for (var i = 1; i <= 48; i++) {
                 promises.push(
-                    db.collection('data_' + i).orderBy('createdAt', 'desc').limit(50).get()
+                    db.ref('data/' + i).orderByChild('createdAt').limitToLast(50).once('value')
                     .then(function(snapshot) {
                         var data = [];
-                        snapshot.forEach(function(doc) {
-                            var d = doc.data();
-                            d.docId = doc.id;
+                        snapshot.forEach(function(child) {
+                            var d = child.val();
+                            d.docId = child.key;
                             data.push(d);
                         });
                         return data;
@@ -428,7 +429,7 @@
                 html += '<div style="background:rgba(255,255,255,0.04);padding:10px;border-radius:8px;margin-bottom:6px;">';
                 html += '<div style="display:flex;justify-content:space-between;font-size:12px;color:#888;">';
                 html += '<span><strong style="color:#6C63FF;">' + sektorNama + '</strong> - ' + d.kecamatan + '</span>';
-                html += '<span>' + (d.createdAt ? new Date(d.createdAt.seconds * 1000).toLocaleTimeString() : 'baru') + '</span>';
+                html += '<span>' + (d.createdAt ? new Date(d.createdAt).toLocaleTimeString() : 'baru') + '</span>';
                 html += '</div>';
                 html += '<div style="font-size:16px;font-weight:700;color:#6C63FF;">' + d.nilai + '</div>';
                 html += '<div style="font-size:10px;color:#888;">📝 ' + (d.inputByName || d.pelapor || 'Warga') + '</div>';
@@ -476,9 +477,9 @@
             // Auth state
             auth.onAuthStateChanged(function(user) {
                 if (user) {
-                    db.collection('users').doc(user.uid).get().then(function(doc) {
-                        if (doc.exists) {
-                            currentUser = doc.data();
+                    db.ref('users/' + user.uid).once('value').then(function(snapshot) {
+                        if (snapshot.exists()) {
+                            currentUser = snapshot.val();
                             updateUI();
                             loadData();
                         }
@@ -490,6 +491,7 @@
             });
 
             console.log('🌏 Si DESKA siap!');
+            console.log('🔥 Firebase Realtime Database connected!');
         }
 
         document.addEventListener('DOMContentLoaded', init);
