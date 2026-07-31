@@ -1,664 +1,122 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Si DESKA - Command Center 48 Sektor</title>
-    
-    <!-- FIREBASE SDK -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Si DESKA</title>
+    <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg: #0A0A1A;
-            --card: rgba(255,255,255,0.04);
-            --border: rgba(255,255,255,0.06);
-            --text: #E8E8F0;
-            --dim: #8888AA;
-            --primary: #6C63FF;
-            --primary-light: #8B83FF;
-            --secondary: #00D4FF;
-            --health: #FF6B6B;
-            --success: #00FF88;
-            --gold: #FFD700;
-            --radius: 12px;
-            --shadow: 0 8px 32px rgba(0,0,0,0.3);
-        }
-        html { scroll-behavior: smooth; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            padding: 16px 12px 80px;
-            min-height: 100vh;
-            line-height: 1.5;
-        }
-        
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
-
-        .container { max-width: 480px; margin: 0 auto; }
-        .hidden { display: none !important; }
-        .flex { display: flex; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; }
-        .gap-8 { gap: 8px; }
-        .gap-12 { gap: 12px; }
-        .text-center { text-align: center; }
-        .text-dim { color: var(--dim); }
-        .mt-8 { margin-top: 8px; }
-        .mt-12 { margin-top: 12px; }
-        .mb-8 { margin-bottom: 8px; }
-        .mb-12 { margin-bottom: 12px; }
-        
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0 12px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 12px;
-        }
-        .logo { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
-        .logo span { color: var(--primary); }
-        .logo-icon { font-size: 24px; }
-        .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .badge {
-            font-size: 8px; padding: 2px 10px; border-radius: 20px;
-            font-weight: 700; background: var(--primary); color: #fff;
-        }
-        .badge-chain { background: var(--secondary); color: #000; }
-        .badge-health { background: var(--health); }
-        .badge-live { background: var(--success); color: #000; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-        
-        .btn-login {
-            background: var(--primary); color: #fff; border: none;
-            padding: 6px 16px; border-radius: 20px; font-size: 12px;
-            font-weight: 600; cursor: pointer; transition: 0.3s;
-        }
-        .btn-login:hover { opacity: 0.85; transform: scale(1.02); }
-        .btn-logout {
-            background: rgba(255,68,68,0.15); color: #FF4444; border: 1px solid rgba(255,68,68,0.2);
-            padding: 6px 16px; border-radius: 20px; font-size: 12px;
-            font-weight: 600; cursor: pointer; transition: 0.3s;
-        }
-        .btn-logout:hover { background: rgba(255,68,68,0.25); }
-
-        .user-badge {
-            display: flex; align-items: center; gap: 6px;
-            padding: 4px 12px; background: var(--card);
-            border: 1px solid var(--border); border-radius: 20px;
-            font-size: 11px; color: var(--dim);
-        }
-        .user-badge .name { color: var(--text); font-weight: 600; }
-        .user-badge .role {
-            font-size: 8px; background: var(--primary);
-            color: #fff; padding: 1px 8px; border-radius: 10px;
-        }
-
-        .stats {
-            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 8px; margin: 12px 0;
-        }
-        .stat-card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 10px;
-            text-align: center;
-        }
-        .stat-card .number { font-size: 18px; font-weight: 900; color: var(--primary); display: block; }
-        .stat-card .label { font-size: 8px; color: var(--dim); }
-        .stat-card.health .number { color: var(--health); }
-
-        .info-desa {
-            font-size: 10px; color: var(--dim);
-            background: var(--card); padding: 6px 12px;
-            border-radius: 8px; text-align: center; margin-bottom: 12px;
-        }
-        .info-desa strong { color: var(--secondary); }
-
-        .sektor-grid {
-            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 6px; margin: 8px 0 12px;
-        }
-        .sektor-item {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 8px; padding: 8px 4px;
-            text-align: center; cursor: pointer; transition: 0.3s;
-        }
-        .sektor-item:hover { border-color: var(--primary); transform: translateY(-2px); }
-        .sektor-item .icon { font-size: 18px; display: block; }
-        .sektor-item .name { font-size: 8px; font-weight: 600; margin-top: 2px; }
-        .sektor-item .count {
-            font-size: 7px; color: var(--dim);
-            background: rgba(255,255,255,0.03);
-            padding: 1px 6px; border-radius: 10px; display: inline-block;
-            margin-top: 2px;
-        }
-        .sektor-item.health-active { border-color: var(--health); background: rgba(255,107,107,0.05); }
-        .sektor-item.active { border-color: var(--primary); background: rgba(108,99,255,0.05); }
-
-        .section-title {
-            font-size: 14px; font-weight: 700; margin: 12px 0 8px;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .section-title i { color: var(--primary); }
-        .section-title.health i { color: var(--health); }
-
-        .form-card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 14px;
-        }
-        .form-group { margin-bottom: 10px; }
-        .form-group label {
-            font-size: 10px; color: var(--dim); display: block;
-            margin-bottom: 3px; font-weight: 600;
-        }
-        .form-group label i { color: var(--primary); margin-right: 4px; }
-        .form-group label.health i { color: var(--health); }
-        .form-group input, .form-group select {
-            width: 100%; padding: 8px 12px;
-            border: 1px solid var(--border); border-radius: 8px;
-            background: rgba(0,0,0,0.3); color: var(--text);
-            font-size: 13px; font-family: inherit;
-        }
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--primary); outline: none;
-        }
-        .form-group input.health-focus:focus { border-color: var(--health); }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-        .health-section {
-            background: rgba(255,107,107,0.04);
-            border: 1px solid rgba(255,107,107,0.08);
-            border-radius: 8px; padding: 10px; margin: 8px 0;
-        }
-        .health-section .label {
-            color: var(--health); font-size: 11px; font-weight: 700; margin-bottom: 6px;
-        }
-
-        .btn-primary {
-            width: 100%; padding: 12px;
-            background: var(--primary); color: #fff; border: none;
-            border-radius: 8px; font-size: 15px; font-weight: 700;
-            cursor: pointer; transition: 0.3s;
-        }
-        .btn-primary:hover { opacity: 0.85; transform: translateY(-2px); }
-        .btn-health { background: var(--health); }
-        .btn-health:hover { background: #e05555; }
-
-        .status-msg { padding: 10px; border-radius: 8px; text-align: center; font-size: 13px; display: none; margin-top: 10px; }
-        .status-msg.success { display: block; background: rgba(0,255,136,0.1); color: var(--success); }
-        .status-msg.error { display: block; background: rgba(255,68,68,0.1); color: #FF4444; }
-        .status-msg.info { display: block; background: rgba(0,212,255,0.1); color: var(--secondary); }
-
-        .feed-item {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 8px; padding: 10px; margin-bottom: 6px;
-        }
-        .feed-item .head {
-            display: flex; justify-content: space-between;
-            font-size: 11px; color: var(--dim);
-        }
-        .feed-item .head .tag {
-            background: var(--primary); padding: 1px 8px;
-            border-radius: 10px; font-size: 7px; font-weight: 700;
-            color: #fff;
-        }
-        .feed-item .head .tag-health { background: var(--health); }
-        .feed-item .value {
-            font-size: 16px; font-weight: 700; color: var(--primary);
-            margin: 4px 0;
-        }
-        .feed-item .value.health-value { color: var(--health); }
-        .feed-item .footer {
-            font-size: 10px; color: var(--dim);
-            display: flex; justify-content: space-between;
-        }
-
-        .history-item {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 8px; padding: 8px 12px; margin-bottom: 6px;
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 11px; flex-wrap: wrap;
-        }
-        .history-item .tag {
-            padding: 1px 8px; border-radius: 10px; font-size: 7px; font-weight: 700;
-            background: var(--primary); color: #fff;
-        }
-        .history-item .tag-health { background: var(--health); }
-        .history-item .verified { color: var(--success); }
-        .history-item .pending { color: #F59E0B; }
-
-        .tab { display: none; }
-        .tab.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            display: flex; justify-content: space-around;
-            padding: 6px 0 10px;
-            background: rgba(10,10,26,0.95);
-            border-top: 1px solid var(--border);
-            z-index: 100;
-        }
-        .nav-btn {
-            background: none; border: none; color: var(--dim);
-            font-size: 8px; cursor: pointer;
-            display: flex; flex-direction: column; align-items: center;
-            gap: 2px; font-family: inherit;
-            transition: 0.3s;
-        }
-        .nav-btn i { font-size: 18px; }
-        .nav-btn.active { color: var(--primary); }
-        .nav-btn.health-active { color: var(--health); }
-
-        .notif {
-            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 8px; padding: 6px 16px; font-size: 13px;
-            z-index: 999; backdrop-filter: blur(12px);
-            opacity: 0; transition: 0.4s; pointer-events: none;
-        }
-        .notif.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        .splash {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 9999; background: var(--bg);
-            display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.6s;
-        }
-        .splash.hidden { opacity: 0; pointer-events: none; }
-        .splash-content { text-align: center; }
-        .splash-icon { font-size: 48px; }
-        .splash-content h1 {
-            font-size: 28px; font-weight: 900;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .splash-content p { color: var(--dim); font-size: 13px; }
-        .splash-bar {
-            width: 160px; height: 3px;
-            background: var(--border); border-radius: 10px; margin: 10px auto; overflow: hidden;
-        }
-        .splash-progress {
-            height: 100%; width: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            animation: loadBar 1.8s linear forwards;
-        }
-        @keyframes loadBar { 0% { width: 0%; } 100% { width: 100%; } }
-
-        @media (max-width: 480px) {
-            .stats { grid-template-columns: 1fr 1fr; }
-            .sektor-grid { grid-template-columns: 1fr 1fr 1fr; }
-            .form-row { grid-template-columns: 1fr; }
-            .history-item { flex-direction: column; align-items: flex-start; gap: 4px; }
-            .container { padding: 0; }
-            body { padding: 12px 8px 75px; }
-            .navbar { flex-wrap: wrap; gap: 6px; }
-            .nav-right { flex-wrap: wrap; }
-        }
-        @media (min-width: 481px) and (max-width: 768px) {
-            .sektor-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
-        }
+        body { font-family: Arial; background: #0A0A1A; color: #fff; padding: 20px; max-width: 400px; margin: 0 auto; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #333; background: #1a1a2e; color: #fff; }
+        button { width: 100%; padding: 12px; background: #6C63FF; color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .error { color: #FF4444; background: rgba(255,68,68,0.1); padding: 10px; border-radius: 8px; margin-top: 10px; }
+        .success { color: #00FF88; background: rgba(0,255,136,0.1); padding: 10px; border-radius: 8px; margin-top: 10px; }
+        .card { background: rgba(255,255,255,0.05); padding: 16px; border-radius: 12px; margin: 10px 0; }
+        .hidden { display: none; }
+        .badge { background: #6C63FF; padding: 2px 10px; border-radius: 20px; font-size: 10px; }
+        .nav { display: flex; gap: 10px; margin: 10px 0; }
+        .nav button { flex: 1; padding: 8px; background: transparent; border: 1px solid #333; color: #888; }
+        .nav button.active { border-color: #6C63FF; color: #6C63FF; }
     </style>
 </head>
 <body>
 
-    <!-- SPLASH -->
-    <div id="splash" class="splash">
-        <div class="splash-content">
-            <div class="splash-icon">🌏</div>
-            <h1>Si DESKA</h1>
-            <p>Command Center • 48 Sektor</p>
-            <div class="splash-bar"><div class="splash-progress"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h1>🌏 Si DESKA</h1>
+        <div>
+            <span class="badge">● LIVE</span>
+            <button id="authBtn" onclick="showLogin()" style="width:auto;padding:4px 12px;background:#6C63FF;border:none;border-radius:20px;color:#fff;font-size:12px;">🔓 Masuk</button>
+            <span id="userBadge" class="hidden" style="font-size:12px;color:#00FF88;">👤 <span id="userName"></span></span>
         </div>
     </div>
 
-    <!-- NOTIF -->
-    <div id="notif" class="notif">📊 Selamat datang di Si DESKA!</div>
-
-    <!-- MAIN CONTENT -->
-    <div class="container" id="app">
-
-        <!-- NAVBAR -->
-        <nav class="navbar">
-            <div class="logo">
-                <span class="logo-icon">🌏</span>
-                <span>Si <span>DESKA</span></span>
-            </div>
-            <div class="nav-right">
-                <span class="badge badge-live">● LIVE</span>
-                <span class="badge badge-chain">⛓️ CHAIN</span>
-                <span class="badge">48 S</span>
-                <span id="userBadge" class="user-badge hidden">
-                    <span class="name" id="userName">-</span>
-                    <span class="role" id="userRole">-</span>
-                    <button class="btn-logout" onclick="logout()">Logout</button>
-                </span>
-                <button class="btn-login" id="authBtn" onclick="showAuth()">🔓 Masuk</button>
-            </div>
-        </nav>
-
-        <!-- INFO DESA -->
-        <div class="info-desa">
-            📍 <strong>35 Kecamatan</strong> • 🏘️ <strong>326 Desa</strong> • 🏛️ <strong>13 Kelurahan</strong> • ✅ <strong>48 Sektor</strong>
-            <span class="badge badge-health" style="margin-left:6px;">🏥 Kesehatan</span>
-        </div>
-
-        <!-- STATS -->
-        <div class="stats" id="statsContainer">
-            <div class="stat-card"><span class="number" id="totalData">0</span><span class="label">Total Data</span></div>
-            <div class="stat-card"><span class="number" id="totalSektor">48</span><span class="label">Sektor</span></div>
-            <div class="stat-card health"><span class="number" id="totalHealth">0</span><span class="label">Kesehatan</span></div>
-            <div class="stat-card"><span class="number" id="totalDesa">339</span><span class="label">Desa/Kel</span></div>
-        </div>
-
-        <!-- TAB CONTENT -->
-        <div id="tab-dashboard" class="tab active">
-            <div class="section-title"><i class="fas fa-th-list"></i> 48 Sektor</div>
-            <div class="sektor-grid" id="sektorGrid"></div>
-
-            <div class="section-title health"><i class="fas fa-heartbeat"></i> Ringkasan Kesehatan</div>
-            <div id="healthSummary" style="margin-bottom:10px;"></div>
-
-            <div class="section-title"><i class="fas fa-clock"></i> Update Terbaru</div>
-            <div id="updateFeed"></div>
-        </div>
-
-        <div id="tab-input" class="tab">
-            <h3 style="margin-bottom:8px;">📝 Input Data</h3>
-            <p class="text-dim" style="font-size:12px;margin-bottom:10px;">
-                Pilih sektor. Untuk <strong style="color:var(--health);">Sektor 6 (Kesehatan)</strong> akan muncul form khusus.
-            </p>
-
-            <div class="form-card">
-                <div class="form-group">
-                    <label><i class="fas fa-tag"></i> Pilih Sektor</label>
-                    <select id="inputSektor" onchange="toggleHealthForm()">
-                        <option value="">-- Pilih Sektor --</option>
-                    </select>
-                </div>
-
-                <!-- FORM UMUM -->
-                <div id="generalForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-map-marker-alt"></i> Kecamatan</label>
-                            <select id="inputKecamatan"></select>
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-home"></i> Desa</label>
-                            <input type="text" id="inputDesa" placeholder="Nama desa" />
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-user"></i> RW</label>
-                            <input type="text" id="inputRW" placeholder="RW-001" />
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-user-friends"></i> RT</label>
-                            <input type="text" id="inputRT" placeholder="RT-001" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-chart-simple"></i> Nilai Data</label>
-                        <input type="number" id="inputNilai" placeholder="Jumlah / nilai" />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-file-alt"></i> Keterangan</label>
-                        <input type="text" id="inputKeterangan" placeholder="Deskripsi (opsional)" />
-                    </div>
-                </div>
-
-                <!-- FORM KESEHATAN -->
-                <div id="healthForm" style="display:none;">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-map-marker-alt"></i> Kecamatan</label>
-                            <select id="inputKecamatanHealth"></select>
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-home"></i> Desa</label>
-                            <input type="text" id="inputDesaHealth" placeholder="Nama desa" />
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-user"></i> RW</label>
-                            <input type="text" id="inputRWHealth" placeholder="RW-001" />
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-user-friends"></i> RT</label>
-                            <input type="text" id="inputRThealth" placeholder="RT-001" />
-                        </div>
-                    </div>
-
-                    <div class="health-section">
-                        <div class="label">👶 Kehamilan & Persalinan</div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="health"><i class="fas fa-female"></i> Ibu Hamil</label>
-                                <input type="number" id="inputIbuHamil" class="health-focus" placeholder="0" />
-                            </div>
-                            <div class="form-group">
-                                <label class="health"><i class="fas fa-baby"></i> Ibu Melahirkan</label>
-                                <input type="number" id="inputIbuMelahirkan" class="health-focus" placeholder="0" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="health-section">
-                        <div class="label">📊 Stunting & Gizi</div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="health"><i class="fas fa-child"></i> Balita Stunting</label>
-                                <input type="number" id="inputStunting" class="health-focus" placeholder="0" />
-                            </div>
-                            <div class="form-group">
-                                <label class="health"><i class="fas fa-weight"></i> Gizi Kurang</label>
-                                <input type="number" id="inputGiziKurang" class="health-focus" placeholder="0" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="health-section">
-                        <div class="label">💀 Kematian</div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="health"><i class="fas fa-heartbeat"></i> AKI</label>
-                                <input type="number" id="inputAKI" class="health-focus" placeholder="0" />
-                            </div>
-                            <div class="form-group">
-                                <label class="health"><i class="fas fa-baby"></i> AKB</label>
-                                <input type="number" id="inputAKB" class="health-focus" placeholder="0" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="health-section">
-                        <div class="label">💉 Imunisasi & Posyandu</div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="health"><i class="fas fa-syringe"></i> Imunisasi Lengkap</label>
-                                <input type="number" id="inputImunisasi" class="health-focus" placeholder="0" />
-                            </div>
-                            <div class="form-group">
-                                <label class="health"><i class="fas fa-hospital"></i> Posyandu Aktif</label>
-                                <input type="number" id="inputPosyandu" class="health-focus" placeholder="0" />
-                            </div>
-                        </div>
-                        <div class="form-row" style="margin-top:6px;">
-                            <div class="form-group">
-                                <label class="health"><i class="fas fa-user-md"></i> Kader Posyandu</label>
-                                <input type="number" id="inputKaderPosyandu" class="health-focus" placeholder="0" />
-                            </div>
-                            <div class="form-group">
-                                <label class="health"><i class="fas fa-weight"></i> Balita Ditimbang</label>
-                                <input type="number" id="inputBalitaDitimbang" class="health-focus" placeholder="0" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PELAPOR -->
-                <div class="form-row" style="margin-top:10px;">
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> Nama Pelapor</label>
-                        <input type="text" id="inputPelapor" placeholder="Nama lengkap" />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-tag"></i> Jabatan</label>
-                        <select id="inputJabatan">
-                            <option value="kader">Kader Desa</option>
-                            <option value="rt">Ketua RT</option>
-                            <option value="rw">Ketua RW</option>
-                            <option value="posyandu">Kader Posyandu</option>
-                            <option value="bidan">Bidan Desa</option>
-                            <option value="opd">OPD</option>
-                            <option value="warga">Warga</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button class="btn-primary" id="submitBtn" onclick="submitData()">
-                    <i class="fas fa-save"></i> Kirim Data
-                </button>
-                <div id="updateStatus" class="status-msg"></div>
-            </div>
-
-            <div style="margin-top:14px;">
-                <h4 style="font-size:13px;font-weight:700;margin-bottom:6px;">📋 Riwayat Input</h4>
-                <div id="historyList"></div>
-            </div>
-        </div>
-
-        <div id="tab-chart" class="tab">
-            <h3 style="margin-bottom:8px;">📈 Grafik Data</h3>
-            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px;">
-                <h4 style="font-size:12px;color:var(--dim);margin-bottom:6px;">📊 Data per Sektor</h4>
-                <canvas id="chart1" style="width:100%;height:140px;"></canvas>
-            </div>
-            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px;">
-                <h4 style="font-size:12px;color:var(--dim);margin-bottom:6px;">📍 Data per Kecamatan</h4>
-                <canvas id="chart2" style="width:100%;height:140px;"></canvas>
-            </div>
-            <div style="background:rgba(255,107,107,0.04);border:1px solid rgba(255,107,107,0.06);border-radius:var(--radius);padding:12px;">
-                <h4 style="font-size:12px;color:var(--health);margin-bottom:6px;">🏥 Data Kesehatan</h4>
-                <canvas id="chartHealth" style="width:100%;height:140px;"></canvas>
-            </div>
-        </div>
-
-        <div id="tab-profile" class="tab">
-            <div style="text-align:center;padding:16px 0;">
-                <div style="font-size:48px;margin-bottom:6px;">🌏</div>
-                <h2 style="font-size:20px;font-weight:800;">Si DESKA</h2>
-                <p style="color:var(--dim);font-size:13px;">Command Center • 48 Sektor</p>
-                <p style="color:var(--dim);font-size:11px;margin-top:4px;">Kabupaten Pandeglang</p>
-            </div>
-            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                    <div><span style="color:var(--dim);font-size:10px;">Total Data</span><br><strong style="color:var(--primary);font-size:20px;" id="profileData">0</strong></div>
-                    <div><span style="color:var(--dim);font-size:10px;">Sektor</span><br><strong style="color:var(--primary);font-size:20px;">48</strong></div>
-                    <div><span style="color:var(--dim);font-size:10px;">Kecamatan</span><br><strong style="color:var(--primary);font-size:20px;">35</strong></div>
-                    <div><span style="color:var(--dim);font-size:10px;">Desa/Kel</span><br><strong style="color:var(--primary);font-size:20px;">339</strong></div>
-                </div>
-            </div>
-            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;">
-                <p style="font-size:12px;color:var(--dim);line-height:1.7;">
-                    🌱 <strong style="color:var(--text);">Si DESKA</strong> adalah sistem data statistik berbasis blockchain untuk Kabupaten Pandeglang.<br><br>
-                    📊 <strong>48 Sektor</strong> • 🏘️ <strong>326 Desa</strong> • 🏛️ <strong>13 Kelurahan</strong><br><br>
-                    👥 <strong style="color:var(--text);">WPS - Warga Pandeglang Sejahtera</strong>
-                </p>
-            </div>
-            <div style="display:flex;gap:10px;margin-top:12px;justify-content:center;">
-                <button class="btn-login" onclick="alert('📧 deskawps@yahoo.co.id')">📧 Email</button>
-                <button class="btn-logout" onclick="alert('📱 0856-9527-2863')">📱 WhatsApp</button>
-            </div>
-        </div>
-
+    <div class="card">
+        <div>📍 35 Kecamatan • 326 Desa • 13 Kelurahan • 48 Sektor</div>
     </div>
 
-    <!-- BOTTOM NAV -->
-    <div class="bottom-nav">
-        <button class="nav-btn active" onclick="switchTab('dashboard')"><i class="fas fa-home"></i>Dashboard</button>
-        <button class="nav-btn" onclick="switchTab('input')"><i class="fas fa-edit"></i>Input</button>
-        <button class="nav-btn" onclick="switchTab('chart')"><i class="fas fa-chart-bar"></i>Grafik</button>
-        <button class="nav-btn" onclick="switchTab('profile')"><i class="fas fa-user"></i>Profil</button>
+    <div id="stats" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="card"><strong id="totalData">0</strong><br><small>Total Data</small></div>
+        <div class="card"><strong>48</strong><br><small>Sektor</small></div>
+        <div class="card"><strong id="totalHealth">0</strong><br><small>Kesehatan</small></div>
+        <div class="card"><strong>339</strong><br><small>Desa/Kel</small></div>
+    </div>
+
+    <div class="nav">
+        <button class="active" onclick="showTab('dashboard')">📊 Dashboard</button>
+        <button onclick="showTab('input')">📝 Input</button>
+        <button onclick="showTab('profile')">👤 Profil</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard">
+        <h3>📊 Dashboard</h3>
+        <div id="feed">Belum ada data. Ajak teman-teman mengisi! 🚀</div>
+    </div>
+
+    <!-- INPUT -->
+    <div id="tab-input" class="hidden">
+        <h3>📝 Input Data</h3>
+        <p style="font-size:12px;color:#888;">Pilih sektor, isi data.</p>
+        <div class="card">
+            <label>Sektor</label>
+            <select id="inputSektor"></select>
+            <label>Kecamatan</label>
+            <select id="inputKecamatan"></select>
+            <label>Desa</label>
+            <input type="text" id="inputDesa" placeholder="Nama desa">
+            <label>Nilai</label>
+            <input type="number" id="inputNilai" placeholder="Jumlah">
+            <label>Nama Pelapor</label>
+            <input type="text" id="inputPelapor" placeholder="Nama Anda">
+            <button onclick="submitData()">📨 Kirim Data</button>
+            <div id="statusMsg"></div>
+        </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="tab-profile" class="hidden">
+        <h3>👤 Profil</h3>
+        <div class="card">
+            <p>🌏 Si DESKA</p>
+            <p>📊 48 Sektor • 35 Kecamatan</p>
+            <p>👥 WPS - Warga Pandeglang Sejahtera</p>
+        </div>
     </div>
 
     <!-- AUTH MODAL -->
-    <div id="authModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;">
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:400px;width:100%;max-height:90vh;overflow-y:auto;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <h2 id="authTitle" style="font-size:20px;font-weight:800;">🔓 Login</h2>
-                <button onclick="closeAuth()" style="background:none;border:none;color:var(--dim);font-size:24px;cursor:pointer;">✕</button>
+    <div id="authModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);padding:20px;z-index:999;">
+        <div style="background:#0A0A1A;border:1px solid #333;border-radius:16px;padding:20px;max-width:400px;margin:auto;margin-top:50px;">
+            <h2 id="authTitle">🔓 Login</h2>
+            <div id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email">
+                <input type="password" id="loginPassword" placeholder="Password">
+                <button onclick="login()">🔓 Masuk</button>
+                <p style="font-size:12px;color:#888;text-align:center;">Belum punya akun? <a href="#" onclick="toggleForm('register')" style="color:#6C63FF;">Daftar</a></p>
             </div>
-            <div id="authForm">
-                <div id="loginForm">
-                    <div class="form-group">
-                        <label><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="loginEmail" placeholder="email@example.com" />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Password</label>
-                        <input type="password" id="loginPassword" placeholder="••••••••" />
-                    </div>
-                    <button class="btn-primary" onclick="login()" style="margin-bottom:8px;">🔓 Masuk</button>
-                    <p style="font-size:12px;color:var(--dim);text-align:center;">
-                        Belum punya akun? <a href="#" onclick="toggleAuthForm('register')" style="color:var(--primary);">Daftar di sini</a>
-                    </p>
-                </div>
-                <div id="registerForm" style="display:none;">
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> Nama Lengkap</label>
-                        <input type="text" id="regName" placeholder="Nama lengkap" />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="regEmail" placeholder="email@example.com" />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Password (min 6)</label>
-                        <input type="password" id="regPassword" placeholder="••••••••" />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Konfirmasi Password</label>
-                        <input type="password" id="regConfirm" placeholder="••••••••" />
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-tag"></i> Peran</label>
-                        <select id="regRole">
-                            <option value="kader">Kader Desa</option>
-                            <option value="rt">Ketua RT</option>
-                            <option value="rw">Ketua RW</option>
-                            <option value="posyandu">Kader Posyandu</option>
-                            <option value="bidan">Bidan Desa</option>
-                            <option value="opd">OPD</option>
-                            <option value="warga">Warga</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-map-marker-alt"></i> Kecamatan</label>
-                        <select id="regKecamatan"></select>
-                    </div>
-                    <button class="btn-primary" onclick="register()" style="margin-bottom:8px;">✅ Daftar</button>
-                    <p style="font-size:12px;color:var(--dim);text-align:center;">
-                        Sudah punya akun? <a href="#" onclick="toggleAuthForm('login')" style="color:var(--primary);">Masuk di sini</a>
-                    </p>
-                </div>
+            <div id="registerForm" style="display:none;">
+                <input type="text" id="regName" placeholder="Nama Lengkap">
+                <input type="email" id="regEmail" placeholder="Email">
+                <input type="password" id="regPassword" placeholder="Password (min 6)">
+                <input type="password" id="regConfirm" placeholder="Konfirmasi Password">
+                <select id="regRole">
+                    <option value="kader">Kader Desa</option>
+                    <option value="warga">Warga</option>
+                </select>
+                <select id="regKecamatan"></select>
+                <button onclick="register()">✅ Daftar</button>
+                <p style="font-size:12px;color:#888;text-align:center;">Sudah punya akun? <a href="#" onclick="toggleForm('login')" style="color:#6C63FF;">Masuk</a></p>
             </div>
-            <div id="authStatus" class="status-msg" style="margin-top:8px;"></div>
+            <div id="authStatus"></div>
+            <button onclick="closeAuth()" style="margin-top:10px;background:#333;">Tutup</button>
         </div>
     </div>
 
     <script>
         // ============================================================
-        // 🔥 FIREBASE CONFIG - SUDAH PAKAI API KEY ANDA
+        // 🔥 FIREBASE CONFIG - API KEY ANDA
         // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyAHGLNvTubgL4LYZuZL3I4QwqUR6NBNfqQ",
@@ -670,14 +128,14 @@
         };
 
         // ============================================================
-        // 🚀 INISIALISASI FIREBASE
+        // 🚀 INIT FIREBASE
         // ============================================================
         firebase.initializeApp(firebaseConfig);
         var auth = firebase.auth();
         var db = firebase.firestore();
 
         // ============================================================
-        // 📊 DATA MASTER
+        // 📊 DATA
         // ============================================================
         var SEKTOR = [
             {id:1, nama:"Kependudukan", icon:"👨‍👩‍👧‍👦"},
@@ -730,34 +188,17 @@
             {id:48, nama:"Pertambangan", icon:"⛏️"}
         ];
 
-        var KECAMATAN = [
-            "Sumur","Cimanggu","Cibaliung","Cibitung","Cikeusik","Cigeulis",
-            "Panimbang","Sobang","Munjul","Angsana","Sindangresmi","Picung",
-            "Bojong","Saketi","Cisata","Pagelaran","Patia","Sukaresmi",
-            "Labuan","Carita","Jiput","Cikedal","Menes","Pulosari",
-            "Mandalawangi","Cimanuk","Cipeucang","Banjar","Kaduhejo",
-            "Mekarjaya","Pandeglang","Majasari","Cadasari","Karang Tanjung",
-            "Koroncong"
-        ];
+        var KECAMATAN = ["Sumur","Cimanggu","Cibaliung","Cibitung","Cikeusik","Cigeulis","Panimbang","Sobang","Munjul","Angsana","Sindangresmi","Picung","Bojong","Saketi","Cisata","Pagelaran","Patia","Sukaresmi","Labuan","Carita","Jiput","Cikedal","Menes","Pulosari","Mandalawangi","Cimanuk","Cipeucang","Banjar","Kaduhejo","Mekarjaya","Pandeglang","Majasari","Cadasari","Karang Tanjung","Koroncong"];
 
-        var currentUser = null;
         var allData = [];
-        var chart1 = null, chart2 = null, chartHealth = null;
+        var currentUser = null;
 
         // ============================================================
-        // 🔐 AUTH FUNCTIONS
+        // 🔐 AUTH
         // ============================================================
-        function showAuth() {
-            document.getElementById('authModal').style.display = 'flex';
-            document.getElementById('authStatus').className = 'status-msg';
-            document.getElementById('authStatus').textContent = '';
-        }
-
-        function closeAuth() {
-            document.getElementById('authModal').style.display = 'none';
-        }
-
-        function toggleAuthForm(mode) {
+        function showLogin() { document.getElementById('authModal').style.display = 'block'; }
+        function closeAuth() { document.getElementById('authModal').style.display = 'none'; }
+        function toggleForm(mode) {
             if (mode === 'login') {
                 document.getElementById('loginForm').style.display = 'block';
                 document.getElementById('registerForm').style.display = 'none';
@@ -767,120 +208,115 @@
                 document.getElementById('registerForm').style.display = 'block';
                 document.getElementById('authTitle').textContent = '📝 Daftar Akun';
             }
-            document.getElementById('authStatus').className = 'status-msg';
             document.getElementById('authStatus').textContent = '';
+            document.getElementById('authStatus').className = '';
         }
 
         function register() {
-            var name = document.getElementById('regName').value.trim();
-            var email = document.getElementById('regEmail').value.trim();
-            var password = document.getElementById('regPassword').value;
+            var name = document.getElementById('regName').value;
+            var email = document.getElementById('regEmail').value;
+            var pass = document.getElementById('regPassword').value;
             var confirm = document.getElementById('regConfirm').value;
             var role = document.getElementById('regRole').value;
-            var kecamatan = document.getElementById('regKecamatan').value;
+            var kec = document.getElementById('regKecamatan').value;
             var status = document.getElementById('authStatus');
 
-            if (!name || !email || !password || !kecamatan) {
-                status.className = 'status-msg error';
+            if (!name || !email || !pass || !kec) {
                 status.textContent = '⚠️ Isi semua field!';
+                status.className = 'error';
                 return;
             }
-            if (password.length < 6) {
-                status.className = 'status-msg error';
-                status.textContent = '⚠️ Password minimal 6 karakter!';
+            if (pass.length < 6) {
+                status.textContent = '⚠️ Password min 6 karakter!';
+                status.className = 'error';
                 return;
             }
-            if (password !== confirm) {
-                status.className = 'status-msg error';
+            if (pass !== confirm) {
                 status.textContent = '⚠️ Password tidak sama!';
+                status.className = 'error';
                 return;
             }
 
-            status.className = 'status-msg info';
-            status.textContent = '⏳ Mendaftarkan...';
+            status.textContent = '⏳ Mendaftar...';
+            status.className = '';
 
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(function(userCredential) {
-                    var user = userCredential.user;
+            auth.createUserWithEmailAndPassword(email, pass)
+                .then(function(userCred) {
+                    var user = userCred.user;
                     return db.collection('users').doc(user.uid).set({
                         uid: user.uid,
                         nama: name,
                         email: email,
                         role: role,
-                        kecamatan: kecamatan,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }).then(function() {
-                        return user;
+                        kecamatan: kec,
+                        createdAt: new Date()
                     });
                 })
-                .then(function(user) {
-                    status.className = 'status-msg success';
-                    status.textContent = '✅ Pendaftaran berhasil! Silakan login.';
-                    toggleAuthForm('login');
-                    document.getElementById('regName').value = '';
-                    document.getElementById('regEmail').value = '';
-                    document.getElementById('regPassword').value = '';
-                    document.getElementById('regConfirm').value = '';
+                .then(function() {
+                    status.textContent = '✅ Berhasil! Silakan login.';
+                    status.className = 'success';
+                    toggleForm('login');
                 })
-                .catch(function(error) {
-                    status.className = 'status-msg error';
-                    status.textContent = '❌ ' + error.message;
+                .catch(function(err) {
+                    status.textContent = '❌ ' + err.message;
+                    status.className = 'error';
                 });
         }
 
         function login() {
-            var email = document.getElementById('loginEmail').value.trim();
-            var password = document.getElementById('loginPassword').value;
+            var email = document.getElementById('loginEmail').value;
+            var pass = document.getElementById('loginPassword').value;
             var status = document.getElementById('authStatus');
 
-            if (!email || !password) {
-                status.className = 'status-msg error';
+            if (!email || !pass) {
                 status.textContent = '⚠️ Isi email dan password!';
+                status.className = 'error';
                 return;
             }
 
-            status.className = 'status-msg info';
-            status.textContent = '⏳ Memproses...';
+            status.textContent = '⏳ Login...';
+            status.className = '';
 
-            auth.signInWithEmailAndPassword(email, password)
-                .then(function(userCredential) {
-                    var user = userCredential.user;
-                    return db.collection('users').doc(user.uid).get().then(function(doc) {
-                        if (doc.exists) {
-                            currentUser = { uid: user.uid, ...doc.data() };
-                            updateUIForUser();
-                            closeAuth();
-                            showNotif('👋 Selamat datang, ' + currentUser.nama + '!');
-                        } else {
-                            throw new Error('Data pengguna tidak ditemukan');
-                        }
-                    });
+            auth.signInWithEmailAndPassword(email, pass)
+                .then(function(userCred) {
+                    var user = userCred.user;
+                    return db.collection('users').doc(user.uid).get();
                 })
-                .catch(function(error) {
-                    status.className = 'status-msg error';
-                    status.textContent = '❌ ' + error.message;
+                .then(function(doc) {
+                    if (doc.exists) {
+                        currentUser = doc.data();
+                        updateUI();
+                        closeAuth();
+                        alert('👋 Selamat datang, ' + currentUser.nama + '!');
+                        loadData();
+                    }
+                })
+                .catch(function(err) {
+                    status.textContent = '❌ ' + err.message;
+                    status.className = 'error';
                 });
         }
 
         function logout() {
             auth.signOut().then(function() {
                 currentUser = null;
-                updateUIForUser();
-                showNotif('👋 Anda telah logout');
+                updateUI();
+                alert('👋 Logout berhasil');
             });
         }
 
-        function updateUIForUser() {
+        function updateUI() {
             var badge = document.getElementById('userBadge');
-            var authBtn = document.getElementById('authBtn');
+            var btn = document.getElementById('authBtn');
             if (currentUser) {
                 badge.classList.remove('hidden');
-                document.getElementById('userName').textContent = currentUser.nama || 'User';
-                document.getElementById('userRole').textContent = currentUser.role || 'warga';
-                authBtn.style.display = 'none';
+                document.getElementById('userName').textContent = currentUser.nama;
+                btn.textContent = '🚪 Logout';
+                btn.onclick = logout;
             } else {
                 badge.classList.add('hidden');
-                authBtn.style.display = 'inline-block';
+                btn.textContent = '🔓 Masuk';
+                btn.onclick = showLogin;
             }
         }
 
@@ -888,163 +324,61 @@
         // 📥 SUBMIT DATA
         // ============================================================
         function submitData() {
-            var status = document.getElementById('updateStatus');
+            var status = document.getElementById('statusMsg');
             if (!currentUser) {
-                status.className = 'status-msg error';
-                status.textContent = '⚠️ Login dulu untuk input data!';
+                status.textContent = '⚠️ Login dulu!';
+                status.className = 'error';
                 return;
             }
 
             var sektor = parseInt(document.getElementById('inputSektor').value);
-            if (!sektor) {
-                status.className = 'status-msg error';
-                status.textContent = '⚠️ Pilih sektor!';
+            var kecamatan = document.getElementById('inputKecamatan').value;
+            var desa = document.getElementById('inputDesa').value;
+            var nilai = parseFloat(document.getElementById('inputNilai').value);
+            var pelapor = document.getElementById('inputPelapor').value || currentUser.nama;
+
+            if (!sektor || !kecamatan || !desa || !nilai) {
+                status.textContent = '⚠️ Isi semua field!';
+                status.className = 'error';
                 return;
             }
 
-            var isHealth = (sektor === 6);
-            var data = {};
-            var sektorName = '';
-            for (var i = 0; i < SEKTOR.length; i++) {
-                if (SEKTOR[i].id === sektor) { sektorName = SEKTOR[i].nama; break; }
-            }
+            var data = {
+                sektor: sektor,
+                kecamatan: kecamatan,
+                desa: desa,
+                nilai: nilai,
+                pelapor: pelapor,
+                inputBy: currentUser.uid,
+                inputByName: currentUser.nama,
+                createdAt: new Date()
+            };
 
-            if (isHealth) {
-                var kecamatan = document.getElementById('inputKecamatanHealth').value;
-                var desa = document.getElementById('inputDesaHealth').value.trim();
-                var rw = document.getElementById('inputRWHealth').value.trim() || '-';
-                var rt = document.getElementById('inputRThealth').value.trim() || '-';
-                var pelapor = document.getElementById('inputPelapor').value.trim() || currentUser.nama || 'Warga';
-                var jabatan = document.getElementById('inputJabatan').value;
+            status.textContent = '⏳ Menyimpan...';
+            status.className = '';
 
-                if (!kecamatan || !desa) {
-                    status.className = 'status-msg error';
-                    status.textContent = '⚠️ Isi Kecamatan dan Desa!';
-                    return;
-                }
-
-                var ibuHamil = parseInt(document.getElementById('inputIbuHamil').value) || 0;
-                var ibuMelahirkan = parseInt(document.getElementById('inputIbuMelahirkan').value) || 0;
-                var stunting = parseInt(document.getElementById('inputStunting').value) || 0;
-                var giziKurang = parseInt(document.getElementById('inputGiziKurang').value) || 0;
-                var aki = parseInt(document.getElementById('inputAKI').value) || 0;
-                var akb = parseInt(document.getElementById('inputAKB').value) || 0;
-                var imunisasi = parseInt(document.getElementById('inputImunisasi').value) || 0;
-                var posyandu = parseInt(document.getElementById('inputPosyandu').value) || 0;
-                var kaderPosyandu = parseInt(document.getElementById('inputKaderPosyandu').value) || 0;
-                var balitaDitimbang = parseInt(document.getElementById('inputBalitaDitimbang').value) || 0;
-
-                if (ibuHamil === 0 && stunting === 0 && aki === 0 && akb === 0 && imunisasi === 0) {
-                    status.className = 'status-msg error';
-                    status.textContent = '⚠️ Isi minimal satu data kesehatan!';
-                    return;
-                }
-
-                data = {
-                    sektor: 6,
-                    sektorNama: 'Kesehatan',
-                    kecamatan: kecamatan,
-                    desa: desa,
-                    rw: rw,
-                    rt: rt,
-                    pelapor: pelapor,
-                    jabatan: jabatan,
-                    isHealth: true,
-                    ibuHamil: ibuHamil,
-                    ibuMelahirkan: ibuMelahirkan,
-                    stunting: stunting,
-                    giziKurang: giziKurang,
-                    aki: aki,
-                    akb: akb,
-                    imunisasi: imunisasi,
-                    posyandu: posyandu,
-                    kaderPosyandu: kaderPosyandu,
-                    balitaDitimbang: balitaDitimbang,
-                    nilai: ibuHamil + stunting + aki + akb + imunisasi,
-                    keterangan: 'Data Kesehatan - Ibu Hamil:' + ibuHamil + ' Stunting:' + stunting,
-                    inputBy: currentUser.uid,
-                    inputByName: currentUser.nama,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                document.getElementById('inputDesaHealth').value = '';
-                document.getElementById('inputRWHealth').value = '';
-                document.getElementById('inputRThealth').value = '';
-                document.querySelectorAll('#healthForm input[type="number"]').forEach(function(el) { el.value = ''; });
-
-            } else {
-                var kecamatan = document.getElementById('inputKecamatan').value;
-                var desa = document.getElementById('inputDesa').value.trim();
-                var rw = document.getElementById('inputRW').value.trim() || '-';
-                var rt = document.getElementById('inputRT').value.trim() || '-';
-                var nilai = parseFloat(document.getElementById('inputNilai').value);
-                var keterangan = document.getElementById('inputKeterangan').value.trim() || '-';
-                var pelapor = document.getElementById('inputPelapor').value.trim() || currentUser.nama || 'Warga';
-                var jabatan = document.getElementById('inputJabatan').value;
-
-                if (!kecamatan || !desa) {
-                    status.className = 'status-msg error';
-                    status.textContent = '⚠️ Isi Kecamatan dan Desa!';
-                    return;
-                }
-                if (!nilai || nilai <= 0) {
-                    status.className = 'status-msg error';
-                    status.textContent = '⚠️ Isi nilai data yang valid!';
-                    return;
-                }
-
-                data = {
-                    sektor: sektor,
-                    sektorNama: sektorName,
-                    kecamatan: kecamatan,
-                    desa: desa,
-                    rw: rw,
-                    rt: rt,
-                    pelapor: pelapor,
-                    jabatan: jabatan,
-                    isHealth: false,
-                    nilai: nilai,
-                    keterangan: keterangan,
-                    inputBy: currentUser.uid,
-                    inputByName: currentUser.nama,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                document.getElementById('inputDesa').value = '';
-                document.getElementById('inputRW').value = '';
-                document.getElementById('inputRT').value = '';
-                document.getElementById('inputNilai').value = '';
-                document.getElementById('inputKeterangan').value = '';
-            }
-
-            document.getElementById('inputPelapor').value = '';
-            document.getElementById('inputJabatan').selectedIndex = 0;
-
-            status.className = 'status-msg info';
-            status.textContent = '⏳ Menyimpan data...';
-
-            var collectionName = 'data_' + sektor;
-            db.collection(collectionName).add(data)
+            db.collection('data_' + sektor).add(data)
                 .then(function() {
-                    status.className = 'status-msg success';
-                    status.textContent = '✅ Data ' + sektorName + (isHealth ? ' (Kesehatan)' : '') + ' berhasil disimpan!';
-                    loadAllData();
-                    showNotif('📊 Data ' + sektorName + ' dari ' + data.kecamatan + ' masuk!');
+                    status.textContent = '✅ Data berhasil disimpan!';
+                    status.className = 'success';
+                    document.getElementById('inputDesa').value = '';
+                    document.getElementById('inputNilai').value = '';
+                    loadData();
                 })
-                .catch(function(error) {
-                    status.className = 'status-msg error';
-                    status.textContent = '❌ Gagal simpan: ' + error.message;
+                .catch(function(err) {
+                    status.textContent = '❌ ' + err.message;
+                    status.className = 'error';
                 });
         }
 
         // ============================================================
-        // 📊 LOAD DATA
+        // 📊 LOAD & DISPLAY
         // ============================================================
-        function loadAllData() {
+        function loadData() {
             var promises = [];
             for (var i = 1; i <= 48; i++) {
                 promises.push(
-                    db.collection('data_' + i).orderBy('createdAt', 'desc').limit(100).get()
+                    db.collection('data_' + i).orderBy('createdAt', 'desc').limit(50).get()
                     .then(function(snapshot) {
                         var data = [];
                         snapshot.forEach(function(doc) {
@@ -1066,405 +400,99 @@
                     }
                 }
                 updateDashboard();
-                updateHistory();
-                setTimeout(initCharts, 300);
             });
         }
 
-        // ============================================================
-        // 📈 DASHBOARD
-        // ============================================================
         function updateDashboard() {
             document.getElementById('totalData').textContent = allData.length;
             var healthCount = 0;
-            var sektorCounts = {};
             for (var i = 0; i < allData.length; i++) {
-                var s = allData[i].sektor;
-                sektorCounts[s] = (sektorCounts[s] || 0) + 1;
-                if (s === 6) healthCount++;
+                if (allData[i].sektor === 6) healthCount++;
             }
             document.getElementById('totalHealth').textContent = healthCount;
 
-            var grid = document.getElementById('sektorGrid');
-            var html = '';
-            for (var j = 0; j < SEKTOR.length; j++) {
-                var s = SEKTOR[j];
-                var count = sektorCounts[s.id] || 0;
-                var isHealth = (s.id === 6);
-                html += '<div class="sektor-item' + (isHealth ? ' health-active' : '') + '" onclick="selectSektor(' + s.id + ')">';
-                html += '<span class="icon">' + s.icon + '</span>';
-                html += '<div class="name">' + s.nama + (isHealth ? ' 🏥' : '') + '</div>';
-                html += '<span class="count">' + count + ' data</span>';
-                html += '</div>';
-            }
-            grid.innerHTML = html;
-
-            var summary = document.getElementById('healthSummary');
-            var totalIbuHamil = 0, totalStunting = 0, totalAKI = 0, totalAKB = 0;
-            for (var k = 0; k < allData.length; k++) {
-                var d = allData[k];
-                if (d.sektor === 6 && d.isHealth) {
-                    totalIbuHamil += d.ibuHamil || 0;
-                    totalStunting += d.stunting || 0;
-                    totalAKI += d.aki || 0;
-                    totalAKB += d.akb || 0;
-                }
-            }
-            summary.innerHTML =
-                '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;background:rgba(255,107,107,0.04);border:1px solid rgba(255,107,107,0.06);border-radius:8px;padding:10px;">' +
-                '<div style="text-align:center;"><span style="color:var(--dim);font-size:9px;">Ibu Hamil</span><br><strong style="color:var(--health);font-size:16px;">' + totalIbuHamil + '</strong></div>' +
-                '<div style="text-align:center;"><span style="color:var(--dim);font-size:9px;">Stunting</span><br><strong style="color:var(--health);font-size:16px;">' + totalStunting + '</strong></div>' +
-                '<div style="text-align:center;"><span style="color:var(--dim);font-size:9px;">AKI</span><br><strong style="color:var(--health);font-size:16px;">' + totalAKI + '</strong></div>' +
-                '<div style="text-align:center;"><span style="color:var(--dim);font-size:9px;">AKB</span><br><strong style="color:var(--health);font-size:16px;">' + totalAKB + '</strong></div>' +
-                '</div>';
-
-            var feed = document.getElementById('updateFeed');
-            var recent = allData.slice(0, 5);
-            if (recent.length === 0) {
-                feed.innerHTML = '<p style="color:var(--dim);font-size:12px;text-align:center;padding:12px;">Belum ada data. Ajak teman-teman untuk mengisi! 🚀</p>';
-                return;
-            }
-            var feedHtml = '';
-            for (var l = 0; l < recent.length; l++) {
-                var d = recent[l];
-                var sektorNama = '';
-                for (var m = 0; m < SEKTOR.length; m++) {
-                    if (SEKTOR[m].id === d.sektor) { sektorNama = SEKTOR[m].icon + ' ' + SEKTOR[m].nama; break; }
-                }
-                var isHealthTag = (d.sektor === 6 && d.isHealth) ? ' 🏥' : '';
-                var tagClass = (d.sektor === 6) ? 'tag-health' : '';
-                var displayValue = d.isHealth ? (d.ibuHamil || 0) + '👶 ' + (d.stunting || 0) + '📊' : (d.nilai || 0);
-                feedHtml += '<div class="feed-item">';
-                feedHtml += '<div class="head"><span><span class="tag ' + tagClass + '">' + sektorNama + isHealthTag + '</span> ' + d.kecamatan + '</span><span>' + (d.createdAt ? new Date(d.createdAt.seconds * 1000).toLocaleTimeString() : 'baru') + '</span></div>';
-                feedHtml += '<div class="value' + (d.sektor === 6 ? ' health-value' : '') + '">' + displayValue + '</div>';
-                feedHtml += '<div class="footer"><span>📝 ' + (d.inputByName || d.pelapor || 'Warga') + '</span><span>✅ Terverifikasi</span></div>';
-                feedHtml += '</div>';
-            }
-            feed.innerHTML = feedHtml;
-
-            document.getElementById('profileData').textContent = allData.length;
-        }
-
-        // ============================================================
-        // 📋 HISTORY
-        // ============================================================
-        function updateHistory() {
-            var container = document.getElementById('historyList');
+            var feed = document.getElementById('feed');
             if (allData.length === 0) {
-                container.innerHTML = '<p style="color:var(--dim);font-size:12px;text-align:center;padding:12px;">Belum ada data</p>';
+                feed.innerHTML = 'Belum ada data. Ajak teman-teman mengisi! 🚀';
                 return;
             }
+
             var html = '';
-            var recent = allData.slice(0, 20);
-            for (var i = 0; i < recent.length; i++) {
-                var h = recent[i];
+            var recent = allData.slice(0, 5);
+            for (var j = 0; j < recent.length; j++) {
+                var d = recent[j];
                 var sektorNama = '';
-                for (var j = 0; j < SEKTOR.length; j++) {
-                    if (SEKTOR[j].id === h.sektor) { sektorNama = SEKTOR[j].nama; break; }
-                }
-                var isHealth = (h.sektor === 6 && h.isHealth);
-                var tagClass = isHealth ? 'tag-health' : '';
-                var displayValue = isHealth ? '🏥 ' + (h.nilai || 0) : (h.nilai || 0);
-                var color = isHealth ? 'var(--health)' : 'var(--primary)';
-                html += '<div class="history-item">';
-                html += '<div><span class="tag ' + tagClass + '">' + sektorNama + (isHealth ? ' 🏥' : '') + '</span> <strong style="color:' + color + ';">' + h.kecamatan + '</strong> <span style="color:var(--dim);font-size:10px;">' + h.desa + '</span></div>';
-                html += '<div style="display:flex;gap:6px;align-items:center;">';
-                html += '<span style="font-weight:700;color:' + color + ';">' + displayValue + '</span>';
-                html += '<span class="verified">✅</span>';
-                html += '</div>';
-                html += '<div style="font-size:9px;color:var(--dim);width:100%;margin-top:2px;">👤 ' + (h.inputByName || h.pelapor || 'Warga') + ' • ' + (h.createdAt ? new Date(h.createdAt.seconds * 1000).toLocaleString() : '') + '</div>';
-                html += '</div>';
-            }
-            container.innerHTML = html;
-        }
-
-        // ============================================================
-        // 📊 CHARTS
-        // ============================================================
-        function initCharts() {
-            if (chart1) { chart1.destroy(); chart1 = null; }
-            if (chart2) { chart2.destroy(); chart2 = null; }
-            if (chartHealth) { chartHealth.destroy(); chartHealth = null; }
-
-            var sektorCounts = {};
-            for (var i = 0; i < allData.length; i++) {
-                var s = allData[i].sektor;
-                sektorCounts[s] = (sektorCounts[s] || 0) + 1;
-            }
-            var sorted = [];
-            for (var key in sektorCounts) {
-                sorted.push({id: parseInt(key), count: sektorCounts[key]});
-            }
-            sorted.sort(function(a, b) { return b.count - a.count; });
-            sorted = sorted.slice(0, 10);
-
-            var labels1 = [], data1 = [];
-            for (var j = 0; j < sorted.length; j++) {
-                var s = sorted[j];
-                var nama = '';
                 for (var k = 0; k < SEKTOR.length; k++) {
-                    if (SEKTOR[k].id === s.id) { nama = SEKTOR[k].nama.substring(0, 10); break; }
+                    if (SEKTOR[k].id === d.sektor) { sektorNama = SEKTOR[k].nama; break; }
                 }
-                labels1.push(nama || 'Sektor ' + s.id);
-                data1.push(s.count);
+                html += '<div style="background:rgba(255,255,255,0.04);padding:10px;border-radius:8px;margin-bottom:6px;">';
+                html += '<div style="display:flex;justify-content:space-between;font-size:12px;color:#888;">';
+                html += '<span><strong style="color:#6C63FF;">' + sektorNama + '</strong> - ' + d.kecamatan + '</span>';
+                html += '<span>' + (d.createdAt ? new Date(d.createdAt.seconds * 1000).toLocaleTimeString() : 'baru') + '</span>';
+                html += '</div>';
+                html += '<div style="font-size:16px;font-weight:700;color:#6C63FF;">' + d.nilai + '</div>';
+                html += '<div style="font-size:10px;color:#888;">📝 ' + (d.inputByName || d.pelapor || 'Warga') + '</div>';
+                html += '</div>';
             }
-
-            if (labels1.length > 0) {
-                var ctx1 = document.getElementById('chart1').getContext('2d');
-                chart1 = new Chart(ctx1, {
-                    type: 'bar',
-                    data: {
-                        labels: labels1,
-                        datasets: [{ label: 'Jumlah Data', data: data1, backgroundColor: 'rgba(108,99,255,0.6)', borderColor: '#6C63FF', borderWidth: 1 }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { labels: { color: '#8888AA', font: { size: 8 } } } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#8888AA', font: { size: 8 } } },
-                            x: { grid: { display: false }, ticks: { color: '#8888AA', font: { size: 7 } } }
-                        }
-                    }
-                });
-            }
-
-            var kecCounts = {};
-            for (var l = 0; l < allData.length; l++) {
-                var k = allData[l].kecamatan;
-                kecCounts[k] = (kecCounts[k] || 0) + 1;
-            }
-            var sortedKec = [];
-            for (var key2 in kecCounts) {
-                sortedKec.push({nama: key2, count: kecCounts[key2]});
-            }
-            sortedKec.sort(function(a, b) { return b.count - a.count; });
-            sortedKec = sortedKec.slice(0, 10);
-
-            var labels2 = [], data2 = [];
-            for (var m = 0; m < sortedKec.length; m++) {
-                labels2.push(sortedKec[m].nama.substring(0, 10));
-                data2.push(sortedKec[m].count);
-            }
-
-            if (labels2.length > 0) {
-                var ctx2 = document.getElementById('chart2').getContext('2d');
-                chart2 = new Chart(ctx2, {
-                    type: 'bar',
-                    data: {
-                        labels: labels2,
-                        datasets: [{ label: 'Jumlah Data', data: data2, backgroundColor: 'rgba(0,212,255,0.6)', borderColor: '#00D4FF', borderWidth: 1 }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { labels: { color: '#8888AA', font: { size: 8 } } } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#8888AA', font: { size: 8 } } },
-                            x: { grid: { display: false }, ticks: { color: '#8888AA', font: { size: 7 } } }
-                        }
-                    }
-                });
-            }
-
-            var healthKec = {};
-            for (var n = 0; n < allData.length; n++) {
-                if (allData[n].sektor === 6 && allData[n].isHealth) {
-                    var kc = allData[n].kecamatan;
-                    if (!healthKec[kc]) healthKec[kc] = { ibuHamil: 0, stunting: 0 };
-                    healthKec[kc].ibuHamil += allData[n].ibuHamil || 0;
-                    healthKec[kc].stunting += allData[n].stunting || 0;
-                }
-            }
-            var sortedHealth = [];
-            for (var key3 in healthKec) {
-                sortedHealth.push({nama: key3, data: healthKec[key3]});
-            }
-            sortedHealth.sort(function(a, b) { return b.data.ibuHamil - a.data.ibuHamil; });
-            sortedHealth = sortedHealth.slice(0, 10);
-
-            var labelsH = [], dataH_ibuHamil = [], dataH_stunting = [];
-            for (var o = 0; o < sortedHealth.length; o++) {
-                labelsH.push(sortedHealth[o].nama.substring(0, 10));
-                dataH_ibuHamil.push(sortedHealth[o].data.ibuHamil);
-                dataH_stunting.push(sortedHealth[o].data.stunting);
-            }
-
-            if (labelsH.length > 0) {
-                var ctxH = document.getElementById('chartHealth').getContext('2d');
-                chartHealth = new Chart(ctxH, {
-                    type: 'bar',
-                    data: {
-                        labels: labelsH,
-                        datasets: [
-                            { label: 'Ibu Hamil', data: dataH_ibuHamil, backgroundColor: 'rgba(255,107,107,0.6)', borderColor: '#FF6B6B', borderWidth: 1 },
-                            { label: 'Stunting', data: dataH_stunting, backgroundColor: 'rgba(255,215,0,0.6)', borderColor: '#FFD700', borderWidth: 1 }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { labels: { color: '#8888AA', font: { size: 8 } } } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#8888AA', font: { size: 8 } } },
-                            x: { grid: { display: false }, ticks: { color: '#8888AA', font: { size: 7 } } }
-                        }
-                    }
-                });
-            }
+            feed.innerHTML = html;
         }
 
         // ============================================================
         // 🔄 NAVIGATION
         // ============================================================
-        function switchTab(tabName) {
-            var tabs = document.querySelectorAll('.tab');
-            for (var i = 0; i < tabs.length; i++) {
-                tabs[i].classList.remove('active');
-            }
-            var target = document.getElementById('tab-' + tabName);
-            if (target) target.classList.add('active');
-
-            var btns = document.querySelectorAll('.nav-btn');
-            for (var j = 0; j < btns.length; j++) {
-                btns[j].classList.remove('active');
-                btns[j].classList.remove('health-active');
-            }
-            var activeBtn = document.querySelector('.nav-btn[onclick="switchTab(\'' + tabName + '\')"]');
-            if (activeBtn) activeBtn.classList.add('active');
-
-            if (tabName === 'chart') {
-                setTimeout(initCharts, 300);
-            }
-        }
-
-        function selectSektor(id) {
-            document.getElementById('inputSektor').value = id;
-            var items = document.querySelectorAll('.sektor-item');
-            for (var i = 0; i < items.length; i++) {
-                items[i].classList.remove('active');
-                items[i].classList.remove('health-active');
-            }
-            if (event && event.target) {
-                var el = event.target.closest('.sektor-item');
-                if (el) {
-                    if (id === 6) el.classList.add('health-active');
-                    else el.classList.add('active');
-                }
-            }
-            toggleHealthForm();
-            switchTab('input');
-            var sektorNama = '';
-            for (var j = 0; j < SEKTOR.length; j++) {
-                if (SEKTOR[j].id === id) { sektorNama = SEKTOR[j].nama; break; }
-            }
-            showNotif('📊 Sektor ' + sektorNama + (id === 6 ? ' (Kesehatan - Form Khusus)' : '') + ' dipilih');
+        function showTab(tab) {
+            document.querySelectorAll('.nav button').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelector('.nav button[onclick="showTab(\'' + tab + '\')"]').classList.add('active');
+            document.getElementById('tab-dashboard').classList.add('hidden');
+            document.getElementById('tab-input').classList.add('hidden');
+            document.getElementById('tab-profile').classList.add('hidden');
+            document.getElementById('tab-' + tab).classList.remove('hidden');
         }
 
         // ============================================================
-        // 🔄 TOGGLE HEALTH FORM
+        // 📝 INIT
         // ============================================================
-        function toggleHealthForm() {
-            var sektor = parseInt(document.getElementById('inputSektor').value);
-            var generalForm = document.getElementById('generalForm');
-            var healthForm = document.getElementById('healthForm');
-            var submitBtn = document.getElementById('submitBtn');
-
-            if (sektor === 6) {
-                generalForm.style.display = 'none';
-                healthForm.style.display = 'block';
-                submitBtn.innerHTML = '<i class="fas fa-heartbeat"></i> Kirim Data Kesehatan';
-                submitBtn.className = 'btn-primary btn-health';
-                syncHealthKecamatan();
-            } else {
-                generalForm.style.display = 'block';
-                healthForm.style.display = 'none';
-                submitBtn.innerHTML = '<i class="fas fa-save"></i> Kirim Data';
-                submitBtn.className = 'btn-primary';
-            }
-        }
-
-        function syncHealthKecamatan() {
-            var source = document.getElementById('inputKecamatan');
-            var target = document.getElementById('inputKecamatanHealth');
-            target.innerHTML = source.innerHTML;
-            target.value = source.value;
-        }
-
-        // ============================================================
-        // 🔔 NOTIFICATION
-        // ============================================================
-        function showNotif(text) {
-            var el = document.getElementById('notif');
-            el.textContent = text;
-            el.classList.add('show');
-            setTimeout(function() { el.classList.remove('show'); }, 3000);
-        }
-
-        // ============================================================
-        // 📝 INIT DROPDOWNS
-        // ============================================================
-        function initDropdowns() {
-            var sektorSelect = document.getElementById('inputSektor');
-            sektorSelect.innerHTML = '<option value="">-- Pilih Sektor --</option>';
+        function init() {
+            // Sektor dropdown
+            var sel = document.getElementById('inputSektor');
             for (var i = 0; i < SEKTOR.length; i++) {
                 var opt = document.createElement('option');
                 opt.value = SEKTOR[i].id;
-                opt.textContent = SEKTOR[i].id + '. ' + SEKTOR[i].nama + ' ' + SEKTOR[i].icon;
-                if (SEKTOR[i].id === 6) opt.textContent += ' 🏥';
-                sektorSelect.appendChild(opt);
+                opt.textContent = SEKTOR[i].id + '. ' + SEKTOR[i].nama;
+                sel.appendChild(opt);
             }
 
-            var kecSelect = document.getElementById('inputKecamatan');
-            var kecSelect2 = document.getElementById('inputKecamatanHealth');
+            // Kecamatan dropdown
+            var kecSel = document.getElementById('inputKecamatan');
             var regKec = document.getElementById('regKecamatan');
             for (var j = 0; j < KECAMATAN.length; j++) {
                 var opt = document.createElement('option');
                 opt.value = KECAMATAN[j];
                 opt.textContent = KECAMATAN[j];
-                kecSelect.appendChild(opt);
-                kecSelect2.appendChild(opt.cloneNode(true));
+                kecSel.appendChild(opt);
                 regKec.appendChild(opt.cloneNode(true));
             }
-        }
 
-        // ============================================================
-        // 🚀 MAIN INIT
-        // ============================================================
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                document.getElementById('splash').classList.add('hidden');
-            }, 1800);
-
-            initDropdowns();
-
+            // Auth state
             auth.onAuthStateChanged(function(user) {
                 if (user) {
                     db.collection('users').doc(user.uid).get().then(function(doc) {
                         if (doc.exists) {
-                            currentUser = { uid: user.uid, ...doc.data() };
-                            updateUIForUser();
+                            currentUser = doc.data();
+                            updateUI();
+                            loadData();
                         }
                     });
                 } else {
                     currentUser = null;
-                    updateUIForUser();
+                    updateUI();
                 }
-                loadAllData();
             });
 
-            console.log('🌏 Si DESKA - Command Center 48 Sektor + Firebase siap!');
-            console.log('📊 48 Sektor • 35 Kecamatan • 326 Desa • 13 Kelurahan');
-            console.log('🏥 Sektor Kesehatan memiliki form khusus');
-            console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
-        });
+            console.log('🌏 Si DESKA siap!');
+        }
 
-        // ============================================================
-        // 🔄 AUTO REFRESH
-        // ============================================================
-        setInterval(function() {
-            loadAllData();
-        }, 30000);
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 
 </body>
