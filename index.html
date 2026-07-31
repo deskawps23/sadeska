@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Si DESKA - Command Center</title>
+    <title>Si DESKA - Command Center + Blockchain</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -12,6 +12,7 @@
             color: #fff;
             padding: 20px;
             padding-bottom: 80px;
+            min-height: 100vh;
         }
         .navbar {
             display: flex;
@@ -30,10 +31,12 @@
             border-radius: 20px;
             font-weight: 700;
         }
+        .badge-chain { background: #00D4FF; color: #000; }
         .live { color: #00FF88; font-size: 12px; }
+
         .stats {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
             margin: 16px 0;
         }
@@ -44,38 +47,136 @@
             padding: 14px;
             text-align: center;
         }
-        .stat-number { font-size: 24px; font-weight: 900; color: #6C63FF; }
-        .stat-label { font-size: 11px; color: #8888AA; }
+        .stat-card .number { font-size: 22px; font-weight: 900; color: #6C63FF; }
+        .stat-card .label { font-size: 11px; color: #8888AA; }
+        .stat-card.chain .number { color: #00D4FF; }
+
         .section-title {
             font-size: 16px;
             font-weight: 700;
             margin: 16px 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .update-item {
+
+        /* ===== BLOCKCHAIN CANVAS ===== */
+        .chain-container {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        #blockchainCanvas {
+            width: 100%;
+            height: 200px;
+            display: block;
+            background: radial-gradient(ellipse at center, rgba(0,212,255,0.03), transparent);
+        }
+        .chain-overlay {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #8888AA;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .chain-overlay strong { color: #00D4FF; }
+
+        /* ===== GRAFIK PERBANDINGAN ===== */
+        .chart-container {
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.06);
             border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
         }
-        .update-item .head {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
+        .chart-container h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
             color: #8888AA;
         }
-        .update-item .value {
-            font-size: 20px;
+        .chart-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chart-bar .label {
+            width: 80px;
+            font-size: 12px;
+            color: #8888AA;
+            flex-shrink: 0;
+        }
+        .chart-bar .track {
+            flex: 1;
+            height: 20px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .chart-bar .fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+        .chart-bar .fill.onchain { background: linear-gradient(90deg, #00D4FF, #6C63FF); }
+        .chart-bar .fill.offchain { background: linear-gradient(90deg, #FF6B6B, #F59E0B); }
+        .chart-bar .value {
+            width: 50px;
+            font-size: 12px;
             font-weight: 700;
-            color: #6C63FF;
+            text-align: right;
+            flex-shrink: 0;
         }
-        .sektor-tag {
+        .chart-bar .value.onchain { color: #00D4FF; }
+        .chart-bar .value.offchain { color: #F59E0B; }
+
+        /* ===== BLOCKCHAIN INFO ===== */
+        .chain-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .chain-info .info-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+        .chain-info .info-card .num {
+            font-size: 18px;
+            font-weight: 900;
+            color: #00D4FF;
+        }
+        .chain-info .info-card .lbl {
             font-size: 10px;
-            background: #6C63FF;
-            padding: 2px 8px;
-            border-radius: 12px;
-            color: #fff;
+            color: #8888AA;
         }
+        .chain-info .info-card .num.green { color: #00FF88; }
+        .chain-info .info-card .num.orange { color: #F59E0B; }
+
+        /* ===== TAB ===== */
+        .tab { display: none; }
+        .tab.active { display: block; }
+
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -86,22 +187,24 @@
             padding: 10px 0;
             background: rgba(10,10,26,0.95);
             border-top: 1px solid rgba(255,255,255,0.06);
+            z-index: 100;
         }
         .nav-btn {
             background: none;
             border: none;
             color: #8888AA;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2px;
+            font-family: inherit;
         }
         .nav-btn i { font-size: 18px; }
         .nav-btn.active { color: #6C63FF; }
-        .tab { display: none; }
-        .tab.active { display: block; }
+
+        /* ===== UPDATE FORM ===== */
         .form-group { margin-bottom: 12px; }
         .form-group label { font-size: 12px; color: #8888AA; display: block; margin-bottom: 4px; }
         .form-group input, .form-group select {
@@ -112,6 +215,7 @@
             background: rgba(255,255,255,0.04);
             color: #fff;
             font-size: 14px;
+            font-family: inherit;
         }
         .btn-primary {
             width: 100%;
@@ -125,8 +229,16 @@
             cursor: pointer;
         }
         .btn-primary:hover { opacity: 0.9; }
-        .success { background: rgba(0,255,136,0.1); color: #00FF88; padding: 10px; border-radius: 8px; text-align: center; display: none; }
-        .error { background: rgba(255,68,68,0.1); color: #FF4444; padding: 10px; border-radius: 8px; text-align: center; display: none; }
+        .btn-chain {
+            background: #00D4FF;
+            color: #000;
+        }
+        .btn-chain:hover { opacity: 0.9; }
+
+        .status { padding: 10px; border-radius: 8px; text-align: center; font-size: 13px; display: none; }
+        .status.success { display: block; background: rgba(0,255,136,0.1); color: #00FF88; }
+        .status.error { display: block; background: rgba(255,68,68,0.1); color: #FF4444; }
+
         .history-item {
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.06);
@@ -136,51 +248,14 @@
             display: flex;
             justify-content: space-between;
             font-size: 13px;
+            align-items: center;
         }
-        .profile-header { text-align: center; padding: 20px 0; }
-        .profile-header .avatar {
-            font-size: 48px;
-            margin-bottom: 8px;
-        }
-        .profile-header h2 { font-size: 22px; font-weight: 800; }
-        .profile-header p { font-size: 14px; color: #8888AA; }
-        .profile-stats {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin-top: 12px;
-        }
-        .profile-stats div { text-align: center; }
-        .profile-stats span { font-size: 18px; font-weight: 800; color: #6C63FF; display: block; }
-        .profile-stats label { font-size: 11px; color: #8888AA; }
-        .profile-bio {
-            padding: 14px;
-            background: rgba(255,255,255,0.04);
-            border-radius: 12px;
-            font-size: 14px;
-            color: #8888AA;
-            line-height: 1.7;
-        }
-        .profile-bio strong { color: #fff; }
-        .profile-actions {
-            display: flex;
-            gap: 12px;
-            padding: 16px 0;
-            justify-content: center;
-        }
-        .profile-actions button {
-            padding: 10px 24px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        .btn-purple { background: #6C63FF; color: #fff; }
-        .btn-outline { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: #fff; }
+        .history-item .verified { color: #00D4FF; font-size: 12px; }
+        .history-item .pending { color: #F59E0B; font-size: 12px; }
+
         .sektor-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 8px;
         }
         .sektor-item {
@@ -193,24 +268,41 @@
         }
         .sektor-item .icon { font-size: 24px; }
         .sektor-item .name { font-size: 11px; font-weight: 600; margin-top: 4px; }
-        .sektor-item .count { font-size: 10px; color: #8888AA; }
+
+        .profile-header { text-align: center; padding: 20px 0; }
+        .profile-header .avatar { font-size: 48px; margin-bottom: 8px; }
+        .profile-header h2 { font-size: 22px; font-weight: 800; }
+        .profile-header p { font-size: 14px; color: #8888AA; }
+        .profile-stats {
+            display: flex; justify-content: center; gap: 24px; margin-top: 12px;
+        }
+        .profile-stats div { text-align: center; }
+        .profile-stats span { font-size: 18px; font-weight: 800; color: #6C63FF; display: block; }
+        .profile-stats label { font-size: 11px; color: #8888AA; }
+        .profile-bio {
+            padding: 14px; background: rgba(255,255,255,0.04);
+            border-radius: 12px; font-size: 14px; color: #8888AA; line-height: 1.7;
+        }
+        .profile-bio strong { color: #fff; }
+        .profile-actions {
+            display: flex; gap: 12px; padding: 16px 0; justify-content: center;
+        }
+        .profile-actions button {
+            padding: 10px 24px; border-radius: 8px; border: none;
+            font-weight: 600; font-size: 14px; cursor: pointer;
+        }
+        .btn-purple { background: #6C63FF; color: #fff; }
+        .btn-outline { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: #fff; }
+
         .notif {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 13px;
-            z-index: 999;
-            backdrop-filter: blur(12px);
-            opacity: 0;
-            transition: all 0.4s;
-            pointer-events: none;
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px; padding: 8px 16px; font-size: 13px;
+            z-index: 999; backdrop-filter: blur(12px);
+            opacity: 0; transition: all 0.4s; pointer-events: none;
         }
         .notif.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
         .splash {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             z-index: 9999; background: #0A0A1A;
@@ -230,9 +322,7 @@
         .splash-bar {
             width: 200px; height: 3px;
             background: rgba(255,255,255,0.06);
-            border-radius: 10px;
-            margin: 12px auto;
-            overflow: hidden;
+            border-radius: 10px; margin: 12px auto; overflow: hidden;
         }
         .splash-progress {
             height: 100%; width: 100%;
@@ -240,6 +330,13 @@
             animation: loadBar 2s linear forwards;
         }
         @keyframes loadBar { 0% { width: 0%; } 100% { width: 100%; } }
+
+        @media (max-width: 480px) {
+            .stats { grid-template-columns: 1fr 1fr; }
+            .sektor-grid { grid-template-columns: 1fr 1fr 1fr; }
+            .chain-info { grid-template-columns: 1fr 1fr 1fr; }
+            .chart-bar .label { width: 60px; font-size: 10px; }
+        }
     </style>
 </head>
 <body>
@@ -247,9 +344,9 @@
     <!-- SPLASH -->
     <div id="splash" class="splash">
         <div class="splash-content">
-            <div class="splash-icon">🌏</div>
+            <div class="splash-icon">⛓️</div>
             <h1>Si DESKA</h1>
-            <p>Command Center • Kabupaten Pandeglang</p>
+            <p>Command Center + Blockchain</p>
             <div class="splash-bar"><div class="splash-progress"></div></div>
         </div>
     </div>
@@ -259,6 +356,7 @@
         <div class="logo">Si <span>DESKA</span></div>
         <div>
             <span class="live">● LIVE</span>
+            <span class="badge badge-chain">⛓️ CHAIN</span>
             <span class="badge">COMMAND</span>
         </div>
     </div>
@@ -269,25 +367,61 @@
     <!-- MAIN -->
     <div id="main">
 
-        <!-- DASHBOARD -->
+        <!-- ===== TAB DASHBOARD ===== -->
         <div id="tab-dashboard" class="tab active">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                 <h2>📊 Command Center</h2>
                 <span style="font-size:11px;color:#8888AA;" id="updateTime">Update: sekarang</span>
             </div>
 
+            <!-- STATS -->
             <div class="stats">
-                <div class="stat-card"><span class="stat-number" id="totalData">0</span><div class="stat-label">Total Data</div></div>
-                <div class="stat-card"><span class="stat-number" id="totalSektor">0</span><div class="stat-label">Sektor Aktif</div></div>
-                <div class="stat-card"><span class="stat-number" id="totalKader">0</span><div class="stat-label">Kader Desa</div></div>
-                <div class="stat-card"><span class="stat-number" id="totalDesa">339</span><div class="stat-label">Desa/Kelurahan</div></div>
+                <div class="stat-card"><span class="number" id="totalData">0</span><div class="label">Total Data</div></div>
+                <div class="stat-card"><span class="number" id="totalSektor">0</span><div class="label">Sektor Aktif</div></div>
+                <div class="stat-card"><span class="number" id="totalDesa">339</span><div class="label">Desa/Kelurahan</div></div>
             </div>
 
+            <!-- ===== BLOCKCHAIN INFO ===== -->
+            <div class="section-title">⛓️ <span style="color:#00D4FF;">Blockchain</span> Status</div>
+            <div class="chain-info">
+                <div class="info-card"><span class="num" id="totalBlock">0</span><div class="lbl">Total Block</div></div>
+                <div class="info-card"><span class="num green" id="verifiedCount">0</span><div class="lbl">Terverifikasi ✅</div></div>
+                <div class="info-card"><span class="num orange" id="pendingCount">0</span><div class="lbl">Menunggu ⏳</div></div>
+            </div>
+
+            <!-- ===== BLOCKCHAIN CANVAS ===== -->
+            <div class="section-title">🔗 <span style="color:#00D4FF;">Blockchain</span> Visual</div>
+            <div class="chain-container">
+                <canvas id="blockchainCanvas"></canvas>
+                <div class="chain-overlay">
+                    ⛓️ <strong id="chainStatus">Genesis Block</strong> • <span id="chainBlockCount">0 blocks</span>
+                </div>
+            </div>
+
+            <!-- ===== GRAFIK PERBANDINGAN ===== -->
+            <div class="section-title">📈 Perbandingan <span style="color:#00D4FF;">Update Data</span></div>
+            <div class="chart-container">
+                <h3>On-Chain vs Off-Chain</h3>
+                <div class="chart-bars">
+                    <div class="chart-bar">
+                        <span class="label">✅ On-Chain</span>
+                        <div class="track"><div class="fill onchain" id="onchainBar" style="width:0%;"></div></div>
+                        <span class="value onchain" id="onchainValue">0</span>
+                    </div>
+                    <div class="chart-bar">
+                        <span class="label">⏳ Off-Chain</span>
+                        <div class="track"><div class="fill offchain" id="offchainBar" style="width:0%;"></div></div>
+                        <span class="value offchain" id="offchainValue">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FEED -->
             <div class="section-title">🔄 Update Terbaru</div>
             <div id="updateFeed"></div>
         </div>
 
-        <!-- SEKTOR -->
+        <!-- ===== TAB SEKTOR ===== -->
         <div id="tab-sektor" class="tab">
             <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;">
                 <h2>📋 Sektor-Sektor</h2>
@@ -296,10 +430,10 @@
             <div class="sektor-grid" id="sektorGrid"></div>
         </div>
 
-        <!-- UPDATE -->
+        <!-- ===== TAB UPDATE ===== -->
         <div id="tab-update" class="tab">
             <h2 style="padding:12px 0;">📝 Update Data Sektor</h2>
-            <p style="color:#8888AA;font-size:13px;margin-bottom:16px;">Untuk Kader Desa • Input data dari HP</p>
+            <p style="color:#8888AA;font-size:13px;margin-bottom:16px;">Input data dari Kader Desa • Otomatis masuk ke Blockchain</p>
 
             <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;">
                 <div class="form-group">
@@ -328,12 +462,8 @@
                     <label>👤 Nama Kader</label>
                     <input type="text" id="inputKader" placeholder="Nama lengkap" />
                 </div>
-                <div class="form-group">
-                    <label>📱 No. HP</label>
-                    <input type="text" id="inputHP" placeholder="0856-xxxx-xxxx" />
-                </div>
                 <button class="btn-primary" onclick="submitUpdate()">💾 Kirim Data</button>
-                <div id="updateStatus" class="error" style="margin-top:12px;"></div>
+                <div id="updateStatus" class="status" style="margin-top:12px;"></div>
             </div>
 
             <div style="margin-top:16px;">
@@ -342,7 +472,7 @@
             </div>
         </div>
 
-        <!-- PROFILE -->
+        <!-- ===== TAB PROFILE ===== -->
         <div id="tab-profile" class="tab">
             <div class="profile-header">
                 <div class="avatar">🌏</div>
@@ -357,7 +487,8 @@
             <div class="profile-bio">
                 <p>🌱 Misi: Dari data kecil menjadi <strong>Big Data</strong> dalam 1 genggaman.</p>
                 <p>📊 48 Sektor • 35 Kecamatan • 339 Desa</p>
-                <p>👥 Dikembangkan oleh <strong>WPS - Warga Pandeglang Sejahtera</strong></p>
+                <p>⛓️ Blockchain untuk verifikasi data</p>
+                <p>👥 <strong>WPS - Warga Pandeglang Sejahtera</strong></p>
             </div>
             <div class="profile-actions">
                 <button class="btn-purple" onclick="alert('📧 deskawps@yahoo.co.id')">📧 Email</button>
@@ -378,7 +509,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
     <script>
         // ============================================
-        // Si DESKA - VERSI SEDERHANA (PASTI JALAN)
+        // Si DESKA - COMMAND CENTER + BLOCKCHAIN
         // ============================================
 
         // ===== DATA =====
@@ -441,6 +572,13 @@
             "Koroncong": {populasi:25234, kesehatan:0, pendidikan:1.6, ekonomi:4.2}
         };
 
+        // ===== BLOCKCHAIN DATA =====
+        let blockchainData = [];
+        let blockCount = 0;
+        let verifiedCount = 0;
+        let pendingCount = 0;
+
+        // ===== HISTORY =====
         let historyData = [];
 
         // ===== SPLASH =====
@@ -473,13 +611,196 @@
             const totalData = Object.keys(DATA).length * 5;
             document.getElementById('totalData').textContent = totalData;
             document.getElementById('totalSektor').textContent = SEKTOR.length;
-            document.getElementById('totalKader').textContent = Math.floor(Math.random() * 50) + 10;
             document.getElementById('totalDesa').textContent = 339;
             document.getElementById('profileData').textContent = totalData;
             document.getElementById('profileSektor').textContent = SEKTOR.length;
             document.getElementById('profileKader').textContent = Math.floor(Math.random() * 50) + 10;
         }
         updateDashboard();
+
+        // ===== BLOCKCHAIN UPDATE =====
+        function updateBlockchain() {
+            // Hitung data yang sudah diverifikasi (on-chain) dan belum (off-chain)
+            const onChain = blockchainData.filter(d => d.verified).length;
+            const offChain = blockchainData.filter(d => !d.verified).length;
+            const total = blockchainData.length;
+
+            verifiedCount = onChain;
+            pendingCount = offChain;
+            blockCount = total;
+
+            // Update UI
+            document.getElementById('totalBlock').textContent = total;
+            document.getElementById('verifiedCount').textContent = onChain;
+            document.getElementById('pendingCount').textContent = offChain;
+
+            // Update grafik bar
+            const totalItems = onChain + offChain || 1;
+            document.getElementById('onchainBar').style.width = (onChain / totalItems * 100) + '%';
+            document.getElementById('offchainBar').style.width = (offChain / totalItems * 100) + '%';
+            document.getElementById('onchainValue').textContent = onChain;
+            document.getElementById('offchainValue').textContent = offChain;
+
+            // Update chain status
+            document.getElementById('chainStatus').textContent = total > 0 ? 'Active' : 'Genesis Block';
+            document.getElementById('chainBlockCount').textContent = total + ' blocks';
+        }
+
+        // ===== ADD TO BLOCKCHAIN =====
+        function addToBlockchain(sektor, kecamatan, desa, nilai, kader) {
+            const block = {
+                id: 'BLK-' + Date.now(),
+                sektor: sektor,
+                kecamatan: kecamatan,
+                desa: desa,
+                nilai: nilai,
+                kader: kader,
+                verified: false,
+                timestamp: new Date().toISOString(),
+                hash: '0x' + Math.random().toString(16).substring(2, 10)
+            };
+
+            blockchainData.push(block);
+
+            // Simulasi verifikasi otomatis (70% chance)
+            setTimeout(() => {
+                if (Math.random() > 0.3) {
+                    block.verified = true;
+                    showNotif(`✅ Data ${sektor} dari ${kecamatan} terverifikasi!`);
+                } else {
+                    showNotif(`⏳ Data ${sektor} dari ${kecamatan} menunggu verifikasi`);
+                }
+                updateBlockchain();
+                drawBlockchain();
+            }, 1500);
+
+            updateBlockchain();
+            drawBlockchain();
+            return block;
+        }
+
+        // ===== DRAW BLOCKCHAIN CANVAS =====
+        function drawBlockchain() {
+            const canvas = document.getElementById('blockchainCanvas');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width || 480;
+            canvas.height = 200;
+
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            const blocks = blockchainData.slice(-12);
+            if (blocks.length === 0) {
+                ctx.fillStyle = '#8888AA';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('⛓️ Menunggu data pertama...', w/2, h/2);
+                return;
+            }
+
+            const blockWidth = 55;
+            const blockHeight = 40;
+            const gap = 12;
+            const totalWidth = blocks.length * (blockWidth + gap) - gap;
+            const startX = (w - totalWidth) / 2;
+            const y = h/2 - blockHeight/2;
+
+            // Draw chain curve
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 6]);
+            ctx.lineDashOffset = -Date.now() / 50;
+
+            for (let i = 0; i < blocks.length; i++) {
+                const x = startX + i * (blockWidth + gap);
+                if (i === 0) {
+                    ctx.moveTo(x + blockWidth/2, y + blockHeight/2);
+                } else {
+                    const prevX = startX + (i - 1) * (blockWidth + gap);
+                    const midX = (prevX + x + blockWidth) / 2;
+                    ctx.quadraticCurveTo(
+                        midX, y - 15 + Math.sin(Date.now()/800 + i*0.5) * 10,
+                        x + blockWidth/2, y + blockHeight/2
+                    );
+                }
+            }
+            ctx.stroke();
+
+            // Draw blocks
+            blocks.forEach((block, i) => {
+                const x = startX + i * (blockWidth + gap);
+                const isVerified = block.verified;
+                const isLast = i === blocks.length - 1;
+
+                // Glow
+                const gradient = ctx.createRadialGradient(
+                    x + blockWidth/2, y + blockHeight/2, 2,
+                    x + blockWidth/2, y + blockHeight/2, blockWidth
+                );
+                const glowColor = isVerified ? 'rgba(0, 255, 136, 0.15)' : 'rgba(245, 158, 11, 0.1)';
+                gradient.addColorStop(0, isLast ? glowColor : 'rgba(0, 212, 255, 0.04)');
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(x - 10, y - 10, blockWidth + 20, blockHeight + 20);
+
+                // Box
+                ctx.shadowColor = isLast ? 'rgba(0, 212, 255, 0.2)' : 'rgba(0, 0, 0, 0)';
+                ctx.shadowBlur = isLast ? 15 : 0;
+
+                ctx.fillStyle = isVerified ? 'rgba(0, 255, 136, 0.1)' : 'rgba(245, 158, 11, 0.05)';
+                ctx.strokeStyle = isVerified ? '#00FF88' : (isLast ? '#00D4FF' : 'rgba(255,255,255,0.1)');
+                ctx.lineWidth = isLast ? 1.5 : 0.5;
+
+                const r = 6;
+                ctx.beginPath();
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + blockWidth - r, y);
+                ctx.quadraticCurveTo(x + blockWidth, y, x + blockWidth, y + r);
+                ctx.lineTo(x + blockWidth, y + blockHeight - r);
+                ctx.quadraticCurveTo(x + blockWidth, y + blockHeight, x + blockWidth - r, y + blockHeight);
+                ctx.lineTo(x + r, y + blockHeight);
+                ctx.quadraticCurveTo(x, y + blockHeight, x, y + blockHeight - r);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.shadowBlur = 0;
+
+                // Number
+                ctx.fillStyle = isVerified ? '#00FF88' : 'rgba(255,255,255,0.4)';
+                ctx.font = isVerified ? 'bold 11px monospace' : '9px monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('#' + (block.id ? block.id.slice(-4) : i), x + blockWidth/2, y + 14);
+
+                // Status indicator
+                ctx.fillStyle = isVerified ? 'rgba(0, 255, 136, 0.5)' : 'rgba(245, 158, 11, 0.5)';
+                ctx.font = '7px monospace';
+                ctx.fillText(isVerified ? '✅' : '⏳', x + blockWidth/2, y + 30);
+
+                // Genesis marker
+                if (i === 0 && block.id && block.id.includes('GEN')) {
+                    ctx.fillStyle = '#00D4FF';
+                    ctx.font = '6px monospace';
+                    ctx.fillText('GENESIS', x + blockWidth/2, y - 10);
+                }
+            });
+
+            // Mining animation text
+            if (blockchainData.length > 0 && !blockchainData[blockchainData.length-1].verified) {
+                ctx.fillStyle = 'rgba(245, 158, 11, 0.4)';
+                ctx.font = '10px monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('⛏️ MINING...', w/2, h - 5);
+            }
+        }
 
         // ===== FEED =====
         function generateFeed() {
@@ -492,14 +813,15 @@
                 {sektor:'Kesehatan', desa:'Pandeglang', nilai:4, kader:'Posyandu', waktu:'2 jam lalu'},
             ];
             container.innerHTML = updates.map(u => `
-                <div class="update-item">
-                    <div class="head">
-                        <span><span class="sektor-tag">${u.sektor}</span> <strong>${u.desa}</strong></span>
+                <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;margin-bottom:8px;">
+                    <div style="display:flex;justify-content:space-between;font-size:13px;color:#8888AA;">
+                        <span><span style="background:#6C63FF;padding:2px 8px;border-radius:12px;color:#fff;font-size:10px;">${u.sektor}</span> <strong style="color:#fff;">${u.desa}</strong></span>
                         <span>${u.waktu}</span>
                     </div>
                     <div>
-                        <span class="value">${u.nilai}</span>
+                        <span style="font-size:20px;font-weight:700;color:#6C63FF;">${u.nilai}</span>
                         <span style="color:#8888AA;font-size:12px;"> oleh ${u.kader}</span>
+                        <span style="color:#00D4FF;font-size:10px;margin-left:8px;">⛓️ On-Chain</span>
                     </div>
                 </div>
             `).join('');
@@ -513,7 +835,6 @@
                 <div class="sektor-item" onclick="selectSektor('${s.nama}')">
                     <div class="icon">${s.icon}</div>
                     <div class="name">${s.nama}</div>
-                    <div class="count">${Math.floor(Math.random() * 100) + 10} data</div>
                 </div>
             `).join('');
         }
@@ -525,7 +846,7 @@
             showNotif(`📊 Sektor ${nama} dipilih`);
         }
 
-        // ===== SUBMIT =====
+        // ===== SUBMIT UPDATE =====
         function submitUpdate() {
             const sektor = document.getElementById('inputSektor').value;
             const kecamatan = document.getElementById('inputKecamatan').value;
@@ -535,24 +856,28 @@
             const status = document.getElementById('updateStatus');
 
             if (!sektor || !kecamatan || !nilai) {
-                status.className = 'error';
-                status.style.display = 'block';
+                status.className = 'status error';
                 status.textContent = '⚠️ Isi semua field yang diperlukan!';
                 return;
             }
 
+            // Tambahkan ke history
             historyData.push({
                 sektor, kecamatan, desa: desa || '-',
                 nilai, kader: kader || 'Kader Desa',
-                waktu: new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})
+                waktu: new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}),
+                verified: false
             });
 
+            // Tambahkan ke blockchain
+            const block = addToBlockchain(sektor, kecamatan, desa || '-', nilai, kader || 'Kader Desa');
+
+            // Update DATA
             if (!DATA[kecamatan]) DATA[kecamatan] = {};
             DATA[kecamatan][sektor] = parseFloat(nilai);
 
-            status.className = 'success';
-            status.style.display = 'block';
-            status.textContent = `✅ Data ${sektor} untuk ${kecamatan} berhasil! (${nilai})`;
+            status.className = 'status success';
+            status.textContent = `✅ Data ${sektor} untuk ${kecamatan} berhasil! (${nilai}) ⛓️ Block: ${block.id}`;
 
             document.getElementById('inputDesa').value = '';
             document.getElementById('inputNilai').value = '';
@@ -561,7 +886,24 @@
             updateHistory();
             updateDashboard();
             generateFeed();
-            showNotif(`📊 Update ${sektor} dari ${kecamatan} berhasil!`);
+            showNotif(`📊 Update ${sektor} dari ${kecamatan} berhasil! ⛓️`);
+
+            // Auto-verify after some time
+            setTimeout(() => {
+                const found = blockchainData.find(b => b.id === block.id);
+                if (found) {
+                    found.verified = true;
+                    // Update history
+                    const hist = historyData.find(h => 
+                        h.sektor === sektor && h.kecamatan === kecamatan && h.nilai === nilai
+                    );
+                    if (hist) hist.verified = true;
+                    updateBlockchain();
+                    drawBlockchain();
+                    updateHistory();
+                    showNotif(`✅ Data ${sektor} dari ${kecamatan} terverifikasi!`);
+                }
+            }, 3000);
         }
 
         // ===== HISTORY =====
@@ -580,6 +922,7 @@
                     <div>
                         <span style="font-weight:700;color:#6C63FF;">${h.nilai}</span>
                         <span style="color:#8888AA;font-size:11px;">${h.waktu}</span>
+                        <span class="${h.verified ? 'verified' : 'pending'}">${h.verified ? '✅' : '⏳'}</span>
                     </div>
                 </div>
             `).join('');
@@ -591,7 +934,13 @@
             const el = document.getElementById('notif');
             el.textContent = text;
             el.classList.add('show');
-            setTimeout(() => el.classList.remove('show'), 2000);
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        // ===== ANIMATION LOOP =====
+        function animate() {
+            drawBlockchain();
+            requestAnimationFrame(animate);
         }
 
         // ===== AUTO UPDATE TIME =====
@@ -599,9 +948,31 @@
             document.getElementById('updateTime').textContent = 'Update: ' + new Date().toLocaleTimeString('id-ID');
         }, 5000);
 
-        console.log('🌏 Si DESKA Command Center siap!');
-        console.log('📊 35 Kecamatan • 326 Desa • 13 Kelurahan');
-        console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Seed some blockchain data
+            const seedData = [
+                {sektor:'kesehatan', kecamatan:'Menes', desa:'Menes', nilai:3, kader:'Bu RT'},
+                {sektor:'pendidikan', kecamatan:'Sumur', desa:'Sumur', nilai:2.8, kader:'Pak RW'},
+                {sektor:'ekonomi', kecamatan:'Labuan', desa:'Labuan', nilai:9.5, kader:'Ibu PKK'}
+            ];
+            seedData.forEach((d, i) => {
+                const block = addToBlockchain(d.sektor, d.kecamatan, d.desa, d.nilai, d.kader);
+                // Auto verify after 1s
+                setTimeout(() => {
+                    block.verified = true;
+                    updateBlockchain();
+                    drawBlockchain();
+                }, 1000 + i * 500);
+            });
+
+            // Start animation
+            animate();
+
+            console.log('⛓️ Si DESKA Command Center + Blockchain siap!');
+            console.log('📊 35 Kecamatan • 326 Desa • 13 Kelurahan');
+            console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
+        });
     </script>
 
 </body>
