@@ -4,15 +4,247 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Si DESKA - Command Center</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #0A0A1A;
+            color: #fff;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 20px;
+        }
+        .logo { font-size: 24px; font-weight: 800; }
+        .logo span { color: #6C63FF; }
+        .badge {
+            font-size: 10px;
+            background: #6C63FF;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+        .live { color: #00FF88; font-size: 12px; }
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 16px 0;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+        .stat-number { font-size: 24px; font-weight: 900; color: #6C63FF; }
+        .stat-label { font-size: 11px; color: #8888AA; }
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 16px 0 10px;
+        }
+        .update-item {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        .update-item .head {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #8888AA;
+        }
+        .update-item .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #6C63FF;
+        }
+        .sektor-tag {
+            font-size: 10px;
+            background: #6C63FF;
+            padding: 2px 8px;
+            border-radius: 12px;
+            color: #fff;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            background: rgba(10,10,26,0.95);
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #8888AA;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .nav-btn i { font-size: 18px; }
+        .nav-btn.active { color: #6C63FF; }
+        .tab { display: none; }
+        .tab.active { display: block; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { font-size: 12px; color: #8888AA; display: block; margin-bottom: 4px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.04);
+            color: #fff;
+            font-size: 14px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: #6C63FF;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+        .success { background: rgba(0,255,136,0.1); color: #00FF88; padding: 10px; border-radius: 8px; text-align: center; display: none; }
+        .error { background: rgba(255,68,68,0.1); color: #FF4444; padding: 10px; border-radius: 8px; text-align: center; display: none; }
+        .history-item {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+        .profile-header { text-align: center; padding: 20px 0; }
+        .profile-header .avatar {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        .profile-header h2 { font-size: 22px; font-weight: 800; }
+        .profile-header p { font-size: 14px; color: #8888AA; }
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 12px;
+        }
+        .profile-stats div { text-align: center; }
+        .profile-stats span { font-size: 18px; font-weight: 800; color: #6C63FF; display: block; }
+        .profile-stats label { font-size: 11px; color: #8888AA; }
+        .profile-bio {
+            padding: 14px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px;
+            font-size: 14px;
+            color: #8888AA;
+            line-height: 1.7;
+        }
+        .profile-bio strong { color: #fff; }
+        .profile-actions {
+            display: flex;
+            gap: 12px;
+            padding: 16px 0;
+            justify-content: center;
+        }
+        .profile-actions button {
+            padding: 10px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .btn-purple { background: #6C63FF; color: #fff; }
+        .btn-outline { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: #fff; }
+        .sektor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        .sektor-item {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .sektor-item .icon { font-size: 24px; }
+        .sektor-item .name { font-size: 11px; font-weight: 600; margin-top: 4px; }
+        .sektor-item .count { font-size: 10px; color: #8888AA; }
+        .notif {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+            z-index: 999;
+            backdrop-filter: blur(12px);
+            opacity: 0;
+            transition: all 0.4s;
+            pointer-events: none;
+        }
+        .notif.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .splash {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9999; background: #0A0A1A;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.6s;
+        }
+        .splash.hidden { opacity: 0; pointer-events: none; }
+        .splash-content { text-align: center; }
+        .splash-icon { font-size: 60px; }
+        .splash-content h1 {
+            font-size: 32px; font-weight: 900;
+            background: linear-gradient(135deg, #6C63FF, #00D4FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .splash-content p { color: #8888AA; font-size: 14px; }
+        .splash-bar {
+            width: 200px; height: 3px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 10px;
+            margin: 12px auto;
+            overflow: hidden;
+        }
+        .splash-progress {
+            height: 100%; width: 100%;
+            background: linear-gradient(90deg, #6C63FF, #00D4FF);
+            animation: loadBar 2s linear forwards;
+        }
+        @keyframes loadBar { 0% { width: 0%; } 100% { width: 100%; } }
+    </style>
 </head>
 <body>
 
-    <!-- ===== SPLASH ===== -->
+    <!-- SPLASH -->
     <div id="splash" class="splash">
         <div class="splash-content">
             <div class="splash-icon">🌏</div>
@@ -22,132 +254,96 @@
         </div>
     </div>
 
-    <!-- ===== NAVBAR ===== -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="logo">
-                <span class="logo-icon">🌏</span>
-                <span class="logo-text">Si <span>DESKA</span></span>
-                <span class="logo-badge">COMMAND</span>
-            </div>
-            <div class="nav-actions">
-                <span class="live-badge">● LIVE</span>
-                <button class="nav-btn" id="themeBtn">🌙</button>
-                <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
-            </div>
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo">Si <span>DESKA</span></div>
+        <div>
+            <span class="live">● LIVE</span>
+            <span class="badge">COMMAND</span>
         </div>
-    </nav>
+    </div>
 
-    <!-- ===== BOTTOM NAV ===== -->
-    <nav class="bottom-nav">
-        <button class="nav-item active" data-tab="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></button>
-        <button class="nav-item" data-tab="peta"><i class="fas fa-map"></i><span>Peta</span></button>
-        <button class="nav-item" data-tab="sektor"><i class="fas fa-th-list"></i><span>Sektor</span></button>
-        <button class="nav-item" data-tab="update"><i class="fas fa-edit"></i><span>Update</span></button>
-        <button class="nav-item" data-tab="profile"><i class="fas fa-user"></i><span>Profil</span></button>
-    </nav>
+    <!-- NOTIF -->
+    <div id="notif" class="notif">📊 Data baru masuk!</div>
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <main class="main">
+    <!-- MAIN -->
+    <div id="main">
 
-        <!-- ===== DASHBOARD ===== -->
-        <section class="tab active" id="tab-dashboard">
-            <div class="dashboard-header">
+        <!-- DASHBOARD -->
+        <div id="tab-dashboard" class="tab active">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                 <h2>📊 Command Center</h2>
-                <span class="update-time" id="updateTime">Update: sekarang</span>
+                <span style="font-size:11px;color:#8888AA;" id="updateTime">Update: sekarang</span>
             </div>
 
-            <!-- Statistik Kunci -->
-            <div class="stats-grid">
-                <div class="stat-card"><span class="stat-number" id="totalData">0</span><span class="stat-label">Total Data</span></div>
-                <div class="stat-card"><span class="stat-number" id="totalSektor">0</span><span class="stat-label">Sektor Aktif</span></div>
-                <div class="stat-card"><span class="stat-number" id="totalKader">0</span><span class="stat-label">Kader Desa</span></div>
-                <div class="stat-card"><span class="stat-number" id="totalDesa">339</span><span class="stat-label">Desa</span></div>
+            <div class="stats">
+                <div class="stat-card"><span class="stat-number" id="totalData">0</span><div class="stat-label">Total Data</div></div>
+                <div class="stat-card"><span class="stat-number" id="totalSektor">0</span><div class="stat-label">Sektor Aktif</div></div>
+                <div class="stat-card"><span class="stat-number" id="totalKader">0</span><div class="stat-label">Kader Desa</div></div>
+                <div class="stat-card"><span class="stat-number" id="totalDesa">339</span><div class="stat-label">Desa/Kelurahan</div></div>
             </div>
 
-            <!-- Update Terbaru -->
-            <div class="section-title">
-                <h3>🔄 Update Terbaru</h3>
-                <span class="badge">Real-time</span>
-            </div>
-            <div id="updateFeed" class="update-feed"></div>
-        </section>
+            <div class="section-title">🔄 Update Terbaru</div>
+            <div id="updateFeed"></div>
+        </div>
 
-        <!-- ===== PETA ===== -->
-        <section class="tab" id="tab-peta">
-            <div class="peta-header">
-                <h2>🗺️ Peta Tematik</h2>
-                <select id="indicatorSelect">
-                    <option value="populasi">👨‍👩‍👧‍👦 Populasi</option>
-                    <option value="kesehatan">🏥 Kesehatan</option>
-                    <option value="pendidikan">📚 Pendidikan</option>
-                    <option value="ekonomi">💰 Ekonomi</option>
-                </select>
-            </div>
-            <div id="mapContainer" class="map-container"></div>
-            <div class="map-info" id="mapInfo">Klik kecamatan untuk detail data</div>
-        </section>
-
-        <!-- ===== SEKTOR ===== -->
-        <section class="tab" id="tab-sektor">
-            <div class="sektor-header">
+        <!-- SEKTOR -->
+        <div id="tab-sektor" class="tab">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;">
                 <h2>📋 Sektor-Sektor</h2>
-                <span class="badge">48 Sektor</span>
+                <span style="font-size:11px;color:#8888AA;">48 Sektor</span>
             </div>
             <div class="sektor-grid" id="sektorGrid"></div>
-        </section>
+        </div>
 
-        <!-- ===== UPDATE ===== -->
-        <section class="tab" id="tab-update">
-            <div class="update-header">
-                <h2>📝 Update Data Sektor</h2>
-                <p>Untuk Kader Desa • Input data dari HP</p>
-            </div>
-            <div class="update-card">
+        <!-- UPDATE -->
+        <div id="tab-update" class="tab">
+            <h2 style="padding:12px 0;">📝 Update Data Sektor</h2>
+            <p style="color:#8888AA;font-size:13px;margin-bottom:16px;">Untuk Kader Desa • Input data dari HP</p>
+
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;">
                 <div class="form-group">
-                    <label><i class="fas fa-tag"></i> Sektor</label>
+                    <label>🏥 Sektor</label>
                     <select id="inputSektor">
-                        <option value="kesehatan">🏥 Kesehatan</option>
-                        <option value="pendidikan">📚 Pendidikan</option>
-                        <option value="kependudukan">👨‍👩‍👧‍👦 Kependudukan</option>
-                        <option value="pertanian">🌾 Pertanian</option>
-                        <option value="ekonomi">💰 Ekonomi</option>
-                        <option value="infrastruktur">🏗️ Infrastruktur</option>
+                        <option value="kesehatan">Kesehatan</option>
+                        <option value="pendidikan">Pendidikan</option>
+                        <option value="kependudukan">Kependudukan</option>
+                        <option value="pertanian">Pertanian</option>
+                        <option value="ekonomi">Ekonomi</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-map-marker-alt"></i> Kecamatan</label>
+                    <label>📍 Kecamatan</label>
                     <select id="inputKecamatan"></select>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-home"></i> Desa</label>
+                    <label>🏘️ Desa</label>
                     <input type="text" id="inputDesa" placeholder="Nama desa" />
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-chart-simple"></i> Nilai Data</label>
+                    <label>📊 Nilai Data</label>
                     <input type="number" id="inputNilai" placeholder="Jumlah / nilai" />
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-user"></i> Nama Kader</label>
+                    <label>👤 Nama Kader</label>
                     <input type="text" id="inputKader" placeholder="Nama lengkap" />
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-phone"></i> No. HP</label>
+                    <label>📱 No. HP</label>
                     <input type="text" id="inputHP" placeholder="0856-xxxx-xxxx" />
                 </div>
-                <button class="btn-primary" onclick="submitUpdate()">
-                    <i class="fas fa-save"></i> Kirim Data
-                </button>
-                <div id="updateStatus" class="update-status"></div>
+                <button class="btn-primary" onclick="submitUpdate()">💾 Kirim Data</button>
+                <div id="updateStatus" class="error" style="margin-top:12px;"></div>
             </div>
-            <div class="update-history" id="updateHistory">
-                <h4>📋 Riwayat Update</h4>
+
+            <div style="margin-top:16px;">
+                <h4 style="font-size:14px;font-weight:700;margin-bottom:8px;">📋 Riwayat Update</h4>
                 <div id="historyList"></div>
             </div>
-        </section>
+        </div>
 
-        <!-- ===== PROFILE ===== -->
-        <section class="tab" id="tab-profile">
+        <!-- PROFILE -->
+        <div id="tab-profile" class="tab">
             <div class="profile-header">
                 <div class="avatar">🌏</div>
                 <h2>@deskawps</h2>
@@ -164,16 +360,116 @@
                 <p>👥 Dikembangkan oleh <strong>WPS - Warga Pandeglang Sejahtera</strong></p>
             </div>
             <div class="profile-actions">
-                <button class="btn-primary" onclick="alert('📧 deskawps@yahoo.co.id')">📧 Email</button>
-                <button class="btn-secondary" onclick="alert('📱 0856-9527-2863')">📱 WhatsApp</button>
+                <button class="btn-purple" onclick="alert('📧 deskawps@yahoo.co.id')">📧 Email</button>
+                <button class="btn-outline" onclick="alert('📱 0856-9527-2863')">📱 WhatsApp</button>
             </div>
-        </section>
+        </div>
 
-    </main>
+    </div>
 
-    <!-- ===== NOTIF ===== -->
-    <div id="notif" class="notif">📊 Data baru masuk!</div>
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+        <button class="nav-btn active" onclick="switchTab('dashboard')"><i class="fas fa-home"></i>Dashboard</button>
+        <button class="nav-btn" onclick="switchTab('sektor')"><i class="fas fa-th-list"></i>Sektor</button>
+        <button class="nav-btn" onclick="switchTab('update')"><i class="fas fa-edit"></i>Update</button>
+        <button class="nav-btn" onclick="switchTab('profile')"><i class="fas fa-user"></i>Profil</button>
+    </div>
 
-    <script src="script.js"></script>
-</body>
-    </html>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script>
+        // ============================================
+        // Si DESKA - VERSI SEDERHANA (PASTI JALAN)
+        // ============================================
+
+        // ===== DATA =====
+        const KECAMATAN = [
+            "Sumur","Cimanggu","Cibaliung","Cibitung","Cikeusik","Cigeulis",
+            "Panimbang","Sobang","Munjul","Angsana","Sindangresmi","Picung",
+            "Bojong","Saketi","Cisata","Pagelaran","Patia","Sukaresmi",
+            "Labuan","Carita","Jiput","Cikedal","Menes","Pulosari",
+            "Mandalawangi","Cimanuk","Cipeucang","Banjar","Kaduhejo",
+            "Mekarjaya","Pandeglang","Majasari","Cadasari","Karang Tanjung",
+            "Koroncong"
+        ];
+
+        const SEKTOR = [
+            {id:1, nama:"Kesehatan", icon:"🏥"},
+            {id:2, nama:"Pendidikan", icon:"📚"},
+            {id:3, nama:"Kependudukan", icon:"👨‍👩‍👧‍👦"},
+            {id:4, nama:"Pertanian", icon:"🌾"},
+            {id:5, nama:"Ekonomi", icon:"💰"},
+            {id:6, nama:"Infrastruktur", icon:"🏗️"},
+            {id:7, nama:"Sosial", icon:"🤝"},
+            {id:8, nama:"Lingkungan", icon:"🌿"}
+        ];
+
+        const DATA = {
+            "Sumur": {populasi:45231, kesehatan:2, pendidikan:3.2, ekonomi:8.2},
+            "Cimanggu": {populasi:62341, kesehatan:3, pendidikan:4.1, ekonomi:9.7},
+            "Cibaliung": {populasi:38290, kesehatan:1, pendidikan:2.8, ekonomi:7.1},
+            "Cibitung": {populasi:35000, kesehatan:1, pendidikan:2.5, ekonomi:6.5},
+            "Cikeusik": {populasi:57213, kesehatan:2, pendidikan:3.5, ekonomi:8.9},
+            "Cigeulis": {populasi:34215, kesehatan:1, pendidikan:2.2, ekonomi:6.3},
+            "Panimbang": {populasi:48234, kesehatan:2, pendidikan:3.0, ekonomi:7.8},
+            "Sobang": {populasi:39387, kesehatan:1, pendidikan:2.5, ekonomi:6.7},
+            "Munjul": {populasi:32145, kesehatan:0, pendidikan:2.0, ekonomi:5.5},
+            "Angsana": {populasi:28234, kesehatan:0, pendidikan:1.8, ekonomi:4.9},
+            "Sindangresmi": {populasi:31234, kesehatan:1, pendidikan:2.3, ekonomi:6.1},
+            "Picung": {populasi:38234, kesehatan:1, pendidikan:2.7, ekonomi:7.0},
+            "Bojong": {populasi:56234, kesehatan:3, pendidikan:4.5, ekonomi:10.3},
+            "Saketi": {populasi:45234, kesehatan:2, pendidikan:3.8, ekonomi:9.2},
+            "Cisata": {populasi:28000, kesehatan:1, pendidikan:2.2, ekonomi:5.8},
+            "Pagelaran": {populasi:35000, kesehatan:1, pendidikan:2.4, ekonomi:6.2},
+            "Patia": {populasi:31234, kesehatan:1, pendidikan:2.3, ekonomi:6.0},
+            "Sukaresmi": {populasi:27000, kesehatan:1, pendidikan:2.0, ekonomi:5.5},
+            "Labuan": {populasi:62234, kesehatan:3, pendidikan:4.0, ekonomi:9.5},
+            "Carita": {populasi:35051, kesehatan:1, pendidikan:2.6, ekonomi:6.8},
+            "Jiput": {populasi:33234, kesehatan:1, pendidikan:2.6, ekonomi:6.9},
+            "Cikedal": {populasi:30000, kesehatan:1, pendidikan:2.3, ekonomi:6.0},
+            "Menes": {populasi:54234, kesehatan:3, pendidikan:4.2, ekonomi:9.9},
+            "Pulosari": {populasi:27234, kesehatan:0, pendidikan:1.7, ekonomi:4.5},
+            "Mandalawangi": {populasi:48234, kesehatan:2, pendidikan:3.1, ekonomi:7.6},
+            "Cimanuk": {populasi:35234, kesehatan:1, pendidikan:2.8, ekonomi:7.3},
+            "Cipeucang": {populasi:31234, kesehatan:1, pendidikan:2.4, ekonomi:6.2},
+            "Banjar": {populasi:35000, kesehatan:1, pendidikan:2.5, ekonomi:6.5},
+            "Kaduhejo": {populasi:36234, kesehatan:1, pendidikan:2.9, ekonomi:7.2},
+            "Mekarjaya": {populasi:28234, kesehatan:1, pendidikan:2.1, ekonomi:5.8},
+            "Pandeglang": {populasi:78234, kesehatan:4, pendidikan:4.8, ekonomi:11.2},
+            "Majasari": {populasi:45000, kesehatan:2, pendidikan:3.5, ekonomi:8.0},
+            "Cadasari": {populasi:52234, kesehatan:2, pendidikan:3.7, ekonomi:8.8},
+            "Karang Tanjung": {populasi:28234, kesehatan:0, pendidikan:2.0, ekonomi:5.2},
+            "Koroncong": {populasi:25234, kesehatan:0, pendidikan:1.6, ekonomi:4.2}
+        };
+
+        let historyData = [];
+
+        // ===== SPLASH =====
+        setTimeout(() => {
+            document.getElementById('splash').classList.add('hidden');
+        }, 1500);
+
+        // ===== SWITCH TAB =====
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.nav-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
+        }
+
+        // ===== DROPDOWN =====
+        function initDropdown() {
+            const select = document.getElementById('inputKecamatan');
+            KECAMATAN.forEach(k => {
+                const opt = document.createElement('option');
+                opt.value = k;
+                opt.textContent = k;
+                select.appendChild(opt);
+            });
+        }
+        initDropdown();
+
+        // ===== DASHBOARD =====
+        function updateDashboard() {
+            const totalData = Object.keys(DATA).length * 5;
+            document.getElementById('totalData').textContent = totalData;
+            document.getElementById('totalSektor').textCon
