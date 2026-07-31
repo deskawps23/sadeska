@@ -472,4 +472,137 @@
         function updateDashboard() {
             const totalData = Object.keys(DATA).length * 5;
             document.getElementById('totalData').textContent = totalData;
-            document.getElementById('totalSektor').textCon
+            document.getElementById('totalSektor').textContent = SEKTOR.length;
+            document.getElementById('totalKader').textContent = Math.floor(Math.random() * 50) + 10;
+            document.getElementById('totalDesa').textContent = 339;
+            document.getElementById('profileData').textContent = totalData;
+            document.getElementById('profileSektor').textContent = SEKTOR.length;
+            document.getElementById('profileKader').textContent = Math.floor(Math.random() * 50) + 10;
+        }
+        updateDashboard();
+
+        // ===== FEED =====
+        function generateFeed() {
+            const container = document.getElementById('updateFeed');
+            const updates = [
+                {sektor:'Kesehatan', desa:'Menes', nilai:3, kader:'Bu RT', waktu:'5 menit lalu'},
+                {sektor:'Pendidikan', desa:'Sumur', nilai:2.8, kader:'Pak RW', waktu:'15 menit lalu'},
+                {sektor:'Ekonomi', desa:'Labuan', nilai:9.5, kader:'Ibu PKK', waktu:'30 menit lalu'},
+                {sektor:'Pertanian', desa:'Cimanggu', nilai:82, kader:'Kelompok Tani', waktu:'1 jam lalu'},
+                {sektor:'Kesehatan', desa:'Pandeglang', nilai:4, kader:'Posyandu', waktu:'2 jam lalu'},
+            ];
+            container.innerHTML = updates.map(u => `
+                <div class="update-item">
+                    <div class="head">
+                        <span><span class="sektor-tag">${u.sektor}</span> <strong>${u.desa}</strong></span>
+                        <span>${u.waktu}</span>
+                    </div>
+                    <div>
+                        <span class="value">${u.nilai}</span>
+                        <span style="color:#8888AA;font-size:12px;"> oleh ${u.kader}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        generateFeed();
+
+        // ===== SEKTOR =====
+        function generateSektor() {
+            const container = document.getElementById('sektorGrid');
+            container.innerHTML = SEKTOR.map(s => `
+                <div class="sektor-item" onclick="selectSektor('${s.nama}')">
+                    <div class="icon">${s.icon}</div>
+                    <div class="name">${s.nama}</div>
+                    <div class="count">${Math.floor(Math.random() * 100) + 10} data</div>
+                </div>
+            `).join('');
+        }
+        generateSektor();
+
+        function selectSektor(nama) {
+            document.getElementById('inputSektor').value = nama.toLowerCase();
+            switchTab('update');
+            showNotif(`📊 Sektor ${nama} dipilih`);
+        }
+
+        // ===== SUBMIT =====
+        function submitUpdate() {
+            const sektor = document.getElementById('inputSektor').value;
+            const kecamatan = document.getElementById('inputKecamatan').value;
+            const desa = document.getElementById('inputDesa').value;
+            const nilai = document.getElementById('inputNilai').value;
+            const kader = document.getElementById('inputKader').value;
+            const status = document.getElementById('updateStatus');
+
+            if (!sektor || !kecamatan || !nilai) {
+                status.className = 'error';
+                status.style.display = 'block';
+                status.textContent = '⚠️ Isi semua field yang diperlukan!';
+                return;
+            }
+
+            historyData.push({
+                sektor, kecamatan, desa: desa || '-',
+                nilai, kader: kader || 'Kader Desa',
+                waktu: new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})
+            });
+
+            if (!DATA[kecamatan]) DATA[kecamatan] = {};
+            DATA[kecamatan][sektor] = parseFloat(nilai);
+
+            status.className = 'success';
+            status.style.display = 'block';
+            status.textContent = `✅ Data ${sektor} untuk ${kecamatan} berhasil! (${nilai})`;
+
+            document.getElementById('inputDesa').value = '';
+            document.getElementById('inputNilai').value = '';
+            document.getElementById('inputKader').value = '';
+
+            updateHistory();
+            updateDashboard();
+            generateFeed();
+            showNotif(`📊 Update ${sektor} dari ${kecamatan} berhasil!`);
+        }
+
+        // ===== HISTORY =====
+        function updateHistory() {
+            const container = document.getElementById('historyList');
+            if (historyData.length === 0) {
+                container.innerHTML = '<p style="color:#8888AA;font-size:13px;text-align:center;">Belum ada update</p>';
+                return;
+            }
+            container.innerHTML = historyData.slice().reverse().map(h => `
+                <div class="history-item">
+                    <div>
+                        <span style="font-weight:600;color:#6C63FF;">${h.sektor}</span>
+                        <span style="color:#8888AA;font-size:12px;">${h.kecamatan} ${h.desa !== '-' ? '- '+h.desa : ''}</span>
+                    </div>
+                    <div>
+                        <span style="font-weight:700;color:#6C63FF;">${h.nilai}</span>
+                        <span style="color:#8888AA;font-size:11px;">${h.waktu}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        updateHistory();
+
+        // ===== NOTIF =====
+        function showNotif(text) {
+            const el = document.getElementById('notif');
+            el.textContent = text;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 2000);
+        }
+
+        // ===== AUTO UPDATE TIME =====
+        setInterval(() => {
+            document.getElementById('updateTime').textContent = 'Update: ' + new Date().toLocaleTimeString('id-ID');
+        }, 5000);
+
+        console.log('🌏 Si DESKA Command Center siap!');
+        console.log('📊 35 Kecamatan • 326 Desa • 13 Kelurahan');
+        console.log('📧 deskawps@yahoo.co.id | 📱 0856-9527-2863');
+    </script>
+
+</body>
+</html>
