@@ -1,501 +1,96 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Si DESKA</title>
-    <!-- FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <style>
-        body { font-family: Arial; background: #0A0A1A; color: #fff; padding: 20px; max-width: 400px; margin: 0 auto; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #333; background: #1a1a2e; color: #fff; }
-        button { width: 100%; padding: 12px; background: #6C63FF; color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .error { color: #FF4444; background: rgba(255,68,68,0.1); padding: 10px; border-radius: 8px; margin-top: 10px; }
-        .success { color: #00FF88; background: rgba(0,255,136,0.1); padding: 10px; border-radius: 8px; margin-top: 10px; }
-        .card { background: rgba(255,255,255,0.05); padding: 16px; border-radius: 12px; margin: 10px 0; }
-        .hidden { display: none; }
-        .badge { background: #6C63FF; padding: 2px 10px; border-radius: 20px; font-size: 10px; }
-        .nav { display: flex; gap: 10px; margin: 10px 0; }
-        .nav button { flex: 1; padding: 8px; background: transparent; border: 1px solid #333; color: #888; }
-        .nav button.active { border-color: #6C63FF; color: #6C63FF; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SA DESKA - Data RT/RW Kabupaten Pandeglang</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h1>🌏 Si DESKA</h1>
-        <div>
-            <span class="badge">● LIVE</span>
-            <button id="authBtn" onclick="showLogin()" style="width:auto;padding:4px 12px;background:#6C63FF;border:none;border-radius:20px;color:#fff;font-size:12px;">🔓 Masuk</button>
-            <span id="userBadge" class="hidden" style="font-size:12px;color:#00FF88;">👤 <span id="userName"></span></span>
-        </div>
+  <!-- KOTAK / MODAL LOGIN -->
+  <div id="login-section" style="max-width: 400px; margin: 20px auto; padding: 20px; background: #1a1a2e; border-radius: 8px; color: #fff;">
+    <h3>🔐 Login Si DESKA</h3>
+    <form id="login-form">
+      <div style="margin-bottom: 10px;">
+        <label for="email" style="display: block; margin-bottom: 5px;">Email:</label>
+        <input type="email" id="email" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label for="password" style="display: block; margin-bottom: 5px;">Password:</label>
+        <input type="password" id="password" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+      </div>
+      <button type="submit" style="width: 100%; padding: 10px; background: #4f46e5; color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Masuk</button>
+    </form>
+  </div>
+
+  <!-- NAVIGASI UTAMA -->
+  <div class="nav" style="margin-top: 20px; text-align: center;">
+    <button class="active" onclick="showTab('dashboard')">📊 Dashboard</button>
+    <button onclick="showTab('input')">📝 Input Data</button>
+    <button onclick="showTab('profile')">👤 Profil</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard" class="tab-content" style="padding: 15px;">
+    <h3>📊 Dashboard</h3>
+    <div id="feed">Belum ada data. Ajak teman-teman mengisi! 🚀</div>
+  </div>
+
+  <!-- INPUT DATA -->
+  <div id="tab-input" class="tab-content hidden" style="padding: 15px;">
+    <h3>📝 Input Data</h3>
+    <p style="font-size: 12px; color: #888;">Pilih sektor dan wilayah Anda di bawah ini:</p>
+    <div class="card" style="background: #1e1e2f; padding: 15px; border-radius: 8px; color: #fff;">
+      <label>Sektor</label>
+      <select id="inputSektor" style="width: 100%; padding: 8px; margin-bottom: 10px;"></select>
+      
+      <label>Kecamatan</label>
+      <select id="inputKecamatan" style="width: 100%; padding: 8px; margin-bottom: 10px;"></select>
+      
+      <label>Desa</label>
+      <input type="text" id="inputDesa" placeholder="Nama Desa" style="width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box;">
+      
+      <label>Nilai</label>
+      <input type="number" id="inputNilai" placeholder="Angka / Nilai" style="width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box;">
+      
+      <label>Nama Pelapor</label>
+      <input type="text" id="inputPelapor" placeholder="Nama Anda" style="width: 100%; padding: 8px; margin-bottom: 15px; box-sizing: border-box;">
+      
+      <button onclick="submitData()" style="width: 100%; padding: 10px; background: #10b981; color: #white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Kirim Data</button>
+      <div id="statusMsg" style="margin-top: 10px;"></div>
     </div>
+  </div>
 
-    <div class="card">
-        <div>📍 35 Kecamatan • 326 Desa • 13 Kelurahan • 48 Sektor</div>
+  <!-- PROFIL -->
+  <div id="tab-profile" class="tab-content hidden" style="padding: 15px; color: #fff;">
+    <h3>👤 Profil</h3>
+    <div class="card" style="background: #1e1e2f; padding: 15px; border-radius: 8px;">
+      <p>🌐 Si DESKA</p>
+      <p>📊 48 Sektor • 35 Kecamatan</p>
+      <p>👥 WPS - Warga Pandeglang Sejahtera</p>
     </div>
+  </div>
 
-    <div id="stats" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div class="card"><strong id="totalData">0</strong><br><small>Total Data</small></div>
-        <div class="card"><strong>48</strong><br><small>Sektor</small></div>
-        <div class="card"><strong id="totalHealth">0</strong><br><small>Kesehatan</small></div>
-        <div class="card"><strong>339</strong><br><small>Desa/Kel</small></div>
-    </div>
+  <!-- SDK FIREBASE (COMPAT) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-    <div class="nav">
-        <button class="active" onclick="showTab('dashboard')">📊 Dashboard</button>
-        <button onclick="showTab('input')">📝 Input</button>
-        <button onclick="showTab('profile')">👤 Profil</button>
-    </div>
+  <!-- SCRIPT UTAMA ANDA -->
+  <script src="script.js"></script>
 
-    <!-- DASHBOARD -->
-    <div id="tab-dashboard">
-        <h3>📊 Dashboard</h3>
-        <div id="feed">Belum ada data. Ajak teman-teman mengisi! 🚀</div>
-    </div>
-
-    <!-- INPUT -->
-    <div id="tab-input" class="hidden">
-        <h3>📝 Input Data</h3>
-        <p style="font-size:12px;color:#888;">Pilih sektor, isi data.</p>
-        <div class="card">
-            <label>Sektor</label>
-            <select id="inputSektor"></select>
-            <label>Kecamatan</label>
-            <select id="inputKecamatan"></select>
-            <label>Desa</label>
-            <input type="text" id="inputDesa" placeholder="Nama desa">
-            <label>Nilai</label>
-            <input type="number" id="inputNilai" placeholder="Jumlah">
-            <label>Nama Pelapor</label>
-            <input type="text" id="inputPelapor" placeholder="Nama Anda">
-            <button onclick="submitData()">📨 Kirim Data</button>
-            <div id="statusMsg"></div>
-        </div>
-    </div>
-
-    <!-- PROFILE -->
-    <div id="tab-profile" class="hidden">
-        <h3>👤 Profil</h3>
-        <div class="card">
-            <p>🌏 Si DESKA</p>
-            <p>📊 48 Sektor • 35 Kecamatan</p>
-            <p>👥 WPS - Warga Pandeglang Sejahtera</p>
-        </div>
-    </div>
-
-    <!-- AUTH MODAL -->
-    <div id="authModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);padding:20px;z-index:999;">
-        <div style="background:#0A0A1A;border:1px solid #333;border-radius:16px;padding:20px;max-width:400px;margin:auto;margin-top:50px;">
-            <h2 id="authTitle">🔓 Login</h2>
-            <div id="loginForm">
-                <input type="email" id="loginEmail" placeholder="Email">
-                <input type="password" id="loginPassword" placeholder="Password">
-                <button onclick="login()">🔓 Masuk</button>
-                <p style="font-size:12px;color:#888;text-align:center;">Belum punya akun? <a href="#" onclick="toggleForm('register')" style="color:#6C63FF;">Daftar</a></p>
-            </div>
-            <div id="registerForm" style="display:none;">
-                <input type="text" id="regName" placeholder="Nama Lengkap">
-                <input type="email" id="regEmail" placeholder="Email">
-                <input type="password" id="regPassword" placeholder="Password (min 6)">
-                <input type="password" id="regConfirm" placeholder="Konfirmasi Password">
-                <select id="regRole">
-                    <option value="kader">Kader Desa</option>
-                    <option value="warga">Warga</option>
-                </select>
-                <select id="regKecamatan"></select>
-                <button onclick="register()">✅ Daftar</button>
-                <p style="font-size:12px;color:#888;text-align:center;">Sudah punya akun? <a href="#" onclick="toggleForm('login')" style="color:#6C63FF;">Masuk</a></p>
-            </div>
-            <div id="authStatus"></div>
-            <button onclick="closeAuth()" style="margin-top:10px;background:#333;">Tutup</button>
-        </div>
-    </div>
-
-    <script>
-        // ============================================================
-        // 🔥 FIREBASE CONFIG - INI YANG PASTI BENAR
-        // ============================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyAHGLNvTubgL4LYZuZL3I4QwqUR6NBNfqQ",
-            authDomain: "si-deska-wps.firebaseapp.com",
-            databaseURL: "https://si-deska-wps-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "si-deska-wps",
-            storageBucket: "si-deska-wps.firebasestorage.googleapis.com",
-            messagingSenderId: "595163960871",
-            appId: "1:595163960871:web:40a884615f28556ed6e0e8b3"
-        };
-
-        // ============================================================
-        // 🚀 INIT FIREBASE
-        // ============================================================
-        firebase.initializeApp(firebaseConfig);
-        var auth = firebase.auth();
-        var db = firebase.database();
-
-        // ============================================================
-        // 📊 DATA
-        // ============================================================
-        var SEKTOR = [
-            {id:1, nama:"Kependudukan", icon:"👨‍👩‍👧‍👦"},
-            {id:2, nama:"Pertanian", icon:"🌾"},
-            {id:3, nama:"Perdagangan", icon:"🛒"},
-            {id:4, nama:"Perindustrian", icon:"🏭"},
-            {id:5, nama:"Pariwisata", icon:"🏖️"},
-            {id:6, nama:"Kesehatan", icon:"🏥"},
-            {id:7, nama:"Pendidikan", icon:"📚"},
-            {id:8, nama:"Tenaga Kerja", icon:"👷"},
-            {id:9, nama:"Lingkungan", icon:"🌿"},
-            {id:10, nama:"Energi", icon:"⚡"},
-            {id:11, nama:"Transportasi", icon:"🚗"},
-            {id:12, nama:"Perumahan", icon:"🏠"},
-            {id:13, nama:"Keuangan", icon:"💰"},
-            {id:14, nama:"Sosial", icon:"🤝"},
-            {id:15, nama:"Agama", icon:"🕌"},
-            {id:16, nama:"Komunikasi", icon:"📱"},
-            {id:17, nama:"Investasi", icon:"📈"},
-            {id:18, nama:"Pertahanan", icon:"🛡️"},
-            {id:19, nama:"Hukum & HAM", icon:"⚖️"},
-            {id:20, nama:"Dalam Negeri", icon:"🏛️"},
-            {id:21, nama:"PUPR", icon:"🏗️"},
-            {id:22, nama:"Kelautan", icon:"🐟"},
-            {id:23, nama:"Koperasi", icon:"🤝"},
-            {id:24, nama:"Perencanaan", icon:"📋"},
-            {id:25, nama:"Ekonomi Kreatif", icon:"🎨"},
-            {id:26, nama:"Perempuan & Anak", icon:"👩‍👧"},
-            {id:27, nama:"Pemuda & Olahraga", icon:"⚽"},
-            {id:28, nama:"Perpustakaan", icon:"📖"},
-            {id:29, nama:"Penelitian", icon:"🔬"},
-            {id:30, nama:"Ketahanan Pangan", icon:"🍚"},
-            {id:31, nama:"Peternakan", icon:"🐄"},
-            {id:32, nama:"Hortikultura", icon:"🌺"},
-            {id:33, nama:"Perkebunan", icon:"🌴"},
-            {id:34, nama:"Tanaman Pangan", icon:"🌽"},
-            {id:35, nama:"Perikanan Darat", icon:"🎣"},
-            {id:36, nama:"Perikanan Laut", icon:"🐠"},
-            {id:37, nama:"Perikanan Budidaya", icon:"🐟"},
-            {id:38, nama:"Perikanan Tangkap", icon:"⛵"},
-            {id:39, nama:"Desa & Transmigrasi", icon:"🏘️"},
-            {id:40, nama:"Perhubungan Darat", icon:"🚌"},
-            {id:41, nama:"Perhubungan Laut", icon:"🚢"},
-            {id:42, nama:"Perhubungan Udara", icon:"✈️"},
-            {id:43, nama:"Energi Terbarukan", icon:"☀️"},
-            {id:44, nama:"Pekerjaan Umum", icon:"🔧"},
-            {id:45, nama:"Pangan Lokal", icon:"🍲"},
-            {id:46, nama:"Pengairan", icon:"💧"},
-            {id:47, nama:"Kehutanan", icon:"🌳"},
-            {id:48, nama:"Pertambangan", icon:"⛏️"}
-        ];
-
-        var KECAMATAN = ["Sumur","Cimanggu","Cibaliung","Cibitung","Cikeusik","Cigeulis","Panimbang","Sobang","Munjul","Angsana","Sindangresmi","Picung","Bojong","Saketi","Cisata","Pagelaran","Patia","Sukaresmi","Labuan","Carita","Jiput","Cikedal","Menes","Pulosari","Mandalawangi","Cimanuk","Cipeucang","Banjar","Kaduhejo","Mekarjaya","Pandeglang","Majasari","Cadasari","Karang Tanjung","Koroncong"];
-
-        var allData = [];
-        var currentUser = null;
-
-        // ============================================================
-        // 🔐 AUTH
-        // ============================================================
-        function showLogin() { document.getElementById('authModal').style.display = 'block'; }
-        function closeAuth() { document.getElementById('authModal').style.display = 'none'; }
-        function toggleForm(mode) {
-            if (mode === 'login') {
-                document.getElementById('loginForm').style.display = 'block';
-                document.getElementById('registerForm').style.display = 'none';
-                document.getElementById('authTitle').textContent = '🔓 Login';
-            } else {
-                document.getElementById('loginForm').style.display = 'none';
-                document.getElementById('registerForm').style.display = 'block';
-                document.getElementById('authTitle').textContent = '📝 Daftar Akun';
-            }
-            document.getElementById('authStatus').textContent = '';
-            document.getElementById('authStatus').className = '';
-        }
-
-        function register() {
-            var name = document.getElementById('regName').value;
-            var email = document.getElementById('regEmail').value;
-            var pass = document.getElementById('regPassword').value;
-            var confirm = document.getElementById('regConfirm').value;
-            var role = document.getElementById('regRole').value;
-            var kec = document.getElementById('regKecamatan').value;
-            var status = document.getElementById('authStatus');
-
-            if (!name || !email || !pass || !kec) {
-                status.textContent = '⚠️ Isi semua field!';
-                status.className = 'error';
-                return;
-            }
-            if (pass.length < 6) {
-                status.textContent = '⚠️ Password min 6 karakter!';
-                status.className = 'error';
-                return;
-            }
-            if (pass !== confirm) {
-                status.textContent = '⚠️ Password tidak sama!';
-                status.className = 'error';
-                return;
-            }
-
-            status.textContent = '⏳ Mendaftar...';
-            status.className = '';
-
-            auth.createUserWithEmailAndPassword(email, pass)
-                .then(function(userCred) {
-                    var user = userCred.user;
-                    return db.ref('users/' + user.uid).set({
-                        uid: user.uid,
-                        nama: name,
-                        email: email,
-                        role: role,
-                        kecamatan: kec,
-                        createdAt: new Date().toISOString()
-                    });
-                })
-                .then(function() {
-                    status.textContent = '✅ Berhasil! Silakan login.';
-                    status.className = 'success';
-                    toggleForm('login');
-                })
-                .catch(function(err) {
-                    status.textContent = '❌ ' + err.message;
-                    status.className = 'error';
-                });
-        }
-
-        function login() {
-            var email = document.getElementById('loginEmail').value;
-            var pass = document.getElementById('loginPassword').value;
-            var status = document.getElementById('authStatus');
-
-            if (!email || !pass) {
-                status.textContent = '⚠️ Isi email dan password!';
-                status.className = 'error';
-                return;
-            }
-
-            status.textContent = '⏳ Login...';
-            status.className = '';
-
-            auth.signInWithEmailAndPassword(email, pass)
-                .then(function(userCred) {
-                    var user = userCred.user;
-                    return db.ref('users/' + user.uid).once('value');
-                })
-                .then(function(snapshot) {
-                    if (snapshot.exists()) {
-                        currentUser = snapshot.val();
-                        updateUI();
-                        closeAuth();
-                        alert('👋 Selamat datang, ' + currentUser.nama + '!');
-                        loadData();
-                    }
-                })
-                .catch(function(err) {
-                    status.textContent = '❌ ' + err.message;
-                    status.className = 'error';
-                });
-        }
-
-        function logout() {
-            auth.signOut().then(function() {
-                currentUser = null;
-                updateUI();
-                alert('👋 Logout berhasil');
-            });
-        }
-
-        function updateUI() {
-            var badge = document.getElementById('userBadge');
-            var btn = document.getElementById('authBtn');
-            if (currentUser) {
-                badge.classList.remove('hidden');
-                document.getElementById('userName').textContent = currentUser.nama;
-                btn.textContent = '🚪 Logout';
-                btn.onclick = logout;
-            } else {
-                badge.classList.add('hidden');
-                btn.textContent = '🔓 Masuk';
-                btn.onclick = showLogin;
-            }
-        }
-
-        // ============================================================
-        // 📥 SUBMIT DATA
-        // ============================================================
-        function submitData() {
-            var status = document.getElementById('statusMsg');
-            if (!currentUser) {
-                status.textContent = '⚠️ Login dulu!';
-                status.className = 'error';
-                return;
-            }
-
-            var sektor = parseInt(document.getElementById('inputSektor').value);
-            var kecamatan = document.getElementById('inputKecamatan').value;
-            var desa = document.getElementById('inputDesa').value;
-            var nilai = parseFloat(document.getElementById('inputNilai').value);
-            var pelapor = document.getElementById('inputPelapor').value || currentUser.nama;
-
-            if (!sektor || !kecamatan || !desa || !nilai) {
-                status.textContent = '⚠️ Isi semua field!';
-                status.className = 'error';
-                return;
-            }
-
-            var data = {
-                sektor: sektor,
-                kecamatan: kecamatan,
-                desa: desa,
-                nilai: nilai,
-                pelapor: pelapor,
-                inputBy: currentUser.uid,
-                inputByName: currentUser.nama,
-                createdAt: new Date().toISOString()
-            };
-
-            status.textContent = '⏳ Menyimpan...';
-            status.className = '';
-
-            db.ref('data/' + sektor).push(data)
-                .then(function() {
-                    status.textContent = '✅ Data berhasil disimpan!';
-                    status.className = 'success';
-                    document.getElementById('inputDesa').value = '';
-                    document.getElementById('inputNilai').value = '';
-                    loadData();
-                })
-                .catch(function(err) {
-                    status.textContent = '❌ ' + err.message;
-                    status.className = 'error';
-                });
-        }
-
-        // ============================================================
-        // 📊 LOAD & DISPLAY
-        // ============================================================
-        function loadData() {
-            var promises = [];
-            for (var i = 1; i <= 48; i++) {
-                promises.push(
-                    db.ref('data/' + i).orderByChild('createdAt').limitToLast(50).once('value')
-                    .then(function(snapshot) {
-                        var data = [];
-                        snapshot.forEach(function(child) {
-                            var d = child.val();
-                            d.docId = child.key;
-                            data.push(d);
-                        });
-                        return data;
-                    })
-                    .catch(function() { return []; })
-                );
-            }
-
-            Promise.all(promises).then(function(results) {
-                allData = [];
-                for (var j = 0; j < results.length; j++) {
-                    for (var k = 0; k < results[j].length; k++) {
-                        allData.push(results[j][k]);
-                    }
-                }
-                updateDashboard();
-            });
-        }
-
-        function updateDashboard() {
-            document.getElementById('totalData').textContent = allData.length;
-            var healthCount = 0;
-            for (var i = 0; i < allData.length; i++) {
-                if (allData[i].sektor === 6) healthCount++;
-            }
-            document.getElementById('totalHealth').textContent = healthCount;
-
-            var feed = document.getElementById('feed');
-            if (allData.length === 0) {
-                feed.innerHTML = 'Belum ada data. Ajak teman-teman mengisi! 🚀';
-                return;
-            }
-
-            var html = '';
-            var recent = allData.slice(0, 5);
-            for (var j = 0; j < recent.length; j++) {
-                var d = recent[j];
-                var sektorNama = '';
-                for (var k = 0; k < SEKTOR.length; k++) {
-                    if (SEKTOR[k].id === d.sektor) { sektorNama = SEKTOR[k].nama; break; }
-                }
-                html += '<div style="background:rgba(255,255,255,0.04);padding:10px;border-radius:8px;margin-bottom:6px;">';
-                html += '<div style="display:flex;justify-content:space-between;font-size:12px;color:#888;">';
-                html += '<span><strong style="color:#6C63FF;">' + sektorNama + '</strong> - ' + d.kecamatan + '</span>';
-                html += '<span>' + (d.createdAt ? new Date(d.createdAt).toLocaleTimeString() : 'baru') + '</span>';
-                html += '</div>';
-                html += '<div style="font-size:16px;font-weight:700;color:#6C63FF;">' + d.nilai + '</div>';
-                html += '<div style="font-size:10px;color:#888;">📝 ' + (d.inputByName || d.pelapor || 'Warga') + '</div>';
-                html += '</div>';
-            }
-            feed.innerHTML = html;
-        }
-
-        // ============================================================
-        // 🔄 NAVIGATION
-        // ============================================================
-        function showTab(tab) {
-            document.querySelectorAll('.nav button').forEach(function(b) { b.classList.remove('active'); });
-            document.querySelector('.nav button[onclick="showTab(\'' + tab + '\')"]').classList.add('active');
-            document.getElementById('tab-dashboard').classList.add('hidden');
-            document.getElementById('tab-input').classList.add('hidden');
-            document.getElementById('tab-profile').classList.add('hidden');
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-        }
-
-        // ============================================================
-        // 📝 INIT
-        // ============================================================
-        function init() {
-            // Sektor dropdown
-            var sel = document.getElementById('inputSektor');
-            for (var i = 0; i < SEKTOR.length; i++) {
-                var opt = document.createElement('option');
-                opt.value = SEKTOR[i].id;
-                opt.textContent = SEKTOR[i].id + '. ' + SEKTOR[i].nama;
-                sel.appendChild(opt);
-            }
-
-            // Kecamatan dropdown
-            var kecSel = document.getElementById('inputKecamatan');
-            var regKec = document.getElementById('regKecamatan');
-            for (var j = 0; j < KECAMATAN.length; j++) {
-                var opt = document.createElement('option');
-                opt.value = KECAMATAN[j];
-                opt.textContent = KECAMATAN[j];
-                kecSel.appendChild(opt);
-                regKec.appendChild(opt.cloneNode(true));
-            }
-
-            // Auth state
-            auth.onAuthStateChanged(function(user) {
-                if (user) {
-                    db.ref('users/' + user.uid).once('value').then(function(snapshot) {
-                        if (snapshot.exists()) {
-                            currentUser = snapshot.val();
-                            updateUI();
-                            loadData();
-                        }
-                    });
-                } else {
-                    currentUser = null;
-                    updateUI();
-                }
-            });
-
-            console.log('🌏 Si DESKA siap!');
-            console.log('🔥 Firebase Realtime Database connected!');
-        }
-
-        document.addEventListener('DOMContentLoaded', init);
-    </script>
-
+  <script>
+    // Fungsi sederhana untuk pindah tab (jika belum ada di script.js)
+    function showTab(tabName) {
+      document.getElementById('tab-dashboard').classList.add('hidden');
+      document.getElementById('tab-input').classList.add('hidden');
+      document.getElementById('tab-profile').classList.add('hidden');
+      
+      if(tabName === 'dashboard') document.getElementById('tab-dashboard').classList.remove('hidden');
+      if(tabName === 'input') document.getElementById('tab-input').classList.remove('hidden');
+      if(tabName === 'profile') document.getElementById('tab-profile').classList.remove('hidden');
+    }
+  </script>
 </body>
 </html>
