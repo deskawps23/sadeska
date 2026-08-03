@@ -8,64 +8,59 @@
 </head>
 <body>
 
-  <!-- KOTAK / MODAL LOGIN -->
-  <div id="login-section" style="max-width: 400px; margin: 20px auto; padding: 20px; background: #1a1a2e; border-radius: 8px; color: #fff;">
+  <!-- AREA LOGIN (Menyesuaikan dengan style.css Anda) -->
+  <div id="login-container" style="padding: 20px; max-width: 400px; margin: auto;">
     <h3>🔐 Login Si DESKA</h3>
     <form id="login-form">
-      <div style="margin-bottom: 10px;">
-        <label for="email" style="display: block; margin-bottom: 5px;">Email:</label>
-        <input type="email" id="email" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+      <div>
+        <label>Email:</label><br>
+        <input type="email" id="email" required style="width: 100%; padding: 8px; margin-bottom: 10px;">
       </div>
-      <div style="margin-bottom: 15px;">
-        <label for="password" style="display: block; margin-bottom: 5px;">Password:</label>
-        <input type="password" id="password" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+      <div>
+        <label>Password:</label><br>
+        <input type="password" id="password" required style="width: 100%; padding: 8px; margin-bottom: 10px;">
       </div>
-      <button type="submit" style="width: 100%; padding: 10px; background: #4f46e5; color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Masuk</button>
+      <button type="submit" style="width: 100%; padding: 10px;">Masuk</button>
     </form>
   </div>
 
-  <!-- NAVIGASI UTAMA -->
-  <div class="nav" style="margin-top: 20px; text-align: center;">
+  <!-- STRUKTUR ASLI HALAMAN ANDA -->
+  <div class="nav">
     <button class="active" onclick="showTab('dashboard')">📊 Dashboard</button>
-    <button onclick="showTab('input')">📝 Input Data</button>
+    <button onclick="showTab('input')">📝 Input</button>
     <button onclick="showTab('profile')">👤 Profil</button>
   </div>
 
   <!-- DASHBOARD -->
-  <div id="tab-dashboard" class="tab-content" style="padding: 15px;">
+  <div id="tab-dashboard">
     <h3>📊 Dashboard</h3>
     <div id="feed">Belum ada data. Ajak teman-teman mengisi! 🚀</div>
   </div>
 
-  <!-- INPUT DATA -->
-  <div id="tab-input" class="tab-content hidden" style="padding: 15px;">
+  <!-- INPUT -->
+  <div id="tab-input" class="hidden">
     <h3>📝 Input Data</h3>
-    <p style="font-size: 12px; color: #888;">Pilih sektor dan wilayah Anda di bawah ini:</p>
-    <div class="card" style="background: #1e1e2f; padding: 15px; border-radius: 8px; color: #fff;">
+    <p style="font-size:12px;color:#888;">Pilih sektor dan wilayah Anda</p>
+    <div class="card">
       <label>Sektor</label>
-      <select id="inputSektor" style="width: 100%; padding: 8px; margin-bottom: 10px;"></select>
-      
+      <select id="inputSektor"></select>
       <label>Kecamatan</label>
-      <select id="inputKecamatan" style="width: 100%; padding: 8px; margin-bottom: 10px;"></select>
-      
+      <select id="inputKecamatan"></select>
       <label>Desa</label>
-      <input type="text" id="inputDesa" placeholder="Nama Desa" style="width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box;">
-      
+      <input type="text" id="inputDesa" placeholder="Nama Desa">
       <label>Nilai</label>
-      <input type="number" id="inputNilai" placeholder="Angka / Nilai" style="width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box;">
-      
+      <input type="number" id="inputNilai" placeholder="Nilai">
       <label>Nama Pelapor</label>
-      <input type="text" id="inputPelapor" placeholder="Nama Anda" style="width: 100%; padding: 8px; margin-bottom: 15px; box-sizing: border-box;">
-      
-      <button onclick="submitData()" style="width: 100%; padding: 10px; background: #10b981; color: #white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Kirim Data</button>
-      <div id="statusMsg" style="margin-top: 10px;"></div>
+      <input type="text" id="inputPelapor" placeholder="Nama Pelapor">
+      <button onclick="submitData()">📥 Kirim Data</button>
+      <div id="statusMsg"></div>
     </div>
   </div>
 
-  <!-- PROFIL -->
-  <div id="tab-profile" class="tab-content hidden" style="padding: 15px; color: #fff;">
+  <!-- PROFILE -->
+  <div id="tab-profile" class="hidden">
     <h3>👤 Profil</h3>
-    <div class="card" style="background: #1e1e2f; padding: 15px; border-radius: 8px;">
+    <div class="card">
       <p>🌐 Si DESKA</p>
       <p>📊 48 Sektor • 35 Kecamatan</p>
       <p>👥 WPS - Warga Pandeglang Sejahtera</p>
@@ -77,20 +72,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-  <!-- SCRIPT UTAMA ANDA -->
+  <!-- SCRIPT UTAMA -->
   <script src="script.js"></script>
-
-  <script>
-    // Fungsi sederhana untuk pindah tab (jika belum ada di script.js)
-    function showTab(tabName) {
-      document.getElementById('tab-dashboard').classList.add('hidden');
-      document.getElementById('tab-input').classList.add('hidden');
-      document.getElementById('tab-profile').classList.add('hidden');
-      
-      if(tabName === 'dashboard') document.getElementById('tab-dashboard').classList.remove('hidden');
-      if(tabName === 'input') document.getElementById('tab-input').classList.remove('hidden');
-      if(tabName === 'profile') document.getElementById('tab-profile').classList.remove('hidden');
-    }
-  </script>
 </body>
-</html>
+        </html>
+        
