@@ -1,11 +1,11 @@
 const firebaseConfig = {
-  apiKey: "SALIN_API_KEY_ASLI_DARI_FIREBASE_DISINI",
+  apiKey: "AIzaSyAHGLNVtubgL4lYZuZL3I4QwqUR6NBNfqQ",
   authDomain: "si-deska-wps.firebaseapp.com",
   databaseURL: "https://si-deska-wps-default-rtdb.firebaseio.com",
   projectId: "si-deska-wps",
   storageBucket: "si-deska-wps.appspot.com",
   messagingSenderId: "595163960871",
-  appId: "SALIN_APP_ID_ASLI_DARI_FIREBASE_DISINI"
+  appId: "1:595163960871:web:40a884615f28556ed6e002"
 };
 
 // Inisialisasi Firebase & Auth (Sangat penting agar fungsi login jalan)
